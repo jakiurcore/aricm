@@ -53,6 +53,9 @@ return [
         'need_subjects' => 'Add subjects in the “Subjects & marks” tab before the routine.',
     ],
     'admit' => [
+        'only_eligible' => 'Eligible students only',
+        'print' => 'Print admit cards',
+
         'release' => 'Release admit cards',
         'release_help' => 'When on, eligible students can download their admit card from the portal.',
         'all_sections' => 'All sections',

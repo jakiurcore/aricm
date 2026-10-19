@@ -2,6 +2,7 @@
 
 use Illuminate\Routing\Router;
 use Modules\Accounts\Http\Middleware\EnsureAdminAccess;
+use Modules\Students\Http\Controllers\Api\IdCardController;
 use Modules\Students\Http\Controllers\Api\StudentBulkController;
 use Modules\Students\Http\Controllers\Api\StudentController;
 
@@ -10,6 +11,8 @@ $router->middleware(['auth', EnsureAdminAccess::class])->prefix('students')->nam
     // Fixed paths first, so they are not swallowed by the {student} wildcard.
     $router->get('export', [StudentBulkController::class, 'export'])->name('export');
     $router->get('template', [StudentBulkController::class, 'template'])->name('template');
+    $router->get('id-cards', [IdCardController::class, 'index'])->name('id-cards');
+    $router->get('{student}/id-card', [IdCardController::class, 'show'])->whereNumber('student')->name('id-card');
     $router->post('import', [StudentBulkController::class, 'import'])->name('import');
     $router->post('promote', [StudentBulkController::class, 'promote'])->name('promote');
 

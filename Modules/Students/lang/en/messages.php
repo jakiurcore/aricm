@@ -25,4 +25,5 @@ return [
         'no_session' => 'There is no current session.',
         'roll_taken' => 'Roll :roll is already taken.',
     ],
+    'id_card_needs_filter' => 'Choose a class or students for the ID cards.',
 ];

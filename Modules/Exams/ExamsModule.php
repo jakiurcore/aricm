@@ -8,6 +8,7 @@ use Laramod\Contracts\Module;
 use Laramod\Contracts\ProvidesApiRoutes;
 use Laramod\Contracts\ProvidesMigrations;
 use Laramod\Contracts\ProvidesTranslations;
+use Laramod\Contracts\ProvidesViews;
 use Laramod\Contracts\ProvidesViteEntries;
 use Modules\Core\Contracts\ProvidesPermissions;
 
@@ -16,7 +17,7 @@ use Modules\Core\Contracts\ProvidesPermissions;
  * admit card release/eligibility. Defines Contracts\ProvidesAdmitCardEligibility (Fees implements it).
  * Depends on Core, Accounts, Academic, Students.
  */
-class ExamsModule implements Module, ProvidesApiRoutes, ProvidesDashboardScripts, ProvidesMigrations, ProvidesPermissions, ProvidesTranslations, ProvidesViteEntries
+class ExamsModule implements Module, ProvidesApiRoutes, ProvidesDashboardScripts, ProvidesMigrations, ProvidesPermissions, ProvidesTranslations, ProvidesViews, ProvidesViteEntries
 {
     public function name(): string
     {
@@ -36,6 +37,11 @@ class ExamsModule implements Module, ProvidesApiRoutes, ProvidesDashboardScripts
     public function migrations(): array
     {
         return ['Database/Migrations'];
+    }
+
+    public function views(): string
+    {
+        return 'resources/views';
     }
 
     public function translations(): string

@@ -19,3 +19,11 @@ Settings (key/value), locale handling, Bangla helpers, shared Blade layouts, sha
 - Gate Core routes with `can:` strings, not Accounts classes.
 - laramod-admin chrome ("Sign out", "Page not found") is English and lives in vendor; the Dashboard menu labels are translated by the `core-chrome` registration in `resources/js/dashboard.tsx`.
 - The admin's design tokens (`--muted`, `--accent`) clash with shadcn's, so design tokens are `ink-muted` / `accent-red` in Tailwind.
+
+## PDFs and QR (Phase 5)
+- `Services\PdfService` wraps mPDF with Hind Siliguri (Bangla, OpenType layout on so conjuncts shape) and XB Riyaz (Arabic, bundled with mPDF). Fonts live in `resources/fonts`. **Do not swap in Noto Bengali or Amiri: mPDF 8.3 throws while parsing their tables** ("Undefined array key", "GPOS Lookup Type 5, Format 3 not supported").
+- mPDF supports a CSS 2-ish subset: build layouts with tables and `mm` units. Absolute positioning *inside* an absolutely positioned box drifts; use fixed-height tables for card interiors. Never use `preg_split('/\R/')` on Bangla without the `u` flag (byte 0x85 is part of "অ" and gets split).
+- Box model is content-box: `height` + padding + border must fit the page.
+- `Services\QrCodeService` makes SVG data URIs (no GD needed). `Support\SignedHash` (`{id}-{hmac}`) is the token used in `/verify/{type}/{hash}`; `Support\Branding::forPdf()` gives the letterhead data; `components/pdf/letterhead` is the shared header.
+- Controllers use `Http\Controllers\Concerns\ServesPdf`. Documents: ID cards (Students), admit cards (Exams), marksheet/tabulation/merit (Results), receipts (Fees).
+- Without GD, `ImageUploader` stores uploads untouched and mPDF skips images it cannot read (`showImageErrors` off); production hosts have GD.

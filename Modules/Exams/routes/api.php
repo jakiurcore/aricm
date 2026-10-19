@@ -3,6 +3,7 @@
 use Illuminate\Routing\Router;
 use Modules\Accounts\Http\Middleware\EnsureAdminAccess;
 use Modules\Exams\Http\Controllers\Api\AdmitCardController;
+use Modules\Exams\Http\Controllers\Api\AdmitCardPdfController;
 use Modules\Exams\Http\Controllers\Api\ExamController;
 use Modules\Exams\Http\Controllers\Api\ExamSetupController;
 
@@ -21,5 +22,6 @@ $router->middleware(['auth', EnsureAdminAccess::class])->prefix('exams')->name('
     $router->put('{exam}/classes/{class}/routine', [ExamSetupController::class, 'updateRoutine'])->name('setup.routine');
 
     $router->post('{exam}/admit-cards/release', [AdmitCardController::class, 'release'])->name('admit.release');
+    $router->get('{exam}/admit-cards/pdf', AdmitCardPdfController::class)->name('admit.pdf');
     $router->get('{exam}/admit-cards/roster', [AdmitCardController::class, 'roster'])->name('admit.roster');
 });

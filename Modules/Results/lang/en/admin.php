@@ -36,6 +36,10 @@ return [
         ],
     ],
     'preview' => [
+        'print_tabulation' => 'Tabulation sheet (PDF)',
+        'print_merit' => 'Merit list (PDF)',
+        'print_marksheets' => 'Marksheets (PDF)',
+
         'title' => 'Result preview',
         'tabulation' => 'Tabulation',
         'merit' => 'Merit list',
