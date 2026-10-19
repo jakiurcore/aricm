@@ -10,20 +10,31 @@ use Modules\Students\Http\Requests\StudentRequest;
 use Modules\Students\Http\Resources\StudentResource;
 use Modules\Students\Models\Student;
 use Modules\Students\Services\StudentDirectory;
+use Modules\Students\Services\StudentListBadgeCollector;
 use Modules\Students\Services\StudentPasswords;
 use Modules\Students\Services\StudentRegistrar;
 use Modules\Students\Services\StudentSummaryCollector;
 
 class StudentController
 {
-    public function index(Request $request, StudentDirectory $directory): AnonymousResourceCollection
+    public function index(Request $request, StudentDirectory $directory, StudentListBadgeCollector $badges): AnonymousResourceCollection
     {
         Gate::authorize('viewAny', Student::class);
 
         $students = $directory->query($request->only(['session_id', 'class_id', 'section_id', 'status', 'search']))
             ->with(['schoolClass', 'section'])
             ->orderBy('class_id')->orderByRaw('roll is null')->orderBy('roll')->orderBy('id')
-            ->paginate(20);
+            ->paginate(min(max($request->integer('per_page', 20), 1), 100));
+
+        $feeBadges = $badges->for($students->getCollection()->pluck('id')->all());
+        $gpas = $request->boolean('with_gpa') ? $badges->gpas($students->getCollection()->pluck('id')->all()) : null;
+        $students->getCollection()->each(function (Student $student) use ($feeBadges, $gpas): void {
+            $student->setAttribute('fee_badge', $feeBadges[$student->id] ?? null);
+
+            if ($gpas !== null) {
+                $student->setAttribute('latest_gpa', $gpas[$student->id] ?? null);
+            }
+        });
 
         return StudentResource::collection($students);
     }

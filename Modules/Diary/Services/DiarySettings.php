@@ -2,6 +2,7 @@
 
 namespace Modules\Diary\Services;
 
+use Carbon\CarbonInterface;
 use Modules\Core\Services\Settings;
 
 /**
@@ -54,6 +55,30 @@ class DiarySettings
     public function editWindowHours(): int
     {
         return max(0, (int) $this->get('edit_window_hours'));
+    }
+
+    /**
+     * Until when a teacher may still edit an entry published at the given time; null means "no limit".
+     */
+    public function editDeadline(CarbonInterface $publishedAt): ?CarbonInterface
+    {
+        return match ((string) $this->get('edit_window')) {
+            'none' => null,
+            'same' => $publishedAt->copy()->endOfDay(),
+            '2h' => $publishedAt->copy()->addHours(2),
+            'next9' => $publishedAt->copy()->addDay()->setTime(9, 0),
+            default => $publishedAt->copy()->addHours($this->editWindowHours()),
+        };
+    }
+
+    public function studentSeesFuture(): bool
+    {
+        return (bool) $this->get('student_sees_future');
+    }
+
+    public function maxAttachmentKb(): int
+    {
+        return max(1, (int) $this->get('max_attachment_mb')) * 1024;
     }
 
     public function backdateDays(): int

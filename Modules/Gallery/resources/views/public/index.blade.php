@@ -3,23 +3,26 @@
 @section('title', __('gallery::messages.title'))
 
 @section('content')
-    <div class="mx-auto max-w-page px-4 py-10">
-        <h1 class="mb-6 font-head text-3xl text-heading">{{ __('gallery::messages.title') }}</h1>
-        <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            @forelse ($albums as $album)
-                <a href="{{ route('gallery.public.show', $album) }}" class="group block overflow-hidden rounded-xl border border-line bg-surface no-underline shadow-sm hover:shadow-md">
-                    <div class="aspect-[4/3] overflow-hidden bg-surface-2">
-                        @if ($album->coverUrl())<img src="{{ $album->coverUrl() }}" alt="" loading="lazy" class="size-full object-cover transition group-hover:scale-105">@endif
-                    </div>
-                    <div class="p-4">
-                        <p class="font-head text-lg text-heading">{{ $album->title() }}</p>
-                        <p class="text-sm text-ink-muted">{{ bn_digits($album->photos_count) }} {{ __('gallery::messages.photos') }}@if ($album->album_date) · {{ bn_date($album->album_date) }}@endif</p>
-                    </div>
-                </a>
-            @empty
-                <p class="text-ink-muted sm:col-span-2 lg:col-span-3">{{ __('gallery::messages.none') }}</p>
-            @endforelse
-        </div>
-        <div class="mt-8">{{ $albums->links() }}</div>
+    @php($fallback = ['court', 'robe', 'abacus', 'ledge', 'tower', 'campus'])
+    <div style="max-width: 1240px; margin: 0 auto; padding: 40px 16px 0; display: grid; gap: 20px;">
+        <h1 class="pub-h1-sm">{{ __('gallery::messages.title') }}</h1>
+        @if ($albums->isEmpty())
+            <div style="padding: 40px 20px; border-radius: 20px; border: 2px dashed var(--line-strong); text-align: center; display: grid; gap: 6px;"><span style="font-size: 32px;">🖼</span><strong style="font-size: 18px;">{{ __('gallery::messages.none') }}</strong></div>
+        @else
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 16px;">
+                @foreach ($albums as $album)
+                    <a href="{{ route('gallery.public.show', $album) }}" style="display: block; border-radius: 20px; overflow: hidden; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); text-decoration: none; color: var(--ink);">
+                        <div style="aspect-ratio: 4 / 3; background: var(--surface-2); overflow: hidden;">
+                            <img src="{{ $album->coverUrl() ?: asset('images/site/'.$fallback[$loop->index % count($fallback)].'.jpg') }}" alt="" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                        </div>
+                        <div style="padding: 14px 16px; display: grid; gap: 2px;">
+                            <strong style="font-size: 17px; color: var(--ink);">{{ $album->title() }}</strong>
+                            <span style="font-size: 14px; color: var(--muted);">{{ bn_digits($album->photos_count) }} {{ __('gallery::messages.photos') }}@if ($album->album_date) · {{ bn_date($album->album_date) }}@endif →</span>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        @endif
+        <div>{{ $albums->links() }}</div>
     </div>
 @endsection

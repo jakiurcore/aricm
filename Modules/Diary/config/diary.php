@@ -8,6 +8,12 @@ return [
         'enabled' => true,
         // Published entries stay editable by their teacher for this long.
         'edit_window_hours' => 48,
+        // How the edit window ends: "hours" (the line above), "same" (23:59 of the publishing day), "2h", "next9" (09:00 the next day) or "none".
+        'edit_window' => 'hours',
+        // Whether students see entries dated in the future (teachers cannot write those today, so this only matters once they can).
+        'student_sees_future' => false,
+        // The largest single attachment, in MB.
+        'max_attachment_mb' => 5,
         // How many days back a teacher may write an entry for.
         'backdate_days' => 2,
         'max_attachments' => 5,

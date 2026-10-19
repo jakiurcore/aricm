@@ -37,4 +37,29 @@ class FeeSummary
 
         return $items;
     }
+
+    /**
+     * The fee pill of the admin student list: due for a student with an open invoice that has something owing, paid for the rest.
+     *
+     * @param  list<int>  $studentIds
+     * @return array<int, 'paid'|'due'>
+     */
+    public function listBadges(array $studentIds): array
+    {
+        $owing = FeeInvoice::query()
+            ->whereIn('student_id', $studentIds)
+            ->whereIn('status', array_map(fn (InvoiceStatus $status): string => $status->value, InvoiceStatus::open()))
+            ->where('due', '>', 0)
+            ->distinct()
+            ->pluck('student_id')
+            ->flip();
+
+        $badges = [];
+
+        foreach ($studentIds as $id) {
+            $badges[$id] = $owing->has($id) ? 'due' : 'paid';
+        }
+
+        return $badges;
+    }
 }

@@ -54,6 +54,31 @@ class TeacherAssignments
         return $assignment;
     }
 
+    /**
+     * The grid's "one teacher per cell": make this teacher the only one for the subject in the section, or none at all.
+     */
+    public function replaceSubjectTeacher(?Teacher $teacher, int $sessionId, int $classId, int $sectionId, int $subjectId): ?TeacherAssignment
+    {
+        $this->checkPlacement($classId, $sectionId);
+
+        TeacherAssignment::query()->where(['session_id' => $sessionId, 'section_id' => $sectionId, 'subject_id' => $subjectId, 'is_class_teacher' => false])
+            ->when($teacher, fn ($query) => $query->where('teacher_id', '!=', $teacher->id))->delete();
+
+        $assignment = $teacher ? $this->assignSubject($teacher, $sessionId, $classId, $sectionId, $subjectId) : null;
+        $this->scope->refresh();
+
+        return $assignment;
+    }
+
+    /**
+     * Empty the class-teacher slot of a section.
+     */
+    public function clearClassTeacher(int $sessionId, int $sectionId): void
+    {
+        TeacherAssignment::query()->where(['session_id' => $sessionId, 'section_id' => $sectionId, 'is_class_teacher' => true])->delete();
+        $this->scope->refresh();
+    }
+
     public function remove(TeacherAssignment $assignment): void
     {
         $assignment->delete();

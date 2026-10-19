@@ -71,6 +71,16 @@ class DailyDiarySummary
         return $sent;
     }
 
+    /**
+     * Remind every teacher who still owes an entry for the date (the monitor's "send everyone a reminder" button).
+     *
+     * @return int Messages the gateway accepted.
+     */
+    public function remindTeachers(CarbonInterface $date): int
+    {
+        return $this->calendar->isSchoolDay($date) ? $this->teachers($date) : 0;
+    }
+
     protected function teachers(CarbonInterface $date): int
     {
         $sent = 0;

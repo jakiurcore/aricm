@@ -14,15 +14,19 @@ export function usePaginated<T>(path: string, filters: Record<string, string | u
     const [rows, setRows] = useState<T[]>([]);
     const [meta, setMeta] = useState<PageMeta>();
     const [loading, setLoading] = useState(true);
+    const [failed, setFailed] = useState(false);
     const filterKey = JSON.stringify(filters);
 
     const load = useCallback(async () => {
         setLoading(true);
+        setFailed(false);
 
         try {
             const response = await api.get<PageResponse<T>>(path, { ...JSON.parse(filterKey), page });
             setRows(response.data);
             setMeta(response.meta);
+        } catch {
+            setFailed(true);
         } finally {
             setLoading(false);
         }
@@ -37,5 +41,5 @@ export function usePaginated<T>(path: string, filters: Record<string, string | u
         setPage(1);
     }, [filterKey]);
 
-    return { rows, meta, loading, page, setPage, reload: load };
+    return { rows, meta, loading, failed, page, setPage, reload: load };
 }

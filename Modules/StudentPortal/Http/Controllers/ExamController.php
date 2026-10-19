@@ -25,7 +25,7 @@ class ExamController
             ->map(fn (Exam $exam): array => ['exam' => $exam, 'routine' => $exams->routineFor($exam, $student->class_id)])
             ->filter(fn (array $row): bool => $row['routine']->isNotEmpty())->values();
 
-        return view('student-portal::pages.routine', ['rows' => $rows]);
+        return view('student-portal::pages.routine', ['rows' => $rows, 'student' => $student->loadMissing('schoolClass')]);
     }
 
     /**

@@ -22,7 +22,7 @@ use Spatie\Activitylog\Support\LogOptions;
  * Every change is logged, so edits after publishing leave a revision trail.
  */
 #[UseFactory(DiaryEntryFactory::class)]
-#[Fillable(['session_id', 'class_id', 'section_id', 'subject_id', 'teacher_id', 'entry_date', 'lesson', 'homework', 'note', 'homework_due_date', 'status', 'published_at', 'last_edited_at'])]
+#[Fillable(['session_id', 'class_id', 'section_id', 'subject_id', 'teacher_id', 'entry_date', 'lesson', 'next_lesson', 'homework', 'note', 'homework_due_date', 'status', 'published_at', 'last_edited_at'])]
 class DiaryEntry extends Model
 {
     /** @use HasFactory<DiaryEntryFactory> */
@@ -84,7 +84,7 @@ class DiaryEntry extends Model
 
     public function hasContent(): bool
     {
-        return filled(trim((string) $this->lesson)) || filled(trim((string) $this->homework)) || filled(trim((string) $this->note));
+        return filled(trim((string) $this->lesson)) || filled(trim((string) $this->next_lesson)) || filled(trim((string) $this->homework)) || filled(trim((string) $this->note));
     }
 
     public function subjectName(): string
@@ -96,7 +96,7 @@ class DiaryEntry extends Model
     {
         return LogOptions::defaults()
             ->useLogName('diary')
-            ->logOnly(['lesson', 'homework', 'note', 'homework_due_date', 'status'])
+            ->logOnly(['lesson', 'next_lesson', 'homework', 'note', 'homework_due_date', 'status'])
             ->logOnlyDirty()
             ->dontLogEmptyChanges();
     }

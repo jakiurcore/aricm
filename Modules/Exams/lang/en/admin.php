@@ -10,8 +10,9 @@ return [
     'no_classes' => 'No classes are part of this exam yet. Edit the exam and choose classes.',
     'status' => [
         'draft' => 'Draft',
-        'ongoing' => 'Ongoing',
+        'ongoing' => 'Upcoming',
         'completed' => 'Completed',
+        'published' => 'Result published',
     ],
     'fields' => [
         'name_bn' => 'Exam name (Bangla)',
@@ -28,7 +29,7 @@ return [
     'tabs' => [
         'subjects' => 'Subjects & marks',
         'routine' => 'Routine',
-        'admit' => 'Admit cards',
+        'admit' => 'Admit card',
     ],
     'subjects' => [
         'seed' => 'Add from class subjects',
@@ -42,6 +43,7 @@ return [
         'component' => 'Part (written/MCQ…)',
         'add_component' => 'Add part',
         'add_subject' => 'Add subject:',
+        'subject' => 'Subject',
     ],
     'routine' => [
         'subject' => 'Subject',
@@ -51,15 +53,33 @@ return [
         'room' => 'Room',
         'hint' => 'A subject with no date is left out of the routine.',
         'need_subjects' => 'Add subjects in the “Subjects & marks” tab before the routine.',
+        'add_row' => 'Add row',
+        'save' => 'Save routine',
     ],
     'admit' => [
         'only_eligible' => 'Eligible students only',
-        'print' => 'Print admit cards',
-
+        'print' => 'Preview & print',
         'release' => 'Release admit cards',
         'release_help' => 'When on, eligible students can download their admit card from the portal.',
         'all_sections' => 'All sections',
         'eligibility' => 'Eligibility',
         'eligible' => 'Eligible',
+        'block_unpaid' => 'Block download while fees are due',
+        'block_unpaid_help' => 'Set in Fee settings',
+        'ready' => 'Ready',
+        'blocked' => 'Fee due',
+    ],
+    'empty' => 'No exams yet',
+    'classes_n' => 'classes',
+    'subjects_n' => 'subjects',
+    'created' => 'Exam created',
+    'create' => 'Create exam',
+    'name_placeholder' => 'e.g. Half-Yearly Exam 2027',
+    'suggest' => [
+        'half_yearly' => 'Half-Yearly',
+        'annual' => 'Annual',
+        'monthly' => 'Monthly',
+        'model' => 'Model Test',
+        'suffix' => 'Exam',
     ],
 ];

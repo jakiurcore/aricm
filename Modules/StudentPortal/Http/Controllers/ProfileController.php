@@ -17,10 +17,15 @@ class ProfileController
         return view('student-portal::pages.profile', ['student' => $request->user('student')->load(['schoolClass', 'section', 'session'])]);
     }
 
+    public function idCard(Request $request): View
+    {
+        return view('student-portal::pages.id-card', ['student' => $request->user('student')->load(['schoolClass', 'section', 'session'])]);
+    }
+
     /**
      * The student's own ID card, never anyone else's: the student comes from the session, not the request.
      */
-    public function idCard(Request $request, IdCardPdf $cards): Response
+    public function idCardPdf(Request $request, IdCardPdf $cards): Response
     {
         $student = $request->user('student');
 

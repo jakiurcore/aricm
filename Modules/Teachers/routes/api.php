@@ -10,6 +10,8 @@ $router->middleware(['auth', EnsureAdminAccess::class])->prefix('teachers')->nam
     $router->get('/', [TeacherController::class, 'index'])->name('index');
     $router->post('/', [TeacherController::class, 'store'])->name('store');
     $router->put('assignments/copy', [AssignmentController::class, 'copy'])->name('assignments.copy');
+    $router->get('assignments/grid', [AssignmentController::class, 'grid'])->name('assignments.grid');
+    $router->put('assignments/cell', [AssignmentController::class, 'cell'])->name('assignments.cell');
     $router->get('assignments/subjects', [AssignmentController::class, 'subjects'])->name('assignments.subjects');
     $router->get('assignments', [AssignmentController::class, 'index'])->name('assignments.index');
     $router->post('assignments', [AssignmentController::class, 'store'])->name('assignments.store');

@@ -3,42 +3,21 @@
 @section('title', __('accounts::messages.login.title'))
 
 @section('body')
-    <main class="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-6 px-4 py-10">
-        <header class="text-center">
-            <h1 class="font-head text-2xl text-heading">{{ setting('institute_name_'.app()->getLocale()) }}</h1>
-            <p class="mt-1 text-ink-muted">{{ __('accounts::messages.login.subtitle') }}</p>
-        </header>
-
-        <form method="POST" action="{{ route('login.store') }}" class="space-y-4 rounded-2xl border border-line bg-surface p-6 shadow-md">
+    <x-core::auth-shell :title="__('accounts::messages.login.subtitle')" tone="navy">
+        <form method="POST" action="{{ route('login.store') }}" style="display: grid; gap: 12px;">
             @csrf
-
-            <div>
-                <label for="email" class="mb-1 block text-sm font-medium">{{ __('accounts::messages.login.email') }}</label>
-                <input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus autocomplete="username"
-                       class="w-full rounded-md border border-line-strong bg-surface px-3">
-                @error('email')
-                    <p class="mt-1 text-sm text-danger">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div>
-                <label for="password" class="mb-1 block text-sm font-medium">{{ __('accounts::messages.login.password') }}</label>
-                <input id="password" name="password" type="password" required autocomplete="current-password"
-                       class="w-full rounded-md border border-line-strong bg-surface px-3">
-            </div>
-
-            <label class="flex items-center gap-2 text-sm">
-                <input type="checkbox" name="remember" value="1" class="size-4">
+            <label class="pub-field" for="email">{{ __('accounts::messages.login.email') }}
+                <input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus autocomplete="username" class="pub-input">
+            </label>
+            <label class="pub-field" for="password">{{ __('accounts::messages.login.password') }}
+                <input id="password" name="password" type="password" required autocomplete="current-password" placeholder="••••••" class="pub-input">
+            </label>
+            @error('email')<div role="alert" style="padding: 10px 14px; border-radius: 12px; background: var(--danger-bg); color: var(--danger); font-weight: 600; font-size: 14px;">{{ $message }}</div>@enderror
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
+                <input type="checkbox" name="remember" value="1" style="width: 18px; height: 18px; min-height: 0; accent-color: var(--green-700);">
                 {{ __('accounts::messages.login.remember') }}
             </label>
-
-            <button type="submit" class="min-h-11 w-full rounded-md bg-brand px-5 font-semibold text-white">
-                {{ __('accounts::messages.login.submit') }}
-            </button>
+            <button type="submit" style="height: 52px; border: 0; border-radius: 999px; background: var(--green-700); color: #fff; font-weight: 700; font-size: 17px; cursor: pointer;">{{ __('accounts::messages.login.submit') }}</button>
         </form>
-
-        <p class="text-center text-sm text-ink-muted">
-            <a href="{{ route('core.locale', 'bn') }}">বাংলা</a> · <a href="{{ route('core.locale', 'en') }}">English</a>
-        </p>
-    </main>
+    </x-core::auth-shell>
 @endsection

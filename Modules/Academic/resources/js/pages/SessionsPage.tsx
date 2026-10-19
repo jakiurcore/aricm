@@ -1,7 +1,8 @@
-import { Badge } from '@/components/ui/badge';
 import { ResourcePage } from '@core/js/components/ResourcePage';
 import { t } from '@core/js/i18n';
-import { formatDate } from '@core/js/number';
+import { bnDigits, formatDate } from '@core/js/number';
+
+import { AcademicTabs } from '../components/AcademicTabs';
 
 interface Session {
     id: number;
@@ -15,7 +16,9 @@ const k = (key: string) => t(`academic::admin.sessions.${key}`);
 
 export function SessionsPage() {
     return (
-        <ResourcePage<Session>
+        <div className="grid gap-3.5">
+            <AcademicTabs />
+            <ResourcePage<Session>
             title={k('title')}
             newLabel={k('new')}
             editLabel={k('edit')}
@@ -34,12 +37,13 @@ export function SessionsPage() {
                 end_date: row.end_date?.slice(0, 10) ?? '',
                 is_current: row.is_current,
             })}
-            columns={[
-                { header: k('name'), accessorKey: 'name' },
-                { header: k('start_date'), cell: ({ row }) => formatDate(row.original.start_date) },
-                { header: k('end_date'), cell: ({ row }) => formatDate(row.original.end_date) },
-                { header: '', id: 'current', cell: ({ row }) => (row.original.is_current ? <Badge>{k('is_current')}</Badge> : null) },
-            ]}
-        />
+            columns={[]}
+            list={{
+                title: t('academic::admin.tabs.sessions'),
+                primary: (row) => bnDigits(row.name),
+                secondary: (row) => `${row.is_current ? `${t('academic::admin.rows.current')} · ` : ''}${formatDate(row.start_date)} – ${formatDate(row.end_date)}`,
+            }}
+            />
+        </div>
     );
 }

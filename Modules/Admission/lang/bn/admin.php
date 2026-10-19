@@ -13,6 +13,7 @@ return [
     'note' => 'নোট',
     'status' => 'অবস্থা',
     'date' => 'তারিখ',
+    'all' => 'সব',
     'statuses' => [
         'new' => 'নতুন',
         'contacted' => 'যোগাযোগ হয়েছে',
@@ -20,6 +21,7 @@ return [
         'rejected' => 'বাতিল',
     ],
     'settings' => [
+        'groups' => ['banner' => 'হোমপেজ ব্যানার', 'program' => 'প্রোগ্রাম ও শ্রেণি', 'content' => 'ভর্তির তথ্য'],
         'title' => 'ভর্তি সেটিংস',
         'banner_enabled' => 'ব্যানার দেখান',
         'banner_title_bn' => 'ব্যানার শিরোনাম (বাংলা)',

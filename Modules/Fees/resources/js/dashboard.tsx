@@ -1,12 +1,13 @@
 import { BadgeCheckIcon, BarChart3Icon, CoinsIcon, FileTextIcon, ListChecksIcon, PercentIcon, SettingsIcon, TableIcon, WalletIcon } from 'lucide-react';
 
-import { DashboardWidgets, registerModule } from '@admin/js';
+import { registerModule } from '@admin/js';
 import { registerExamTab } from '@exams/js/tabs';
 import { canAny, can } from '@core/js/permissions';
 import { t } from '@core/js/i18n';
+import { registerMenuBadge } from '@core/js/menu';
 
-import { DashboardCards } from './components/DashboardCards';
 import { ExamFeesTab } from './components/ExamFeesTab';
+import { VerificationBadge } from './components/VerificationBadge';
 import { CollectionPage } from './pages/CollectionPage';
 import { ConcessionsPage } from './pages/ConcessionsPage';
 import { HeadsPage } from './pages/HeadsPage';
@@ -20,9 +21,12 @@ import { VerificationPage } from './pages/VerificationPage';
 registerExamTab({
     id: 'fees',
     label: () => t('fees::admin.exam_fees.tab'),
-    order: 40,
+    order: 30,
     render: ({ exam }) => (can('fees.view') ? <ExamFeesTab examId={exam.id} /> : null),
 });
+
+// The yellow count on "verify payments" in the sidebar, as in the design.
+registerMenuBadge('/fees/verification', VerificationBadge);
 
 registerModule({
     id: 'fees',
@@ -50,5 +54,4 @@ registerModule({
         { path: 'fees/reports', element: <ReportsPage /> },
         { path: 'fees/settings', element: <SettingsPage /> },
     ],
-    fills: <DashboardWidgets.Fill>{can('fees.view') ? <DashboardCards /> : null}</DashboardWidgets.Fill>,
 });

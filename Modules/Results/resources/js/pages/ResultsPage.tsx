@@ -2,11 +2,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { toast } from 'sonner';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { api, ApiError } from '@core/js/api';
 import { ConfirmDialog } from '@core/js/components/ConfirmDialog';
+import { DesignTable, PageTitle, Pill, TableCard, Td, Th } from '@core/js/components/design';
+import { EmptyState, ErrorState, LoadingState } from '@core/js/components/States';
+import { can } from '@core/js/permissions';
 import { t } from '@core/js/i18n';
 import { bnDigits } from '@core/js/number';
 
@@ -34,10 +35,19 @@ export function ResultsPage() {
     const [loading, setLoading] = useState(true);
     const [confirm, setConfirm] = useState<{ exam: ExamOverview; action: 'publish' | 'unpublish' } | null>(null);
 
+    const [failed, setFailed] = useState(false);
+
     const load = useCallback(async () => {
-        const response = await api.get<{ data: ExamOverview[] }>('/results/overview');
-        setExams(response.data);
-        setLoading(false);
+        setFailed(false);
+
+        try {
+            const response = await api.get<{ data: ExamOverview[] }>('/results/overview');
+            setExams(response.data);
+        } catch {
+            setFailed(true);
+        } finally {
+            setLoading(false);
+        }
     }, []);
 
     useEffect(() => {
@@ -55,68 +65,73 @@ export function ResultsPage() {
     };
 
     return (
-        <div className="max-w-5xl space-y-4">
-            <h1 className="text-2xl font-semibold tracking-tight">{t('results::admin.overview.title')}</h1>
+        <div className="grid gap-3.5">
+            <PageTitle>{t('results::admin.overview.title')}</PageTitle>
 
-            {loading && <p className="text-muted-foreground">{t('core::admin.common.loading')}</p>}
-            {!loading && exams.length === 0 && <p className="text-muted-foreground">{t('core::admin.common.empty')}</p>}
+            {failed && <ErrorState onRetry={() => void load()} />}
+            {loading && !failed && <LoadingState rows={2} height={160} />}
+            {!loading && !failed && exams.length === 0 && <EmptyState glyph="📊" title={t('core::admin.common.empty')} />}
 
             {exams.map((exam) => (
-                <Card key={exam.id}>
-                    <CardHeader className="flex-row flex-wrap items-center justify-between gap-2">
-                        <CardTitle className="flex items-center gap-2">
-                            {exam.name}
-                            <Badge variant={exam.published ? 'default' : 'outline'}>{exam.published ? k('published') : k('unpublished')}</Badge>
-                        </CardTitle>
-                        <div className="flex gap-2">
-                            <Button variant="outline" size="sm" onClick={() => void run(`/results/exams/${exam.id}/process`, k('processed'))} disabled={exam.published}>
-                                {k('process_all')}
-                            </Button>
-                            {exam.published ? (
-                                <Button variant="outline" size="sm" onClick={() => setConfirm({ exam, action: 'unpublish' })}>
-                                    {k('unpublish')}
-                                </Button>
-                            ) : (
-                                <Button size="sm" onClick={() => setConfirm({ exam, action: 'publish' })}>
-                                    {k('publish')}
+                <section key={exam.id} className="grid gap-3 rounded-[20px] border border-line bg-surface p-[18px] shadow-sm">
+                    <div className="flex flex-wrap items-center justify-between gap-2.5">
+                        <span className="flex flex-wrap items-center gap-2.5">
+                            <strong className="text-[17px]">{exam.name}</strong>
+                            <Pill tone={exam.published ? 'success' : 'muted'}>{exam.published ? k('published') : k('unpublished')}</Pill>
+                            <span className="text-sm text-muted-foreground">{exam.session}</span>
+                        </span>
+                        <span className="flex flex-wrap gap-2">
+                            {can('results.process') && (
+                                <Button variant="outline" onClick={() => void run(`/results/exams/${exam.id}/process`, k('processed'))} disabled={exam.published}>
+                                    {k('process_all')}
                                 </Button>
                             )}
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm">
-                                <thead>
-                                    <tr className="border-b text-left text-muted-foreground">
-                                        <th className="py-2">{t('students::admin.fields.class_id')}</th>
-                                        <th className="py-2">{k('processed_students')}</th>
-                                        <th className="py-2">{k('passed')}</th>
-                                        <th className="py-2">{k('incomplete')}</th>
-                                        <th className="py-2" />
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {exam.classes.map((schoolClass) => (
-                                        <tr key={schoolClass.id} className="border-b last:border-0">
-                                            <td className="py-2 font-medium">{schoolClass.name}</td>
-                                            <td className="py-2">{bnDigits(schoolClass.processed)}</td>
-                                            <td className="py-2">{bnDigits(schoolClass.passed)}</td>
-                                            <td className="py-2">{schoolClass.incomplete > 0 ? <span className="text-amber-700">{bnDigits(schoolClass.incomplete)}</span> : '—'}</td>
-                                            <td className="flex justify-end gap-2 py-2">
-                                                <Button variant="outline" size="sm" render={<Link to={`/results/marks/${exam.id}/${schoolClass.id}`} />}>
+                            {can('results.publish') &&
+                                (exam.published ? (
+                                    <Button variant="outline" className="border-2 border-danger bg-transparent text-danger hover:bg-danger-bg" onClick={() => setConfirm({ exam, action: 'unpublish' })}>
+                                        {k('unpublish')}
+                                    </Button>
+                                ) : (
+                                    <Button className="bg-red-600 text-white hover:bg-red-600" onClick={() => setConfirm({ exam, action: 'publish' })}>
+                                        📢 {k('publish')}
+                                    </Button>
+                                ))}
+                        </span>
+                    </div>
+                    <TableCard className="rounded-2xl">
+                        <DesignTable minWidth={560}>
+                            <thead>
+                                <tr className="bg-surface-2">
+                                    <Th>{t('students::admin.fields.class_id')}</Th>
+                                    <Th>{k('processed_students')}</Th>
+                                    <Th>{k('passed')}</Th>
+                                    <Th>{k('incomplete')}</Th>
+                                    <Th />
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {exam.classes.map((schoolClass) => (
+                                    <tr key={schoolClass.id} className="border-t border-line">
+                                        <Td className="font-bold">{schoolClass.name}</Td>
+                                        <Td>{bnDigits(schoolClass.processed)}</Td>
+                                        <Td>{bnDigits(schoolClass.passed)}</Td>
+                                        <Td>{schoolClass.incomplete > 0 ? <Pill tone="warn">{bnDigits(schoolClass.incomplete)}</Pill> : '—'}</Td>
+                                        <Td align="right">
+                                            <span className="inline-flex gap-1.5">
+                                                <Button variant="outline" size="sm" render={<Link to={`/exams/${exam.id}?tab=marks&class=${schoolClass.id}`} />}>
                                                     {k('enter_marks')}
                                                 </Button>
-                                                <Button variant="outline" size="sm" render={<Link to={`/results/preview/${exam.id}/${schoolClass.id}`} />}>
+                                                <Button variant="outline" size="sm" render={<Link to={`/exams/${exam.id}?tab=result&class=${schoolClass.id}`} />}>
                                                     {k('preview')}
                                                 </Button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </CardContent>
-                </Card>
+                                            </span>
+                                        </Td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </DesignTable>
+                    </TableCard>
+                </section>
             ))}
 
             <ConfirmDialog

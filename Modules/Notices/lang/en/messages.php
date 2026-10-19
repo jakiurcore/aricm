@@ -1,11 +1,11 @@
 <?php
 
 return [
-    'title' => 'Notices',
+    'title' => 'Notice board',
     'all' => 'All',
     'search' => 'Search notices…',
-    'pinned' => 'Important',
-    'none' => 'There are no notices.',
+    'pinned' => 'Pinned',
+    'none' => 'No notices found',
     'attachment' => 'Attachment',
     'latest' => 'Latest notices',
     'view_all' => 'All notices',
@@ -17,4 +17,10 @@ return [
         'event' => 'Event',
         'result' => 'Result',
     ],
+    'kicker' => 'Notice board',
+    'none_body' => 'Try another word or category.',
+    'back' => 'Back',
+    'published' => 'Published',
+    'download' => 'Download',
+    'office' => 'Principal, :name',
 ];

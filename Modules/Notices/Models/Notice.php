@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Modules\Notices\Database\Factories\NoticeFactory;
 use Modules\Notices\Enums\NoticeCategory;
+use Modules\Notices\Support\SafeHtml;
 
 #[UseFactory(NoticeFactory::class)]
 #[Fillable(['title_bn', 'title_en', 'body_bn', 'body_en', 'category', 'attachment', 'attachment_name', 'is_pinned', 'show_in_ticker', 'publish_at', 'is_published'])]
@@ -53,9 +54,20 @@ class Notice extends Model
         return localized($this, 'title') ?? $this->title_bn;
     }
 
+    /**
+     * The body as plain text (the portal and SMS print this); see bodyHtml() for the formatted one.
+     */
     public function body(): string
     {
-        return localized($this, 'body') ?? $this->body_bn;
+        return SafeHtml::plain(localized($this, 'body') ?? $this->body_bn);
+    }
+
+    /**
+     * The body as safe HTML for the public page (plain-text bodies keep their line breaks).
+     */
+    public function bodyHtml(): string
+    {
+        return SafeHtml::render(localized($this, 'body') ?? $this->body_bn);
     }
 
     public function shownAt(): CarbonInterface

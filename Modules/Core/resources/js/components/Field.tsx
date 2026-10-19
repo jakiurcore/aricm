@@ -12,11 +12,11 @@ interface FieldProps {
 
 export function Field({ label, htmlFor, error, hint, children }: FieldProps) {
     return (
-        <div className="space-y-1.5">
+        <div className="grid gap-1">
             <Label htmlFor={htmlFor}>{label}</Label>
             {children}
-            {hint && !error && <p className="text-xs text-muted-foreground">{hint}</p>}
-            {error && <p className="text-xs text-destructive">{error}</p>}
+            {hint && !error && <p className="text-[13px] text-muted-foreground">{hint}</p>}
+            {error && <p className="text-[13px] font-medium text-danger">{error}</p>}
         </div>
     );
 }

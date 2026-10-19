@@ -41,7 +41,7 @@ class InvoiceGenerator
      *
      * @param  list<int>|null  $classIds
      */
-    public function generateMonthly(CarbonInterface $month, ?array $classIds = null, bool $dryRun = false): GenerationSummary
+    public function generateMonthly(CarbonInterface $month, ?array $classIds = null, bool $dryRun = false, ?CarbonInterface $dueDate = null): GenerationSummary
     {
         $month = Carbon::instance($month)->startOfMonth();
         $summary = new GenerationSummary($dryRun);
@@ -51,7 +51,7 @@ class InvoiceGenerator
             ->where('status', StudentStatus::Active->value)
             ->when($classIds, fn ($query) => $query->whereIn('class_id', $classIds))
             ->orderBy('id')
-            ->chunkById(200, function (Collection $students) use ($month, $heads, $summary, $dryRun): void {
+            ->chunkById(200, function (Collection $students) use ($month, $heads, $summary, $dryRun, $dueDate): void {
                 $existing = FeeInvoice::query()->where('type', FeeHeadType::Monthly->value)->whereDate('billing_month', $month->toDateString())->whereIn('student_id', $students->pluck('id'))->pluck('student_id')->flip();
                 $concessions = StudentConcession::query()->whereIn('student_id', $students->pluck('id'))->get()->groupBy('student_id');
                 $books = [];
@@ -82,7 +82,7 @@ class InvoiceGenerator
                     $summary->totalAmount = $summary->totalAmount->plus(Money::poisha(array_sum(array_map(fn (array $line): int => $line['net']->poisha, $lines))));
 
                     if (! $dryRun) {
-                        $this->createInvoice($student, FeeHeadType::Monthly, $lines, $this->dueDateFor($month), month: $month);
+                        $this->createInvoice($student, FeeHeadType::Monthly, $lines, $dueDate ?? $this->dueDateFor($month), month: $month);
                     }
                 }
             });

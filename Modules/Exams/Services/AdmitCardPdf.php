@@ -45,7 +45,7 @@ class AdmitCardPdf
             ];
         });
 
-        $html = view('exams::pdf.admit-cards', ['exam' => $exam, 'pages' => $cards->chunk(2), 'brand' => Branding::forPdf(), 'rules' => $rules])->render();
+        $html = view('exams::pdf.admit-cards', ['exam' => $exam, 'pages' => $cards->chunk(2), 'brand' => Branding::forPdf(), 'rules' => $rules, 'placeholder' => Branding::photoPlaceholder()])->render();
 
         return $this->pdf->render($html, ['showImageErrors' => false]);
     }

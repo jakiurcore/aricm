@@ -6,8 +6,10 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Modules\Core\Services\PdfService;
 use Modules\Core\Services\QrCodeService;
+use Modules\Core\Support\Bangla;
 use Modules\Core\Support\Branding;
 use Modules\Exams\Models\Exam;
+use Modules\Exams\Models\ExamSubject;
 use Modules\Results\Models\ExamResult;
 use Modules\Results\Models\GradingScale;
 use Modules\Results\Support\MarksheetHash;
@@ -27,15 +29,30 @@ class ResultPdf
     {
         $results->each->loadMissing(['exam.session', 'student.schoolClass', 'student.section']);
 
-        $sheets = $results->map(fn (ExamResult $result): array => [
-            'result' => $result,
-            'student' => $result->student,
-            'photo' => $result->student->photo && Storage::disk('public')->exists($result->student->photo) ? Storage::disk('public')->path($result->student->photo) : null,
-            'qr' => $this->qr->forVerification('marksheet', MarksheetHash::for($result), 140),
-            'scale' => $this->scaleFor($result->exam),
-        ]);
+        $passMarks = ExamSubject::query()->whereIn('exam_id', $results->pluck('exam_id')->unique())->pluck('pass_marks', 'id');
+        $scales = [];
 
-        $html = view('results::pdf.marksheets', ['sheets' => $sheets, 'brand' => Branding::forPdf(), 'issued' => bn_date(now())])->render();
+        $sheets = $results->map(function (ExamResult $result) use ($passMarks, &$scales): array {
+            $scales[$result->exam_id] ??= $this->scaleFor($result->exam);
+
+            return [
+                'result' => $result,
+                'student' => $result->student,
+                'photo' => $result->student->photo && Storage::disk('public')->exists($result->student->photo) ? Storage::disk('public')->path($result->student->photo) : null,
+                'qr' => $this->qr->forVerification('marksheet', MarksheetHash::for($result), 140),
+                'scale' => $scales[$result->exam_id],
+                'position' => $result->position_in_class ? $this->ordinal((int) $result->position_in_class) : '—',
+                'subjects' => collect($result->subject_results)->map(fn (array $subject): array => [
+                    ...$subject,
+                    'passMarks' => isset($subject['examSubjectId'], $passMarks[$subject['examSubjectId']]) ? $passMarks[$subject['examSubjectId']] : null,
+                    'parts' => count($subject['components']) > 1
+                        ? collect($subject['components'])->map(fn (array $component): string => $component['name'].' '.($component['absent'] ? __('results::pdf.absent') : bn_number($component['obtained'] ?? 0)).'/'.bn_number($component['full']))->implode(', ')
+                        : '',
+                ])->all(),
+            ];
+        });
+
+        $html = view('results::pdf.marksheets', ['sheets' => $sheets, 'brand' => Branding::forPdf(), 'issued' => bn_date(now()), 'placeholder' => Branding::photoPlaceholder()])->render();
 
         return $this->pdf->render($html, ['showImageErrors' => false]);
     }
@@ -77,7 +94,34 @@ class ResultPdf
         return $scale ? $scale->items->map(fn ($item): array => [
             'grade' => $item->grade,
             'range' => bn_number($item->min_percent).'–'.bn_number($item->max_percent),
-            'point' => bn_number($item->grade_point, 2),
+            'point' => bn_number($item->grade_point, 1),
         ])->all() : [];
+    }
+
+    /**
+     * "৩য়" / "3rd": the merit position as the sheet prints it.
+     */
+    protected function ordinal(int $position): string
+    {
+        if (! Bangla::isBangla()) {
+            $suffix = in_array($position % 100, [11, 12, 13], true) ? 'th' : match ($position % 10) {
+                1 => 'st',
+                2 => 'nd',
+                3 => 'rd',
+                default => 'th',
+            };
+
+            return $position.$suffix;
+        }
+
+        $suffix = match (true) {
+            $position === 1 => 'ম',
+            in_array($position, [2, 3], true) => 'য়',
+            $position === 4 => 'র্থ',
+            $position <= 10 => 'ম',
+            default => 'তম',
+        };
+
+        return bn_digits($position).$suffix;
     }
 }

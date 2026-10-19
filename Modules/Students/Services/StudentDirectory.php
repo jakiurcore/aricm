@@ -41,7 +41,8 @@ class StudentDirectory
                     ->where('student_id', 'like', "%{$search}%")
                     ->orWhere('name_bn', 'like', "%{$search}%")
                     ->orWhere('name_en', 'like', "%{$search}%")
-                    ->orWhere('guardian_phone', 'like', "%{$search}%"));
+                    ->orWhere('guardian_phone', 'like', "%{$search}%")
+                    ->when(ctype_digit($search), fn (Builder $roll) => $roll->orWhere('roll', (int) $search)));
             });
     }
 

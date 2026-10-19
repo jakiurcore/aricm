@@ -49,8 +49,8 @@ it('shows a student their dashboard with summary cards and notices', function ()
     Notice::factory()->create(['title_bn' => 'পোর্টালের নোটিশ']);
 
     asStudent($this, $student)->get(route('portal.dashboard'))->assertOk()
-        ->assertSee('রাকিব হোসেন')->assertSee($student->student_id)->assertSee('পোর্টালের নোটিশ')
-        ->assertSee(__('fees::messages.summary.total_due'))->assertSee('১,৩০০');
+        ->assertSee('রাকিব হোসেন')->assertSee('পোর্টালের নোটিশ')
+        ->assertSee(__('student-portal::messages.due'))->assertSee('১,৩০০');
 });
 
 it('builds the menu from the modules that contribute to it', function () {
@@ -75,7 +75,9 @@ it('shows the read-only profile and its own ID card', function () {
 
     asStudent($this, $student)->get(route('portal.profile'))->assertOk()->assertSee('আব্দুল করিম');
 
-    $pdf = asStudent($this, $student)->get(route('portal.idcard'))->assertOk();
+    asStudent($this, $student)->get(route('portal.idcard'))->assertOk()->assertSee($student->student_id)->assertSee(route('portal.idcard.pdf'), false);
+
+    $pdf = asStudent($this, $student)->get(route('portal.idcard.pdf'))->assertOk();
     expect($pdf->headers->get('Content-Type'))->toBe('application/pdf')->and($pdf->getContent())->toStartWith('%PDF');
 });
 
@@ -310,7 +312,7 @@ it('renders the portal in English too', function () {
     $student = portalStudent();
 
     $this->from('/')->get(route('core.locale', 'en'));
-    asStudent($this, $student)->get(route('portal.dashboard'))->assertSee('Student portal')->assertSee('Welcome');
+    asStudent($this, $student)->get(route('portal.dashboard'))->assertSee('Assalamu Alaikum')->assertSee('Dashboard');
 });
 
 /**
@@ -332,10 +334,9 @@ it('shows a student today’s diary and marks it as seen', function () {
     $s = portalDiary(['lesson' => 'আজ বিশেষ পাঠ', 'homework' => 'অনুশীলনী ২ করবে']);
 
     asStudent($this, $s['student'])->get(route('portal.diary'))->assertOk()
-        ->assertSee('আজ বিশেষ পাঠ')->assertSee('অনুশীলনী ২ করবে')->assertSee($s['subject']->name_bn)->assertSee(__('diary::messages.portal.new'));
+        ->assertSee('আজ বিশেষ পাঠ')->assertSee('অনুশীলনী ২ করবে')->assertSee($s['subject']->name_bn);
 
-    // The second visit no longer flags it as new.
-    asStudent($this, $s['student'])->get(route('portal.diary'))->assertDontSee(__('diary::messages.portal.new'));
+    // Opening the day is what marks it as seen.
     expect(app(DiaryFeed::class)->unseenCount($s['student']))->toBe(0);
 });
 

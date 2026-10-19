@@ -1,54 +1,71 @@
-import { SettingsIcon } from 'lucide-react';
-import { Link } from 'react-router';
+import { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
 
-import { useAcademicOptions } from '@academic/js/hooks/useAcademicOptions';
-import { Badge } from '@/components/ui/badge';
+import { HeaderActions } from '@admin/js';
 import { Button } from '@/components/ui/button';
-import { ResourcePage } from '@core/js/components/ResourcePage';
+import { api } from '@core/js/api';
+import { PageTitle } from '@core/js/components/design';
+import { EmptyState, ErrorState, LoadingState } from '@core/js/components/States';
 import { t } from '@core/js/i18n';
-import { formatDate } from '@core/js/number';
+import { bnDigits, formatDate } from '@core/js/number';
+import { can } from '@core/js/permissions';
 
+import { ExamFormDialog } from '../components/ExamFormDialog';
+import { ExamStatusPill } from '../components/ExamStatusPill';
 import type { ExamSummary } from '../tabs';
 
 const k = (key: string) => t(`exams::admin.${key}`);
 
+/** The exam list of the design: a responsive grid of 20px cards, the "+ new exam" pill at the top right. */
 export function ExamsPage() {
-    const academic = useAcademicOptions();
+    const navigate = useNavigate();
+    const [exams, setExams] = useState<ExamSummary[] | null>(null);
+    const [failed, setFailed] = useState(false);
+    const [creating, setCreating] = useState(false);
+
+    const load = useCallback(async () => {
+        setFailed(false);
+
+        try {
+            setExams((await api.get<{ data: ExamSummary[] }>('/exams', { per_page: '60' })).data);
+        } catch {
+            setFailed(true);
+        }
+    }, []);
+
+    useEffect(() => {
+        void load();
+    }, [load]);
 
     return (
-        <ResourcePage<ExamSummary & { name_en: string | null; description: string | null; session_name?: string; class_ids: number[] }>
-            title={k('title')}
-            newLabel={k('new')}
-            editLabel={k('edit')}
-            endpoint="/exams"
-            defaults={{ name_bn: '', name_en: '', session_id: '', start_date: '', end_date: '', status: 'draft', description: '', class_ids: [] }}
-            filters={[
-                { name: 'session_id', label: k('fields.session_id'), options: academic.sessions.map((session) => ({ value: session.id, label: session.name })) },
-                { name: 'status', label: k('fields.status'), options: ['draft', 'ongoing', 'completed'].map((value) => ({ value, label: t(`exams::admin.status.${value}`) })) },
-            ]}
-            fields={[
-                { name: 'name_bn', label: k('fields.name_bn'), type: 'text', hint: k('fields.name_hint') },
-                { name: 'name_en', label: k('fields.name_en'), type: 'text' },
-                { name: 'session_id', label: k('fields.session_id'), type: 'select', options: academic.sessions.map((session) => ({ value: session.id, label: session.name })) },
-                { name: 'status', label: k('fields.status'), type: 'select', options: ['draft', 'ongoing', 'completed'].map((value) => ({ value, label: t(`exams::admin.status.${value}`) })) },
-                { name: 'start_date', label: k('fields.start_date'), type: 'date' },
-                { name: 'end_date', label: k('fields.end_date'), type: 'date' },
-                { name: 'class_ids', label: k('fields.classes'), type: 'checkboxes', wide: true, options: academic.classes.map((schoolClass) => ({ value: schoolClass.id, label: schoolClass.name })) },
-                { name: 'description', label: k('fields.description'), type: 'textarea', wide: true },
-            ]}
-            toForm={(row) => ({ name_bn: row.name_bn, name_en: row.name_en ?? '', session_id: row.session_id, status: row.status, start_date: row.start_date ?? '', end_date: row.end_date ?? '', description: row.description ?? '', class_ids: row.class_ids })}
-            columns={[
-                { header: k('fields.name_bn'), cell: ({ row }) => <span className="font-medium">{row.original.name_bn}</span> },
-                { header: k('fields.session_id'), accessorKey: 'session_name' },
-                { header: k('fields.period'), cell: ({ row }) => [formatDate(row.original.start_date), formatDate(row.original.end_date)].filter(Boolean).join(' – ') },
-                { header: k('fields.classes'), cell: ({ row }) => row.original.classes.map((schoolClass) => schoolClass.name).join(', ') },
-                { header: k('fields.status'), cell: ({ row }) => <Badge variant={row.original.status === 'ongoing' ? 'default' : 'outline'}>{t(`exams::admin.status.${row.original.status}`)}</Badge> },
-            ]}
-            rowActions={(row) => (
-                <Button variant="ghost" size="icon" aria-label={k('manage')} title={k('manage')} render={<Link to={`/exams/${row.id}`} />}>
-                    <SettingsIcon />
-                </Button>
+        <div className="grid gap-3.5">
+            <PageTitle>{k('title')}</PageTitle>
+            {can('exams.manage') && (
+                <HeaderActions.Fill>
+                    <Button onClick={() => setCreating(true)}>+ {k('new')}</Button>
+                </HeaderActions.Fill>
             )}
-        />
+
+            {failed && <ErrorState onRetry={() => void load()} />}
+            {!failed && exams === null && <LoadingState rows={3} height={112} />}
+            {exams?.length === 0 && <EmptyState glyph="📝" title={k('empty')} />}
+
+            <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))' }}>
+                {exams?.map((exam) => (
+                    <button key={exam.id} type="button" onClick={() => navigate(`/exams/${exam.id}`)} className="grid cursor-pointer gap-2 rounded-[20px] border border-line bg-surface p-[18px] text-left text-ink shadow-sm transition-colors hover:border-line-strong focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-yellow-400">
+                        <span className="flex items-center justify-between gap-2">
+                            <strong className="text-[17px]">{exam.name}</strong>
+                            <ExamStatusPill exam={exam} />
+                        </span>
+                        <span className="text-sm text-muted-foreground">{[formatDate(exam.start_date), formatDate(exam.end_date)].filter(Boolean).join(' – ')}</span>
+                        <span className="text-sm">
+                            {bnDigits(exam.classes.length)} {k('classes_n')} · {bnDigits(exam.subjects_count ?? 0)} {k('subjects_n')}
+                        </span>
+                    </button>
+                ))}
+            </div>
+
+            <ExamFormDialog open={creating} exam={null} onClose={() => setCreating(false)} onSaved={(id) => navigate(`/exams/${id}`)} />
+        </div>
     );
 }

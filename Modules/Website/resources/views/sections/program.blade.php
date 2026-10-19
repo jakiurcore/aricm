@@ -1,15 +1,20 @@
-<section class="mx-auto max-w-page px-4 py-12">
-    <div class="mb-8 text-center">
-        <h2 class="font-head text-3xl text-heading">{{ __('website::messages.program.title') }}</h2>
-        <p class="mx-auto mt-2 max-w-2xl text-ink-muted">{{ __('website::messages.program.lead') }}</p>
-    </div>
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        @foreach (range(1, 4) as $number)
-            <div class="rounded-2xl border border-line bg-surface p-5 shadow-sm">
-                <div class="mb-3 grid size-11 place-items-center rounded-full bg-green-100 text-xl font-bold text-green-700">{{ bn_digits($number) }}</div>
-                <h3 class="font-head text-lg text-heading">{{ __("website::messages.program.benefit_{$number}_title") }}</h3>
-                <p class="mt-1 text-sm text-ink-muted">{{ __("website::messages.program.benefit_{$number}_body") }}</p>
-            </div>
-        @endforeach
-    </div>
-</section>
+@php
+    $icons = ['🧠', '🎯', '⚡', '🏆'];
+    $backgrounds = ['var(--green-50)', 'var(--navy-50)', 'var(--yellow-50)', 'var(--red-50)'];
+@endphp
+<div class="pub-wrap" style="margin-top: 64px;">
+    <section id="abacus" style="display: grid; gap: 24px; padding-top: 16px; scroll-margin-top: 140px;">
+        <div style="display: grid; gap: 4px; max-width: 760px;">
+            <span class="pub-kicker">{{ __('website::messages.program.kicker') }}</span>
+            <h2 class="pub-h2" style="text-wrap: balance;">{{ __('website::messages.program.title') }}</h2>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 16px;">
+            @foreach (__('website::messages.program.benefits') as $index => $benefit)
+                <div class="pub-card" style="display: grid; gap: 14px; align-content: start;">
+                    <span style="width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; font-size: 24px; background: {{ $backgrounds[$index] ?? $backgrounds[0] }};">{{ $icons[$index] ?? '' }}</span>
+                    <span style="font-size: 18px; font-weight: 700; line-height: 1.5; color: var(--ink);">{{ $benefit }}</span>
+                </div>
+            @endforeach
+        </div>
+    </section>
+</div>

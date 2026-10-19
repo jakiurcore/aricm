@@ -1,4 +1,6 @@
-import { BookOpenIcon, CalendarDaysIcon, CalendarRangeIcon, LayersIcon, ListChecksIcon } from 'lucide-react';
+import { SchoolIcon } from 'lucide-react';
+
+import { Navigate } from 'react-router';
 
 import { registerModule } from '@admin/js';
 import { t } from '@core/js/i18n';
@@ -6,6 +8,7 @@ import { can } from '@core/js/permissions';
 
 import { CalendarPage } from './pages/CalendarPage';
 import { ClassesPage } from './pages/ClassesPage';
+import { SectionsPage } from './pages/SectionsPage';
 import { MappingPage } from './pages/MappingPage';
 import { SessionsPage } from './pages/SessionsPage';
 import { SubjectsPage } from './pages/SubjectsPage';
@@ -16,17 +19,13 @@ registerModule({
         ...menu,
         {
             label: t('academic::admin.menu_group'),
-            items: [
-                { label: t('academic::admin.sessions.menu'), icon: CalendarRangeIcon, path: '/academic/sessions' },
-                { label: t('academic::admin.classes.menu'), icon: LayersIcon, path: '/academic/classes' },
-                { label: t('academic::admin.subjects.menu'), icon: BookOpenIcon, path: '/academic/subjects' },
-                { label: t('academic::admin.mapping.menu'), icon: ListChecksIcon, path: '/academic/mapping' },
-                { label: t('academic::admin.calendar.menu'), icon: CalendarDaysIcon, path: '/academic/calendar' },
-            ],
+            items: [{ label: t('academic::admin.setup'), icon: SchoolIcon, path: '/academic' }],
         },
     ],
     routes: [
+        { path: 'academic', element: <Navigate to="/academic/sessions" replace /> },
         { path: 'academic/sessions', element: <SessionsPage /> },
+        { path: 'academic/sections', element: <SectionsPage /> },
         { path: 'academic/classes', element: <ClassesPage /> },
         { path: 'academic/subjects', element: <SubjectsPage /> },
         { path: 'academic/mapping', element: <MappingPage /> },

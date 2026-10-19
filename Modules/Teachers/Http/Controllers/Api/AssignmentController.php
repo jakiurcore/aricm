@@ -5,6 +5,7 @@ namespace Modules\Teachers\Http\Controllers\Api;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Modules\Academic\Models\AcademicSession;
+use Modules\Academic\Models\Subject;
 use Modules\Academic\Services\AcademicDirectory;
 use Modules\Teachers\Models\Teacher;
 use Modules\Teachers\Models\TeacherAssignment;
@@ -37,6 +38,51 @@ class AssignmentController
         $classId = $request->validate(['class_id' => ['required', 'integer', 'exists:classes,id']])['class_id'];
 
         return response()->json(['data' => $academic->subjectsOf($classId)->map(fn ($subject): array => ['id' => $subject->id, 'name' => $subject->displayName()])->values()]);
+    }
+
+    /**
+     * What the assignment grid is drawn from: every subject, and for each class-section the subjects its class teaches.
+     */
+    public function grid(Request $request, AcademicDirectory $academic): JsonResponse
+    {
+        abort_unless($request->user()->can('teacher_assignments.manage'), 403);
+
+        $classes = $academic->classes()->load('subjects:id');
+        $rows = $classes->flatMap(fn ($class) => $class->sections->map(fn ($section): array => [
+            'class_id' => $class->id, 'class' => $class->displayName(), 'section_id' => $section->id, 'section' => $section->displayName(), 'subject_ids' => $class->subjects->pluck('id')->values(),
+        ]))->values();
+
+        return response()->json(['data' => [
+            'subjects' => Subject::query()->orderBy('id')->get()->map(fn (Subject $subject): array => ['id' => $subject->id, 'name' => $subject->displayName()])->values(),
+            'rows' => $rows,
+        ]]);
+    }
+
+    /**
+     * Set (or empty) one cell of the grid: the subject teacher of a section, or its class teacher.
+     */
+    public function cell(Request $request, TeacherAssignments $assignments, AcademicDirectory $academic): JsonResponse
+    {
+        abort_unless($request->user()->can('teacher_assignments.manage'), 403);
+
+        $data = $request->validate([
+            'teacher_id' => ['nullable', 'integer', 'exists:teachers,id'], 'session_id' => ['nullable', 'integer', 'exists:academic_sessions,id'],
+            'class_id' => ['required', 'integer', 'exists:classes,id'], 'section_id' => ['required', 'integer', 'exists:sections,id'],
+            'subject_id' => ['nullable', 'integer', 'exists:subjects,id'], 'is_class_teacher' => ['sometimes', 'boolean'],
+        ]);
+
+        $sessionId = $data['session_id'] ?? $academic->currentSession()?->id;
+        abort_unless($sessionId, 422);
+        $teacher = isset($data['teacher_id']) ? Teacher::findOrFail($data['teacher_id']) : null;
+
+        if ($data['is_class_teacher'] ?? false) {
+            $teacher ? $assignments->setClassTeacher($teacher, $sessionId, $data['class_id'], $data['section_id']) : $assignments->clearClassTeacher($sessionId, $data['section_id']);
+        } else {
+            abort_unless(isset($data['subject_id']), 422);
+            $assignments->replaceSubjectTeacher($teacher, $sessionId, $data['class_id'], $data['section_id'], $data['subject_id']);
+        }
+
+        return response()->json(['data' => ['ok' => true]]);
     }
 
     public function store(Request $request, TeacherAssignments $assignments, AcademicDirectory $academic): JsonResponse

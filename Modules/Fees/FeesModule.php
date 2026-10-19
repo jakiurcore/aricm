@@ -27,8 +27,10 @@ use Modules\Fees\Console\SendDueRemindersCommand;
 use Modules\Fees\Database\Seeders\FeeHeadSeeder;
 use Modules\Fees\Services\EligibilityChecker;
 use Modules\Fees\Services\FeeSummary;
+use Modules\Fees\Services\InvoiceVerification;
 use Modules\Fees\Services\ReceiptVerification;
 use Modules\Results\Contracts\ProvidesResultEligibility;
+use Modules\Students\Contracts\ProvidesStudentListBadge;
 use Modules\Students\Contracts\ProvidesStudentSummary;
 use Modules\Students\Models\Student;
 
@@ -40,7 +42,7 @@ use Modules\Students\Models\Student;
  * eligibility (Results), student summary (Students), portal menu and verification (Core).
  * Depends on Core, Accounts, Academic, Students, Exams, Results.
  */
-class FeesModule implements Module, ProvidesAdmitCardEligibility, ProvidesApiRoutes, ProvidesCommands, ProvidesConfig, ProvidesDashboardScripts, ProvidesMigrations, ProvidesPermissions, ProvidesPortalMenu, ProvidesResultEligibility, ProvidesRoutes, ProvidesSeeders, ProvidesStudentSummary, ProvidesTranslations, ProvidesVerification, ProvidesViews, ProvidesViteEntries
+class FeesModule implements Module, ProvidesAdmitCardEligibility, ProvidesApiRoutes, ProvidesCommands, ProvidesConfig, ProvidesDashboardScripts, ProvidesMigrations, ProvidesPermissions, ProvidesPortalMenu, ProvidesResultEligibility, ProvidesRoutes, ProvidesSeeders, ProvidesStudentListBadge, ProvidesStudentSummary, ProvidesTranslations, ProvidesVerification, ProvidesViews, ProvidesViteEntries
 {
     public function name(): string
     {
@@ -126,9 +128,14 @@ class FeesModule implements Module, ProvidesAdmitCardEligibility, ProvidesApiRou
         return app(FeeSummary::class)->items($student);
     }
 
+    public function studentListBadges(array $studentIds): array
+    {
+        return app(FeeSummary::class)->listBadges($studentIds);
+    }
+
     public function verificationHandlers(): array
     {
-        return ['receipt' => new ReceiptVerification];
+        return ['receipt' => new ReceiptVerification, 'invoice' => new InvoiceVerification];
     }
 
     public function admitCardEligibility(Exam $exam, Student $student): Eligibility

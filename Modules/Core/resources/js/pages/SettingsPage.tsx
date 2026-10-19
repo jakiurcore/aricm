@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 
 import { api, ApiError } from '../api';
 import { Field } from '../components/Field';
+import { ErrorState, LoadingState } from '../components/States';
+import { Panel, PanelTitle, ToggleRow } from '../components/Surface';
 import { t } from '../i18n';
 
 type Settings = Record<string, any>;
@@ -20,12 +20,23 @@ export function SettingsPage() {
     const [errors, setErrors] = useState<Record<string, string[]>>({});
     const [saving, setSaving] = useState(false);
 
-    useEffect(() => {
-        void api.get<{ data: Settings }>('/core/settings').then((response) => setValues(response.data));
-    }, []);
+    const [failed, setFailed] = useState(false);
+
+    const load = () => {
+        setFailed(false);
+        api.get<{ data: Settings }>('/core/settings')
+            .then((response) => setValues(response.data))
+            .catch(() => setFailed(true));
+    };
+
+    useEffect(load, []);
+
+    if (failed) {
+        return <ErrorState onRetry={load} />;
+    }
 
     if (!values) {
-        return <p className="text-muted-foreground">{t('core::admin.common.loading')}</p>;
+        return <LoadingState />;
     }
 
     const set = (key: string, value: unknown) => setValues({ ...values, [key]: value });
@@ -38,7 +49,7 @@ export function SettingsPage() {
 
     const area = (key: string) => (
         <Field label={text(key)} htmlFor={key} error={errors[key]?.[0]}>
-            <Textarea id={key} rows={4} value={values[key] ?? ''} onChange={(event) => set(key, event.target.value)} />
+            <Textarea id={key} rows={4} className="min-h-0 py-2.5 font-normal"  value={values[key] ?? ''} onChange={(event) => set(key, event.target.value)} />
         </Field>
     );
 
@@ -60,15 +71,28 @@ export function SettingsPage() {
     };
 
     const fileField = (key: 'logo' | 'principal_signature') => (
-        <Field label={text(key)} htmlFor={key}>
-            <div className="flex items-center gap-3">
-                {values[`${key}_url`] && <img src={values[`${key}_url`]} alt="" className="h-14 w-14 rounded-md border object-contain" />}
-                <Input id={key} type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => void upload(key, event.target.files?.[0])} />
+        <div className="grid gap-1">
+            <span className="text-sm font-semibold">{text(key)}</span>
+            <div className="flex items-center gap-3.5">
+                {values[`${key}_url`] ? (
+                    <img src={values[`${key}_url`]} alt="" className={`size-[72px] border border-line bg-white object-contain ${key === 'logo' ? 'rounded-full' : 'rounded-xl'}`} />
+                ) : (
+                    <span className={`grid size-[72px] place-items-center border border-line bg-surface-2 text-muted-foreground ${key === 'logo' ? 'rounded-full' : 'rounded-xl'}`}>🖼</span>
+                )}
+                <Button type="button" variant="outline" onClick={() => document.getElementById(`file-${key}`)?.click()}>
+                    {t(key === 'logo' ? 'core::admin.settings.change' : 'core::admin.settings.change_signature')}
+                </Button>
+                <input id={`file-${key}`} type="file" hidden accept="image/png,image/jpeg,image/webp" onChange={(event) => void upload(key, event.target.files?.[0])} />
             </div>
-        </Field>
+        </div>
     );
 
     const phones: string[] = values.phones ?? [];
+    const setPhone = (index: number, value: string) => {
+        const next = [...phones];
+        next[index] = value;
+        set('phones', next);
+    };
 
     const save = async () => {
         setSaving(true);
@@ -92,74 +116,54 @@ export function SettingsPage() {
     };
 
     return (
-        <div className="max-w-3xl space-y-6">
-            <h1 className="text-2xl font-semibold tracking-tight">{t('core::admin.settings.title')}</h1>
+        <div className="grid items-start gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 380px), 1fr))' }}>
+            <Panel className="gap-2.5">
+                <PanelTitle>{t('core::admin.settings.sections.identity')}</PanelTitle>
+                {input('institute_name_bn')}
+                {input('institute_name_en')}
+                {input('institute_name_ar')}
+                {input('established_year', { type: 'number' })}
+                {input('tagline_bn')}
+                {input('tagline_en')}
+                {input('address_bn')}
+                {input('address_en')}
+                {input('email', { type: 'email' })}
+                <Field label={text('phone_1')} htmlFor="phone-1" error={errors['phones.0']?.[0]}>
+                    <Input id="phone-1" value={phones[0] ?? ''} onChange={(event) => setPhone(0, event.target.value)} />
+                </Field>
+                <Field label={text('phone_2')} htmlFor="phone-2" error={errors['phones.1']?.[0]}>
+                    <Input id="phone-2" value={phones[1] ?? ''} onChange={(event) => setPhone(1, event.target.value)} />
+                </Field>
+            </Panel>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>{t('core::admin.settings.sections.identity')}</CardTitle>
-                </CardHeader>
-                <CardContent className="grid gap-4 sm:grid-cols-2">
-                    {input('institute_name_bn')}
-                    {input('institute_name_en')}
-                    {input('institute_name_ar')}
-                    {input('established_year', { type: 'number' })}
-                    {input('tagline_bn')}
-                    {input('tagline_en')}
-                    {fileField('logo')}
-                </CardContent>
-            </Card>
+            <div className="grid gap-4">
+                <Panel className="gap-2.5">
+                    <PanelTitle>{t('core::admin.settings.sections.social')}</PanelTitle>
+                    {input('social_facebook', { type: 'url' })}
+                    {input('social_youtube', { type: 'url' })}
+                </Panel>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>{t('core::admin.settings.sections.contact')}</CardTitle>
-                </CardHeader>
-                <CardContent className="grid gap-4 sm:grid-cols-2">
-                    {input('address_bn')}
-                    {input('address_en')}
-                    {input('email', { type: 'email' })}
-                    <Field label={text('phones')} htmlFor="phones" hint={text('phones_hint')}>
-                        <Input id="phones" value={phones.join(', ')} onChange={(event) => set('phones', event.target.value.split(',').map((phone) => phone.trim()))} />
-                    </Field>
-                    {input('social_facebook')}
-                    {input('social_youtube')}
-                </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle>{t('core::admin.settings.sections.principal')}</CardTitle>
-                </CardHeader>
-                <CardContent className="grid gap-4 sm:grid-cols-2">
-                    {input('principal_name_bn')}
-                    {input('principal_name_en')}
-                    <div className="sm:col-span-2">{area('principal_message_bn')}</div>
-                    <div className="sm:col-span-2">{area('principal_message_en')}</div>
-                    {fileField('principal_signature')}
-                </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle>{t('core::admin.settings.sections.rules')}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
+                <Panel className="gap-2.5">
+                    <PanelTitle>{t('core::admin.settings.sections.rules')}</PanelTitle>
                     {area('admit_card_rules_bn')}
                     {area('admit_card_rules_en')}
-                    <label className="flex items-center gap-3 text-sm">
-                        <Switch checked={Boolean(values.result_requires_fee_paid)} onCheckedChange={(checked) => set('result_requires_fee_paid', checked)} />
-                        {text('result_requires_fee_paid')}
-                    </label>
-                    <label className="flex items-center gap-3 text-sm">
-                        <Switch checked={Boolean(values.teacher_marks_entry_enabled)} onCheckedChange={(checked) => set('teacher_marks_entry_enabled', checked)} />
-                        {text('teacher_marks_entry_enabled')}
-                    </label>
-                </CardContent>
-            </Card>
+                    <ToggleRow label={text('result_requires_fee_paid')} on={Boolean(values.result_requires_fee_paid)} onToggle={() => set('result_requires_fee_paid', !values.result_requires_fee_paid)} />
+                    <ToggleRow label={text('teacher_marks_entry_enabled')} on={Boolean(values.teacher_marks_entry_enabled)} onToggle={() => set('teacher_marks_entry_enabled', !values.teacher_marks_entry_enabled)} />
+                </Panel>
+            </div>
 
-            <Button onClick={() => void save()} disabled={saving}>
-                {saving ? t('core::admin.common.saving') : t('core::admin.common.save')}
-            </Button>
+            <Panel className="gap-2.5">
+                <PanelTitle>{t('core::admin.settings.sections.logo_principal')}</PanelTitle>
+                {fileField('logo')}
+                {input('principal_name_bn')}
+                {input('principal_name_en')}
+                {area('principal_message_bn')}
+                {area('principal_message_en')}
+                {fileField('principal_signature')}
+                <Button size="lg" onClick={() => void save()} disabled={saving}>
+                    {saving ? t('core::admin.common.saving') : t('core::admin.settings.save_all')}
+                </Button>
+            </Panel>
         </div>
     );
 }

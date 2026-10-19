@@ -29,7 +29,7 @@ class PaymentController
             ->when($request->string('method')->toString(), fn ($query, string $method) => $query->where('method', $method))
             ->when($request->integer('student_id'), fn ($query, int $id) => $query->where('student_id', $id))
             ->when($request->string('search')->toString(), fn ($query, string $search) => $query->where(fn ($inner) => $inner->where('transaction_id', 'like', "%{$search}%")->orWhere('receipt_no', 'like', "%{$search}%")->orWhereHas('student', fn ($student) => $student->where('name_bn', 'like', "%{$search}%")->orWhere('student_id', 'like', "%{$search}%"))))
-            ->orderByRaw("case when status = 'pending' then 0 else 1 end")->orderByDesc('id')->paginate(20);
+            ->orderByRaw("case when status = 'pending' then 0 else 1 end")->orderByDesc('id')->paginate($request->integer('per_page') > 0 ? min($request->integer('per_page'), 100) : 20);
 
         return PaymentResource::collection($payments);
     }

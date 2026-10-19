@@ -173,3 +173,64 @@
     --sidebar-ring: oklch(0.556 0 0);
 }
 [x-cloak] { display: none !important; }
+
+/* ---- Public website (design: "Madrasa Website") ---------------------------------------------------------------- */
+:root {
+    --f-body: 'Noto Sans Bengali', 'Hind Siliguri', 'Poppins', sans-serif;
+    --f-head: 'Noto Serif Bengali', 'Noto Sans Bengali', serif;
+    --f-ar: 'Amiri', serif;
+}
+[data-lang='en'] {
+    --f-body: 'Poppins', 'Noto Sans Bengali', sans-serif;
+    --f-head: 'Poppins', sans-serif;
+}
+body { font-family: var(--f-body); }
+
+@keyframes arm-tick { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes arm-shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+@keyframes arm-spin { to { transform: rotate(360deg); } }
+@keyframes arm-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.pub-root {
+    --muted: var(--ds-muted);
+    --accent: var(--ds-accent);
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--f-body);
+    font-size: 16px;
+    line-height: 1.7;
+}
+.pub-root input, .pub-root select, .pub-root textarea { min-height: 44px; }
+.pub-root .pub-tick { display: flex; width: max-content; animation: arm-tick 38s linear infinite; }
+.pub-root .pub-tick:hover { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .pub-root .pub-tick { animation: none; } }
+
+.pub-wrap { max-width: 1240px; margin: 0 auto; padding: 0 16px; }
+.pub-kicker { color: var(--green-700); font-weight: 700; font-size: 14px; }
+.pub-h1 { margin: 0; font-family: var(--f-head); color: var(--heading); font-size: clamp(32px, 5vw, 48px); line-height: 1.25; }
+.pub-h1-sm { margin: 0; font-family: var(--f-head); color: var(--heading); font-size: clamp(32px, 5vw, 44px); line-height: 1.25; }
+.pub-h2 { margin: 0; font-family: var(--f-head); color: var(--heading); font-size: clamp(28px, 4vw, 38px); line-height: 1.3; }
+.pub-card { padding: 22px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); }
+.pub-field { display: grid; gap: 4px; font-size: 14px; font-weight: 600; }
+.pub-input { height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface); }
+.pub-input[aria-invalid='true'] { border-color: var(--danger); }
+.pub-err { color: var(--danger); font-size: 13px; font-weight: 500; }
+.pub-btn-outline { height: 44px; padding: 0 18px; border-radius: 999px; border: 2px solid var(--navy-800); background: transparent; color: var(--navy-800); font-weight: 700; display: inline-flex; align-items: center; text-decoration: none; cursor: pointer; }
+.pub-btn-green { height: 44px; padding: 0 18px; border-radius: 999px; border: 0; background: var(--green-700); color: #fff; font-weight: 700; display: inline-flex; align-items: center; text-decoration: none; cursor: pointer; }
+.pub-btn-back { justify-self: start; height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; display: inline-flex; align-items: center; text-decoration: none; color: var(--ink); cursor: pointer; }
+.pub-notice { text-decoration: none; color: var(--ink); display: grid; grid-template-columns: 64px 1fr; gap: 14px; align-items: center; padding: 14px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); }
+.pub-notice:hover { box-shadow: var(--shadow-md); border-color: var(--green-500); }
+.pub-date-tile { display: grid; text-align: center; line-height: 1.45; padding: 8px 0; border-radius: 12px; background: var(--green-50); color: var(--green-700); }
+.pub-pill { padding: 1px 8px; border-radius: 999px; }
+.pub-skeleton { background: linear-gradient(90deg, var(--surface-2) 0, var(--line) 50%, var(--surface-2) 100%); background-size: 800px 100%; animation: arm-shimmer 1.2s linear infinite; }
+.pub-link { color: var(--green-700); text-underline-offset: 3px; }
+.pub-link:hover { color: var(--navy-800); }
+.pub-footlink { color: #e6f2ea; text-decoration: none; padding: 4px 0; }
+.pub-footlink:hover { text-decoration: underline; }
+.pub-masonry { column-width: 220px; column-gap: 12px; }
+.pub-masonry > * { break-inside: avoid; margin-bottom: 12px; }
+.pub-photo { position: relative; border-radius: 16px; overflow: hidden; background: var(--surface-2); }
+.pub-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pub-hero-pattern { background-color: var(--green-50); }
+.pub-root :is(h1, h2, h3, h4) { font-weight: 700; }

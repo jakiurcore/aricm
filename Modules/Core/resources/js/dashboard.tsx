@@ -15,7 +15,7 @@ registerModule({
             : menu,
     routes: [{ path: 'settings', element: <SettingsPage /> }],
     // Kept mounted for every admin page so any module can call toast().
-    fills: <Toaster richColors position="top-center" />,
+    fills: <Toaster />,
 });
 
 // The admin's own Dashboard module registers after every dashboard script, with English labels and last in the menu.

@@ -4,6 +4,7 @@ namespace Modules\Website\Services;
 
 use Modules\Academic\Models\SchoolClass;
 use Modules\Students\Services\StudentDirectory;
+use Modules\Teachers\Models\Teacher;
 
 /**
  * Figures and copy used by Website's own home sections.
@@ -21,9 +22,9 @@ class HomeContent
 
         return [
             ['value' => bn_number($this->students->activeCount()), 'label' => __('website::messages.stats.students')],
+            ['value' => bn_number(Teacher::query()->where('is_active', true)->count()), 'label' => __('website::messages.stats.teachers')],
             ['value' => bn_number(SchoolClass::query()->where('is_active', true)->count()), 'label' => __('website::messages.stats.classes')],
             ['value' => bn_number($years), 'label' => __('website::messages.stats.years')],
-            ['value' => bn_number(2), 'label' => __('website::messages.stats.divisions')],
         ];
     }
 
@@ -38,7 +39,7 @@ class HomeContent
     {
         $locale = app()->getLocale();
 
-        return (string) (setting("principal_name_{$locale}") ?: setting('principal_name_bn') ?: __('website::messages.principal.title'));
+        return (string) (setting("principal_name_{$locale}") ?: setting('principal_name_bn') ?: __('website::messages.principal.default_name'));
     }
 
     /**

@@ -1,9 +1,15 @@
 <?php
 
+use Illuminate\Support\Facades\Hash;
 use Modules\Core\Services\Settings;
+use Modules\Diary\Models\DiaryAcknowledgement;
+use Modules\Diary\Models\DiaryEntry;
+use Modules\Diary\Models\DiaryStudentRemark;
 use Modules\Diary\Services\DiaryService;
 use Modules\Exams\Models\ExamSubject;
+use Modules\TeacherPanel\Services\ClassDayReport;
 use Modules\TeacherPanel\Services\TeacherMenu;
+use Modules\TeacherPanel\Support\PanelFormat;
 use Modules\Teachers\Models\Teacher;
 use Modules\Teachers\Services\TeacherAssignments;
 use Modules\Teachers\Services\TeacherScope;
@@ -37,11 +43,13 @@ it('shows the teacher’s classes and subjects on the home page', function () {
 it('lists the day’s diary rows with their status', function () {
     $s = diarySetup();
 
-    $this->actingAs($s['teacher']->user)->get(route('teacher.diary'))->assertOk()
+    $today = now()->toDateString();
+
+    $this->actingAs($s['teacher']->user)->get(route('teacher.diary', ['date' => $today]))->assertOk()
         ->assertSee($s['subject']->name_bn)->assertSee(__('teacher-panel::messages.status.missing'));
 
     app(DiaryService::class)->save($s['teacher']->user, diaryPayload($s));
-    $this->actingAs($s['teacher']->user)->get(route('teacher.diary'))->assertSee(__('teacher-panel::messages.status.draft'));
+    $this->actingAs($s['teacher']->user)->get(route('teacher.diary', ['date' => $today]))->assertSee(__('teacher-panel::messages.status.draft'));
 });
 
 it('says the madrasa is closed on a holiday', function () {
@@ -118,4 +126,94 @@ it('opens the marks grid page only for the teacher’s own section', function ()
 
     $this->actingAs($s['teacher']->user)->get($url($s['p']['section']))->assertOk()->assertSee('marksEntry', false);
     $this->actingAs($s['teacher']->user)->get($url($s['other']))->assertForbidden();
+});
+
+it('opens the first section when the editor is visited without one', function () {
+    $s = diarySetup();
+
+    $this->actingAs($s['teacher']->user)->get(route('teacher.diary.write'))
+        ->assertRedirect(route('teacher.diary.write', ['class_id' => $s['p']['class']->id, 'section_id' => $s['p']['section']->id, 'subject_id' => $s['subject']->id]));
+});
+
+it('counts the guardians who saw an entry on the home cards', function () {
+    $s = diarySetup();
+    $entry = app(DiaryService::class)->save($s['teacher']->user, diaryPayload($s));
+    app(DiaryService::class)->publish($s['teacher']->user, $entry);
+    DiaryAcknowledgement::create(['diary_entry_id' => $entry->id, 'student_id' => $s['student']->id, 'seen_at' => now()]);
+
+    $this->actingAs($s['teacher']->user)->get(route('teacher.home'))->assertOk()
+        ->assertSee(__('teacher-panel::messages.home.published_meta', ['time' => PanelFormat::time($entry->fresh()->published_at), 'seen' => bn_digits(1), 'total' => bn_digits(1)]));
+});
+
+it('filters the history by day and keeps other teachers’ entries out', function () {
+    $s = diarySetup();
+    app(DiaryService::class)->save($s['teacher']->user, diaryPayload($s, ['lesson' => 'আমার পাঠ আজ']));
+    $other = Teacher::factory()->withLogin()->create();
+    app(TeacherAssignments::class)->assignSubject($other, $s['p']['session']->id, $s['p']['class']->id, $s['p']['section']->id, $s['subject']->id);
+    app(DiaryService::class)->save($other->user, diaryPayload($s, ['lesson' => 'অন্যের পাঠ']));
+
+    $this->actingAs($s['teacher']->user)->get(route('teacher.diary', ['date' => '2026-10-22']))->assertSee('আমার পাঠ আজ')->assertDontSee('অন্যের পাঠ');
+    $this->actingAs($s['teacher']->user)->get(route('teacher.diary', ['date' => '2026-10-21']))->assertDontSee('আমার পাঠ আজ');
+});
+
+it('returns the latest earlier published entry to copy from', function () {
+    $s = diarySetup();
+    $query = ['class_id' => $s['p']['class']->id, 'section_id' => $s['p']['section']->id, 'subject_id' => $s['subject']->id, 'date' => '2026-10-22'];
+
+    $this->actingAs($s['teacher']->user)->getJson(route('teacher.diary.previous', $query))->assertOk()->assertJsonPath('data', null);
+
+    $entry = app(DiaryService::class)->save($s['teacher']->user, diaryPayload($s, ['entry_date' => '2026-10-21', 'lesson' => 'গতকালের পাঠ']));
+    $this->actingAs($s['teacher']->user)->getJson(route('teacher.diary.previous', $query))->assertJsonPath('data', null);
+
+    app(DiaryService::class)->publish($s['teacher']->user, $entry);
+    $this->actingAs($s['teacher']->user)->getJson(route('teacher.diary.previous', $query))->assertJsonPath('data.lesson', 'গতকালের পাঠ')->assertJsonPath('data.date', '2026-10-21');
+});
+
+it('adds remarks for several students at once, opening today’s entry when there is none', function () {
+    $s = diarySetup();
+    $second = enrolled($s['p']);
+    $payload = ['section_id' => $s['p']['section']->id, 'student_ids' => [$s['student']->id, $second->id], 'kind' => 'no_homework'];
+
+    $this->actingAs($s['teacher']->user)->postJson(route('teacher.remarks.store'), $payload)->assertCreated()->assertJsonCount(2, 'data');
+
+    expect(DiaryStudentRemark::count())->toBe(2)->and(DiaryEntry::count())->toBe(1)->and(DiaryEntry::first()->subject_id)->toBe($s['subject']->id);
+    $this->actingAs($s['teacher']->user)->get(route('teacher.remarks'))->assertOk()->assertSee(__('diary::messages.remark_kinds.no_homework'));
+});
+
+it('refuses remarks outside the teacher’s sections or for an unknown kind', function () {
+    $s = diarySetup();
+    $payload = ['section_id' => $s['p']['section']->id, 'student_ids' => [$s['student']->id], 'kind' => 'praise'];
+
+    $this->actingAs($s['teacher']->user)->postJson(route('teacher.remarks.store'), [...$payload, 'section_id' => $s['other']->id])->assertForbidden();
+    $this->actingAs($s['teacher']->user)->postJson(route('teacher.remarks.store'), [...$payload, 'kind' => 'nope'])->assertJsonValidationErrors('kind');
+    $this->actingAs(userWithRole('accountant'))->postJson(route('teacher.remarks.store'), $payload)->assertForbidden();
+});
+
+it('reports the class day and texts the teachers and guardians who are behind', function () {
+    $s = diarySetup();
+    config(['modules.core.sms.driver' => 'log']);
+    $s['student']->update(['guardian_phone' => '01711111111']);
+    $classTeacher = Teacher::factory()->withLogin()->create(['phone' => '01722222222']);
+    app(TeacherAssignments::class)->setClassTeacher($classTeacher, $s['p']['session']->id, $s['p']['class']->id, $s['p']['section']->id);
+    $entry = app(DiaryService::class)->save($s['teacher']->user, diaryPayload($s));
+    app(DiaryService::class)->publish($s['teacher']->user, $entry);
+
+    $report = app(ClassDayReport::class)->build($s['p']['class']->id, $s['p']['section']->id, now());
+    expect($report['written'])->toBe(1)->and($report['seen'])->toBe(0)->and($report['notSeen']->pluck('id')->all())->toBe([$s['student']->id]);
+
+    $this->actingAs($classTeacher->user)->postJson(route('teacher.class-day.sms', ['section_id' => $s['p']['section']->id]))->assertOk()->assertJsonPath('sent', 1);
+    $this->actingAs($classTeacher->user)->postJson(route('teacher.class-day.remind', ['section_id' => $s['p']['section']->id]))->assertOk()->assertJsonPath('sent', 0);
+    $this->actingAs($s['teacher']->user)->postJson(route('teacher.class-day.sms'))->assertForbidden();
+});
+
+it('shows the profile and changes the password only with the current one', function () {
+    $s = diarySetup();
+    $user = $s['teacher']->user;
+
+    $this->actingAs($user)->get(route('teacher.profile'))->assertOk()->assertSee($user->email)->assertSee($s['subject']->name_bn);
+
+    $this->actingAs($user)->put(route('teacher.password.update'), ['current_password' => 'wrong', 'password' => 'newsecret', 'password_confirmation' => 'newsecret'])->assertSessionHasErrors('current_password');
+    $this->actingAs($user)->put(route('teacher.password.update'), ['current_password' => 'password', 'password' => 'newsecret', 'password_confirmation' => 'newsecret'])->assertRedirect(route('teacher.profile'));
+
+    expect(Hash::check('newsecret', $user->fresh()->password))->toBeTrue();
 });

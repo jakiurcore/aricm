@@ -16,7 +16,7 @@ interface NativeSelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
 export function NativeSelect({ options, placeholder, className, ...props }: NativeSelectProps) {
     return (
         <select
-            className={cn('h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50', className)}
+            className={cn('h-11 w-full min-w-0 cursor-pointer rounded-xl border border-input bg-surface px-3 text-base text-foreground outline-none focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-yellow-400 disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-faint aria-invalid:border-destructive', className)}
             {...props}
         >
             {placeholder !== undefined && <option value="">{placeholder}</option>}

@@ -35,7 +35,7 @@ class DiaryService
     /**
      * Create or update the teacher's entry for the section, subject and day. Safe to call repeatedly (autosave).
      *
-     * @param  array{class_id: int, section_id: int, subject_id?: int|null, entry_date: string, lesson?: string|null, homework?: string|null, note?: string|null, homework_due_date?: string|null}  $data
+     * @param  array{class_id: int, section_id: int, subject_id?: int|null, entry_date: string, lesson?: string|null, next_lesson?: string|null, homework?: string|null, note?: string|null, homework_due_date?: string|null}  $data
      */
     public function save(Authenticatable $user, array $data): DiaryEntry
     {
@@ -61,6 +61,7 @@ class DiaryService
             'session_id' => $this->academic->currentSession()?->id,
             'class_id' => $data['class_id'],
             'lesson' => $this->clean($data['lesson'] ?? null),
+            'next_lesson' => $this->clean($data['next_lesson'] ?? null),
             'homework' => $this->clean($data['homework'] ?? null),
             'note' => $this->clean($data['note'] ?? null),
             'homework_due_date' => $this->dueDate($date, $data['homework'] ?? null, $data['homework_due_date'] ?? null),
@@ -116,7 +117,13 @@ class DiaryService
             return false;
         }
 
-        return ! $entry->isPublished() || $entry->published_at === null || $entry->published_at->addHours($this->settings->editWindowHours())->isFuture();
+        if (! $entry->isPublished() || $entry->published_at === null) {
+            return true;
+        }
+
+        $deadline = $this->settings->editDeadline($entry->published_at);
+
+        return $deadline === null || $deadline->isFuture();
     }
 
     public function canDelete(?Authenticatable $user, DiaryEntry $entry): bool
@@ -234,5 +241,25 @@ class DiaryService
     protected function deleteFile(DiaryAttachment $attachment): void
     {
         Storage::disk(config('modules.diary.attachments.disk', 'public'))->delete($attachment->path);
+    }
+
+    /**
+     * A diary manager correcting an entry from the monitor. Content only: who wrote it and for which section never change.
+     *
+     * @param  array{lesson?: string|null, next_lesson?: string|null, homework?: string|null, note?: string|null}  $data
+     */
+    public function adminUpdate(Authenticatable $user, DiaryEntry $entry, array $data): DiaryEntry
+    {
+        abort_unless($user->can('diary.manage'), 403);
+
+        $entry->fill(array_map(fn (?string $value): ?string => $this->clean($value), $data));
+
+        if ($entry->isPublished() && $entry->isDirty()) {
+            $entry->last_edited_at = now();
+        }
+
+        $entry->save();
+
+        return $entry;
     }
 }

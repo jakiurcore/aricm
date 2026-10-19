@@ -7,6 +7,9 @@
 
         <title>{{ config('app.name') }}</title>
 
+        {{-- The theme before first paint, so a dark admin never flashes light. Same key as the design (arm_theme). --}}
+        <script>try { document.documentElement.dataset.theme = localStorage.getItem('arm_theme') === 'dark' ? 'dark' : 'light'; } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+
         {{-- Translations are inlined so the admin never renders before they are there (see Core's i18n helper). --}}
         <script>window.__I18N__ = @json(['locale' => app()->getLocale(), 'messages' => app(\Modules\Core\Services\JsTranslations::class)->for(app()->getLocale())], JSON_UNESCAPED_UNICODE);</script>
 

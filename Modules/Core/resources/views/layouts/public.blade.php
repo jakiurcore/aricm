@@ -5,6 +5,21 @@
     $identity = $site->identity();
     $nav = $site->nav();
     $ticker = $site->ticker();
+    $locale = app()->getLocale();
+    $year = bn_digits(now()->format('Y'));
+    $isActive = function (string $route): bool {
+        $pattern = match (true) {
+            str_ends_with($route, '.index') => substr($route, 0, -5).'*',
+            $route === 'admission.public' => 'admission.*',
+            $route === 'results.public' => 'results.*',
+            default => $route,
+        };
+
+        return request()->routeIs($pattern);
+    };
+    $teacherUrl = Route::has('teacher.home') ? route('teacher.home') : (Route::has('login') ? route('login') : url('/'));
+    $loginUrl = Route::has('student.login') ? route('student.login') : url('/');
+    $heroPhone = $identity['phones'][0] ?? null;
 @endphp
 
 @push('meta')
@@ -17,92 +32,116 @@
 @endpush
 
 @section('body')
-    <div x-data="{ drawer: false }" @keydown.escape.window="drawer = false">
+    <div class="pub-root" x-data="{ drawer: false, dark: document.documentElement.getAttribute('data-theme') === 'dark' }" @keydown.escape.window="drawer = false" x-effect="document.body.style.overflow = drawer ? 'hidden' : ''">
         @if ($ticker)
-            <div class="flex h-10 items-stretch overflow-hidden border-b border-line bg-surface">
-                <div class="flex flex-none items-center bg-red-600 px-4 text-sm font-bold text-white">{{ __('core::nav.new') }}</div>
-                <div class="min-w-0 flex-1 overflow-hidden">
-                    <div class="flex h-full w-max items-center gap-10 whitespace-nowrap px-4 text-sm hover:[animation-play-state:paused]" style="animation: arm-tick 40s linear infinite;">
+            <div style="display: flex; align-items: center; height: 40px; background: var(--green-900); color: #fff; overflow: hidden;">
+                <span style="flex: none; height: 100%; display: flex; align-items: center; padding: 0 14px; background: var(--red-600); color: #fff; font-weight: 700; font-size: 14px;">{{ __('core::nav.new') }}</span>
+                <div style="flex: 1; min-width: 0; overflow: hidden; font-size: 15px;">
+                    <div class="pub-tick">
                         @foreach ([...$ticker, ...$ticker] as $item)
-                            @if ($item->url)<a href="{{ $item->url }}" class="text-ink no-underline hover:underline">• {{ $item->text }}</a>@else<span>• {{ $item->text }}</span>@endif
+                            @if ($item->url)
+                                <a href="{{ $item->url }}" style="padding: 0 28px; white-space: nowrap; color: #fff; text-decoration: none;">◆&nbsp; {{ $item->text }}</a>
+                            @else
+                                <span style="padding: 0 28px; white-space: nowrap;">◆&nbsp; {{ $item->text }}</span>
+                            @endif
                         @endforeach
                     </div>
                 </div>
             </div>
-            <style>@keyframes arm-tick { from { transform: translateX(0); } to { transform: translateX(-50%); } } @media (prefers-reduced-motion: reduce) { [style*="arm-tick"] { animation: none !important; } }</style>
         @endif
 
-        <header class="sticky top-0 z-30 border-b border-line bg-surface shadow-sm">
-            <div class="mx-auto flex max-w-page items-center gap-3 px-4 py-2.5">
-                <a href="{{ $nav[0]['url'] ?? url('/') }}" class="flex min-w-0 flex-1 items-center gap-3 no-underline">
-                    <img src="{{ $identity['logo'] }}" alt="" class="size-12 flex-none rounded-full border border-line object-cover">
-                    <span class="grid min-w-0 leading-tight">
-                        <span class="font-head text-base text-heading md:text-lg">{{ $identity['name'] }}</span>
-                        <span class="text-xs text-ink-muted">{{ __('core::nav.established') }}: {{ $identity['established'] }} · {{ __('core::nav.place') }}</span>
+        <header style="position: sticky; top: 0; z-index: 40; background: var(--surface); border-bottom: 1px solid var(--line); box-shadow: var(--shadow-sm);">
+            <div style="max-width: 1240px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 12px;">
+                <a href="{{ $nav[0]['url'] ?? url('/') }}" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); min-width: 0; flex: 1;">
+                    <img src="{{ $identity['logo'] }}" alt="" style="flex: none; width: 52px; height: 52px; border-radius: 50%; background: #fff; object-fit: contain; border: 1px solid var(--line);">
+                    <span style="min-width: 0; display: grid; line-height: 1.35;">
+                        <span style="font-family: var(--f-head); font-size: 17px; color: var(--heading); font-weight: 600; text-wrap: balance;">{{ $identity['name'] }}</span>
+                        <span style="font-size: 13px; color: var(--muted);">{{ __('core::nav.established_line', ['year' => $identity['established']]) }}</span>
                     </span>
                 </a>
-                <div class="flex flex-none items-center gap-2">
-                    <div class="flex rounded-full border border-line bg-surface-2 p-0.5 text-xs font-bold">
-                        <a href="{{ route('core.locale', 'bn') }}" class="rounded-full px-3 py-1.5 no-underline {{ app()->getLocale() === 'bn' ? 'bg-brand text-white' : 'text-ink' }}">বাং</a>
-                        <a href="{{ route('core.locale', 'en') }}" class="rounded-full px-3 py-1.5 no-underline {{ app()->getLocale() === 'en' ? 'bg-brand text-white' : 'text-ink' }}">EN</a>
+                <div style="display: flex; align-items: center; gap: 8px; flex: none;">
+                    <div role="group" aria-label="{{ __('core::nav.language') }}" style="display: flex; padding: 3px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line);">
+                        <a href="{{ route('core.locale', 'bn') }}" @if ($locale === 'bn') aria-current="true" @endif style="min-width: 44px; height: 36px; display: grid; place-items: center; border-radius: 999px; text-decoration: none; font-weight: 700; font-size: 14px; background: {{ $locale === 'bn' ? 'var(--green-700)' : 'transparent' }}; color: {{ $locale === 'bn' ? '#fff' : 'var(--muted)' }};">বাং</a>
+                        <a href="{{ route('core.locale', 'en') }}" @if ($locale === 'en') aria-current="true" @endif style="min-width: 44px; height: 36px; display: grid; place-items: center; border-radius: 999px; text-decoration: none; font-weight: 700; font-size: 14px; font-family: Poppins, sans-serif; background: {{ $locale === 'en' ? 'var(--green-700)' : 'transparent' }}; color: {{ $locale === 'en' ? '#fff' : 'var(--muted)' }};">EN</a>
                     </div>
-                    <div class="hidden gap-2 lg:flex">
-                        @if (Route::has('admission.public'))<a href="{{ route('admission.public') }}" class="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white no-underline">{{ __('core::nav.admission_open') }}</a>@endif
-                        <a href="{{ Route::has('student.login') ? route('student.login') : url('/') }}" class="rounded-md border border-line-strong px-4 py-2 text-sm font-semibold text-ink no-underline">{{ __('core::nav.login') }}</a>
+                    <button type="button" aria-label="{{ __('core::nav.theme') }}" @click="dark = !dark; document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light'); try { localStorage.setItem('arm_theme', dark ? 'dark' : 'light') } catch (e) {}" style="width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; font-size: 18px;" x-text="dark ? '☀' : '☾'">☾</button>
+                    <div class="hidden lg:flex" style="gap: 8px;">
+                        @if (Route::has('admission.public'))
+                            <a href="{{ route('admission.public') }}" style="height: 44px; padding: 0 18px; border: 0; border-radius: 999px; background: var(--red-600); color: #fff; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(214,32,42,.25); text-decoration: none;"><span style="width: 8px; height: 8px; border-radius: 50%; background: var(--yellow-400);"></span>{{ __('core::nav.admission_open') }}</a>
+                        @endif
+                        <a href="{{ $loginUrl }}" style="height: 44px; padding: 0 18px; border-radius: 999px; border: 2px solid var(--navy-800); color: var(--navy-800); font-weight: 700; display: flex; align-items: center; text-decoration: none;">{{ __('core::nav.login') }}</a>
                     </div>
-                    <button type="button" class="grid size-11 place-items-center rounded-md border border-line-strong text-xl lg:hidden" @click="drawer = true" aria-label="{{ __('core::nav.menu') }}">☰</button>
+                    <button type="button" class="lg:hidden" @click="drawer = true" aria-label="{{ __('core::nav.menu') }}" style="width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--line); background: var(--green-700); color: #fff; font-size: 20px; cursor: pointer;">☰</button>
                 </div>
             </div>
-            <nav class="hidden border-t border-line bg-green-700 lg:block">
-                <div class="mx-auto flex max-w-page flex-wrap px-2">
+            <nav class="hidden lg:block" style="border-top: 1px solid var(--line);">
+                <div style="max-width: 1240px; margin: 0 auto; padding: 0 8px; display: flex; flex-wrap: wrap; gap: 2px;">
                     @foreach ($nav as $item)
-                        <a href="{{ $item['url'] }}" class="px-3.5 py-2.5 text-[15px] font-medium text-white no-underline hover:bg-white/15 {{ request()->routeIs($item['route']) ? 'bg-white/20' : '' }}">{{ $item['label'] }}</a>
+                        @php($active = $isActive($item['route']))
+                        <a href="{{ $item['url'] }}" @if ($active) aria-current="page" @endif style="padding: 10px 14px; text-decoration: none; font-weight: 600; font-size: 15px; color: {{ $active ? 'var(--green-700)' : 'var(--ink)' }}; box-shadow: inset 0 -3px 0 {{ $active ? 'var(--green-700)' : 'transparent' }};">{{ $item['label'] }}</a>
                     @endforeach
                 </div>
             </nav>
         </header>
 
-        <div x-show="drawer" x-cloak x-transition.opacity class="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-green-700 text-white" style="display: none;">
-            <div class="flex items-center justify-between border-b border-white/25 px-4 py-3">
-                <span class="font-head text-lg">{{ __('core::nav.menu') }}</span>
-                <button type="button" class="size-11 rounded-md border border-white text-xl" @click="drawer = false" aria-label="{{ __('core::nav.close') }}">✕</button>
+        <div x-show="drawer" x-cloak x-transition.opacity.duration.200ms class="flex flex-col lg:hidden" style="display: none; position: fixed; inset: 0; z-index: 60; background: var(--green-700); color: #fff; overflow-y: auto;" role="dialog" aria-modal="true">
+            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,.2);">
+                <img src="{{ $identity['logo'] }}" alt="" style="width: 44px; height: 44px; border-radius: 50%; background: #fff; object-fit: contain;">
+                <span style="flex: 1; font-family: var(--f-head); font-size: 17px;">{{ __('core::nav.short_name') }}</span>
+                <button type="button" @click="drawer = false" aria-label="{{ __('core::nav.close') }}" style="width: 44px; height: 44px; border-radius: 12px; border: 1px solid rgba(255,255,255,.4); background: transparent; color: #fff; font-size: 20px; cursor: pointer;">✕</button>
             </div>
-            <nav class="grid py-2">
+            <nav style="display: grid; padding: 8px;">
                 @foreach ($nav as $item)
-                    <a href="{{ $item['url'] }}" class="border-b border-white/15 px-5 py-3 text-xl font-medium text-white no-underline">{{ $item['label'] }}</a>
+                    <a href="{{ $item['url'] }}" style="color: #fff; text-decoration: none; padding: 12px 16px; border-radius: 12px; font-size: 20px; font-weight: 600; background: {{ $isActive($item['route']) ? 'rgba(255,255,255,.14)' : 'transparent' }};">{{ $item['label'] }}</a>
                 @endforeach
             </nav>
-            <div class="grid gap-3 px-4 pb-8 pt-5">
-                @if (Route::has('admission.public'))<a href="{{ route('admission.public') }}" class="rounded-md bg-red-600 px-4 py-3 text-center text-lg font-semibold text-white no-underline">{{ __('core::nav.admission_open') }}</a>@endif
-                <a href="{{ Route::has('student.login') ? route('student.login') : url('/') }}" class="rounded-md border border-white px-4 py-3 text-center text-lg font-semibold text-white no-underline">{{ __('core::nav.login') }}</a>
-                @foreach ($identity['phones'] as $phone)<a href="tel:{{ $phone }}" class="text-yellow-400">{{ bn_digits($phone) }}</a>@endforeach
+            <div style="display: grid; gap: 10px; padding: 16px 16px 32px; margin-top: auto;">
+                @if (Route::has('admission.public'))
+                    <a href="{{ route('admission.public') }}" style="height: 52px; border: 0; border-radius: 999px; background: var(--red-600); color: #fff; font-weight: 700; font-size: 17px; display: grid; place-items: center; text-decoration: none;">{{ __('core::nav.admission_open') }}</a>
+                @endif
+                <a href="{{ $loginUrl }}" style="height: 52px; border-radius: 999px; background: #fff; color: var(--green-700); font-weight: 700; font-size: 17px; display: grid; place-items: center; text-decoration: none;">{{ __('core::nav.login') }}</a>
+                <div style="display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; padding-top: 8px;">
+                    @foreach ($identity['phones'] as $phone)
+                        <a href="tel:{{ $phone }}" style="color: var(--yellow-400); font-weight: 600;">☎ {{ bn_digits($phone) }}</a>
+                    @endforeach
+                </div>
             </div>
         </div>
 
         <main>@yield('content')</main>
 
-        <footer class="mt-16 bg-green-900 text-white">
-            <div class="mx-auto grid max-w-page gap-8 px-4 py-10 md:grid-cols-3">
-                <div>
-                    <p class="font-head text-lg">{{ $identity['name'] }}</p>
-                    <p class="mt-2 text-sm text-white/80">{{ $identity['tagline'] }}</p>
+        <footer style="margin-top: 64px; background: var(--green-900); color: #E6F2EA;">
+            <div style="max-width: 1240px; margin: 0 auto; padding: 40px 16px 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 28px;">
+                <div style="display: grid; gap: 10px; align-content: start;">
+                    <img src="{{ $identity['logo'] }}" alt="" style="width: 72px; height: 72px; border-radius: 50%; background: #fff; object-fit: contain;">
+                    <strong style="font-family: var(--f-head); font-size: 18px; color: #fff;">{{ $identity['name'] }}</strong>
+                    <span style="font-size: 15px;">{{ $identity['address'] }}</span>
                 </div>
-                <div class="text-sm">
-                    <p class="mb-2 font-semibold">{{ __('core::nav.contact') }}</p>
-                    <p class="text-white/80">{{ $identity['address'] }}</p>
-                    @foreach ($identity['phones'] as $phone)<p><a href="tel:{{ $phone }}" class="text-yellow-400 no-underline">{{ bn_digits($phone) }}</a></p>@endforeach
-                    @if ($identity['email'])<p><a href="mailto:{{ $identity['email'] }}" class="text-yellow-400 no-underline">{{ $identity['email'] }}</a></p>@endif
+                <div style="display: grid; gap: 6px; align-content: start;">
+                    <strong style="color: var(--yellow-400);">{{ __('core::nav.links') }}</strong>
+                    @foreach (array_slice($nav, 1, 6) as $item)
+                        <a href="{{ $item['url'] }}" class="pub-footlink">{{ $item['label'] }}</a>
+                    @endforeach
                 </div>
-                <div class="text-sm">
-                    <p class="mb-2 font-semibold">{{ __('core::nav.links') }}</p>
-                    <div class="grid gap-1">
-                        @foreach (array_slice($nav, 0, 6) as $item)<a href="{{ $item['url'] }}" class="text-white/80 no-underline hover:text-white">{{ $item['label'] }}</a>@endforeach
+                <div style="display: grid; gap: 6px; align-content: start;">
+                    <strong style="color: var(--yellow-400);">{{ __('core::nav.portals') }}</strong>
+                    <a href="{{ $loginUrl }}" class="pub-footlink">{{ __('core::nav.student_portal') }}</a>
+                    <a href="{{ $teacherUrl }}" class="pub-footlink">{{ __('core::nav.teacher_panel') }}</a>
+                    <a href="{{ url('/admin') }}" class="pub-footlink">{{ __('core::nav.admin_panel') }}</a>
+                </div>
+                <div style="display: grid; gap: 8px; align-content: start;">
+                    <strong style="color: var(--yellow-400);">{{ __('core::nav.phone') }}</strong>
+                    @foreach ($identity['phones'] as $phone)
+                        <a href="tel:{{ $phone }}" style="color: #fff; font-weight: 600; text-decoration: underline; text-underline-offset: 3px;">☎ {{ bn_digits($phone) }}</a>
+                    @endforeach
+                    <div style="display: flex; gap: 8px; margin-top: 6px;">
+                        <a href="{{ $identity['facebook'] ?: '#' }}" aria-label="Facebook" rel="noopener" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,.1); color: #fff; display: grid; place-items: center; text-decoration: none; font-weight: 700; font-family: Poppins;">f</a>
+                        <a href="{{ $identity['youtube'] ?: '#' }}" aria-label="YouTube" rel="noopener" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,.1); color: #fff; display: grid; place-items: center; text-decoration: none;">▶</a>
+                        <a href="{{ $heroPhone ? 'https://wa.me/88'.$heroPhone : '#' }}" aria-label="WhatsApp" rel="noopener" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,.1); color: #fff; display: grid; place-items: center; text-decoration: none;">✆</a>
                     </div>
-                    @if ($identity['facebook'])<a href="{{ $identity['facebook'] }}" class="mt-2 block text-yellow-400 no-underline" rel="noopener">Facebook</a>@endif
-                    @if ($identity['youtube'])<a href="{{ $identity['youtube'] }}" class="block text-yellow-400 no-underline" rel="noopener">YouTube</a>@endif
                 </div>
             </div>
-            <div class="border-t border-white/15 py-4 text-center text-xs text-white/70">© {{ bn_digits(now()->format('Y')) }} {{ $identity['name'] }}</div>
+            <div style="border-top: 1px solid rgba(255,255,255,.12); padding: 16px; text-align: center; font-size: 14px;">{{ __('core::nav.copyright', ['year' => $year, 'name' => $identity['name']]) }}</div>
         </footer>
     </div>
 @endsection

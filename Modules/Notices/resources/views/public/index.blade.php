@@ -3,36 +3,34 @@
 @section('title', __('notices::messages.title'))
 
 @section('content')
-    <div class="mx-auto max-w-page px-4 py-10">
-        <h1 class="mb-6 font-head text-3xl text-heading">{{ __('notices::messages.title') }}</h1>
+    <div style="max-width: 960px; margin: 0 auto; padding: 40px 16px 0; display: grid; gap: 20px;">
+        <h1 class="pub-h1-sm">{{ __('notices::messages.title') }}</h1>
 
-        <div class="mb-6 flex flex-wrap items-center gap-2">
-            <a href="{{ route('notices.public.index') }}" class="rounded-full border px-4 py-1.5 text-sm no-underline {{ ! $category ? 'border-brand bg-brand text-white' : 'border-line-strong text-ink' }}">{{ __('notices::messages.all') }}</a>
+        <form method="GET" action="{{ route('notices.public.index') }}" role="search">
+            @if ($category)<input type="hidden" name="category" value="{{ $category }}">@endif
+            <input type="search" name="q" value="{{ request('q') }}" placeholder="🔍  {{ __('notices::messages.search') }}" aria-label="{{ __('notices::messages.search') }}" style="width: 100%; height: 52px; padding: 0 16px; border-radius: 16px; border: 1px solid var(--line-strong); background: var(--surface); font-size: 16px;">
+        </form>
+
+        <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;">
+            @php($chips = [['url' => route('notices.public.index', array_filter(['q' => request('q')])), 'label' => __('notices::messages.all'), 'on' => ! $category]])
             @foreach ($categories as $item)
-                <a href="{{ route('notices.public.index', ['category' => $item->value]) }}" class="rounded-full border px-4 py-1.5 text-sm no-underline {{ $category === $item->value ? 'border-brand bg-brand text-white' : 'border-line-strong text-ink' }}">{{ $item->label() }}</a>
+                @php($chips[] = ['url' => route('notices.public.index', array_filter(['category' => $item->value, 'q' => request('q')])), 'label' => $item->label(), 'on' => $category === $item->value])
             @endforeach
-            <form method="GET" class="ml-auto">
-                <input type="search" name="q" value="{{ request('q') }}" placeholder="{{ __('notices::messages.search') }}" class="rounded-md border border-line-strong bg-surface px-3">
-                @if ($category)<input type="hidden" name="category" value="{{ $category }}">@endif
-            </form>
+            @foreach ($chips as $chip)
+                <a href="{{ $chip['url'] }}" @if ($chip['on']) aria-current="true" @endif style="flex: none; height: 40px; padding: 0 16px; border-radius: 999px; display: inline-flex; align-items: center; text-decoration: none; border: 1px solid {{ $chip['on'] ? 'var(--green-700)' : 'var(--line-strong)' }}; background: {{ $chip['on'] ? 'var(--green-700)' : 'var(--surface)' }}; color: {{ $chip['on'] ? '#fff' : 'var(--ink)' }}; font-weight: 600;">{{ $chip['label'] }}</a>
+            @endforeach
         </div>
 
-        <div class="grid gap-4 md:grid-cols-2">
-            @forelse ($notices as $notice)
-                <a href="{{ route('notices.public.show', $notice) }}" class="block rounded-xl border border-line bg-surface p-5 no-underline shadow-sm hover:shadow-md">
-                    <div class="mb-2 flex items-center gap-2 text-xs">
-                        <span class="rounded-full bg-info-bg px-2.5 py-0.5 font-semibold text-info">{{ $notice->category->label() }}</span>
-                        @if ($notice->is_pinned)<span class="rounded-full bg-warn-bg px-2.5 py-0.5 font-semibold text-warn">📌 {{ __('notices::messages.pinned') }}</span>@endif
-                        <span class="text-ink-muted">{{ bn_date($notice->shownAt()) }}</span>
-                    </div>
-                    <h2 class="font-head text-lg text-heading">{{ $notice->title() }}</h2>
-                    <p class="mt-1 line-clamp-2 text-sm text-ink-muted">{{ \Illuminate\Support\Str::limit(strip_tags($notice->body()), 140) }}</p>
-                </a>
-            @empty
-                <p class="text-ink-muted md:col-span-2">{{ __('notices::messages.none') }}</p>
-            @endforelse
-        </div>
+        @if ($notices->isEmpty())
+            <div style="padding: 40px 20px; border-radius: 20px; border: 2px dashed var(--line-strong); text-align: center; display: grid; gap: 6px;"><span style="font-size: 32px;">📭</span><strong style="font-size: 18px;">{{ __('notices::messages.none') }}</strong><span style="color: var(--muted);">{{ __('notices::messages.none_body') }}</span></div>
+        @else
+            <div style="display: grid; gap: 10px;">
+                @foreach ($notices as $notice)
+                    <x-notices::notice-row :notice="$notice" :list="true" />
+                @endforeach
+            </div>
+        @endif
 
-        <div class="mt-8">{{ $notices->links() }}</div>
+        <div>{{ $notices->links() }}</div>
     </div>
 @endsection

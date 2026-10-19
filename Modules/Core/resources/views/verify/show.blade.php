@@ -1,29 +1,25 @@
-@extends('core::layouts.base')
+@extends('core::layouts.public')
 
 @section('title', __('core::messages.verify.title'))
 
-@section('body')
-    <main class="mx-auto flex min-h-screen max-w-lg flex-col justify-center gap-4 px-4 py-10">
-        <div class="rounded-2xl border border-line bg-surface p-6 shadow-md">
+@section('content')
+    <div style="max-width: 560px; margin: 0 auto; padding: 40px 16px 0; display: grid; gap: 16px;">
+        <div class="pub-card" style="padding: 24px; box-shadow: var(--shadow-md); border-radius: 24px; display: grid; gap: 14px;">
             @if ($result)
-                <p class="mb-2 inline-block rounded-full bg-success-bg px-3 py-1 text-sm font-semibold text-success">
-                    ✔ {{ __('core::messages.verify.valid') }}
-                </p>
-                <h1 class="mb-4 font-head text-2xl text-heading">{{ $result->title }}</h1>
-                <dl class="divide-y divide-line">
+                <span style="justify-self: start; padding: 4px 14px; border-radius: 999px; background: var(--success-bg); color: var(--success); font-weight: 700; font-size: 14px;">✔ {{ __('core::messages.verify.valid') }}</span>
+                <h1 style="margin: 0; font-family: var(--f-head); color: var(--heading); font-size: 26px; line-height: 1.35;">{{ $result->title }}</h1>
+                <dl style="margin: 0; display: grid;">
                     @foreach ($result->details as $label => $value)
-                        <div class="flex justify-between gap-4 py-2">
-                            <dt class="text-ink-muted">{{ $label }}</dt>
-                            <dd class="text-right font-medium">{{ $value }}</dd>
+                        <div style="display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-top: 1px solid var(--line);">
+                            <dt style="color: var(--muted);">{{ $label }}</dt>
+                            <dd style="margin: 0; text-align: right; font-weight: 600;">{{ $value }}</dd>
                         </div>
                     @endforeach
                 </dl>
             @else
-                <p class="mb-2 inline-block rounded-full bg-danger-bg px-3 py-1 text-sm font-semibold text-danger">
-                    ✖ {{ __('core::messages.verify.invalid') }}
-                </p>
-                <h1 class="font-head text-2xl text-heading">{{ __('core::messages.verify.not_found') }}</h1>
+                <span style="justify-self: start; padding: 4px 14px; border-radius: 999px; background: var(--danger-bg); color: var(--danger); font-weight: 700; font-size: 14px;">✖ {{ __('core::messages.verify.invalid') }}</span>
+                <h1 style="margin: 0; font-family: var(--f-head); color: var(--heading); font-size: 26px; line-height: 1.35;">{{ __('core::messages.verify.not_found') }}</h1>
             @endif
         </div>
-    </main>
+    </div>
 @endsection

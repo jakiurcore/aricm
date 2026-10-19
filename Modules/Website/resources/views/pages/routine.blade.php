@@ -3,46 +3,58 @@
 @section('title', __('website::messages.routine.title'))
 
 @section('content')
-    <div class="mx-auto max-w-4xl px-4 py-10">
-        <h1 class="mb-6 font-head text-3xl text-heading">{{ __('website::messages.routine.title') }}</h1>
+    @php
+        $weekday = fn ($date) => \Modules\Core\Support\Bangla::weekday($date);
+        $monthLabel = fn ($date) => app()->getLocale() === 'bn' ? \Modules\Core\Support\Bangla::monthName($date) : $date->format('M');
+        $timeLabel = fn ($row) => bn_digits(substr($row->start_time, 0, 5)).' – '.bn_digits(substr($row->end_time, 0, 5));
+    @endphp
+    <div style="max-width: 960px; margin: 0 auto; padding: 40px 16px 0; display: grid; gap: 20px;">
+        <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: end; justify-content: space-between;">
+            <div style="display: grid; gap: 4px;"><h1 class="pub-h1-sm">{{ __('website::messages.routine.title') }}</h1><span style="color: var(--muted);">{{ __('website::messages.routine.sub') }}</span></div>
+            @if ($exams->isNotEmpty() && $routine->isNotEmpty())
+                <button type="button" onclick="window.print()" style="height: 44px; padding: 0 18px; border-radius: 999px; border: 0; background: var(--red-600); color: #fff; font-weight: 700; cursor: pointer;">⬇ {{ __('website::messages.routine.pdf') }}</button>
+            @endif
+        </div>
 
         @if ($exams->isEmpty())
-            <p class="text-ink-muted">{{ __('website::messages.routine.none') }}</p>
+            <div style="padding: 40px 20px; border-radius: 20px; border: 2px dashed var(--line-strong); text-align: center; display: grid; gap: 6px;"><span style="font-size: 32px;">🗓</span><strong style="font-size: 18px;">{{ __('website::messages.routine.none') }}</strong><span style="color: var(--muted);">{{ __('website::messages.routine.none_body') }}</span></div>
         @else
-            <form method="GET" class="mb-6 flex flex-wrap gap-3">
-                <select name="exam" onchange="this.form.submit()" class="rounded-md border border-line-strong bg-surface px-3" aria-label="{{ __('website::messages.routine.exam') }}">
-                    @foreach ($exams as $item)<option value="{{ $item->id }}" @selected($exam?->id === $item->id)>{{ $item->displayName() }}</option>@endforeach
-                </select>
-                <select name="class" onchange="this.form.submit()" class="rounded-md border border-line-strong bg-surface px-3" aria-label="{{ __('website::messages.routine.class') }}">
-                    @foreach ($exam->classes as $item)<option value="{{ $item->id }}" @selected($class?->id === $item->id)>{{ $item->displayName() }}</option>@endforeach
-                </select>
-                <noscript><button class="rounded-md bg-brand px-4 text-white">{{ __('website::messages.routine.show') }}</button></noscript>
+            <form method="GET" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 12px; padding: 16px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line);">
+                <label class="pub-field"><span>① {{ __('website::messages.routine.exam') }}</span>
+                    <select name="exam" onchange="this.form.submit()" class="pub-input">
+                        @foreach ($exams as $item)<option value="{{ $item->id }}" @selected($exam?->id === $item->id)>{{ $item->displayName() }}</option>@endforeach
+                    </select>
+                </label>
+                <label class="pub-field"><span>② {{ __('website::messages.routine.class') }}</span>
+                    <select name="class" onchange="this.form.submit()" class="pub-input">
+                        @foreach ($exam->classes as $item)<option value="{{ $item->id }}" @selected($class?->id === $item->id)>{{ $item->displayName() }}</option>@endforeach
+                    </select>
+                </label>
+                <noscript><button class="pub-btn-green">{{ __('website::messages.routine.show') }}</button></noscript>
             </form>
 
-            {{-- A table from tablet up, one card per paper on a phone. --}}
-            <div class="hidden overflow-hidden rounded-xl border border-line md:block">
-                <table class="w-full text-sm">
-                    <thead class="bg-green-700 text-white"><tr><th class="p-3 text-left">{{ __('website::messages.routine.date') }}</th><th class="p-3 text-left">{{ __('website::messages.routine.day') }}</th><th class="p-3 text-left">{{ __('website::messages.routine.subject') }}</th><th class="p-3 text-left">{{ __('website::messages.routine.time') }}</th><th class="p-3 text-left">{{ __('website::messages.routine.room') }}</th></tr></thead>
-                    <tbody>
-                        @forelse ($routine as $row)
-                            <tr class="border-b border-line last:border-0"><td class="p-3">{{ bn_date($row->exam_date) }}</td><td class="p-3">{{ \Modules\Core\Support\Bangla::weekday($row->exam_date) }}</td><td class="p-3 font-semibold">{{ $row->subject->displayName() }}</td><td class="p-3">{{ bn_digits(substr($row->start_time, 0, 5)) }} – {{ bn_digits(substr($row->end_time, 0, 5)) }}</td><td class="p-3">{{ $row->room ? bn_digits($row->room) : '—' }}</td></tr>
-                        @empty
-                            <tr><td colspan="5" class="p-6 text-center text-ink-muted">{{ __('website::messages.routine.empty') }}</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-            <div class="grid gap-3 md:hidden">
-                @forelse ($routine as $row)
-                    <div class="rounded-xl border border-line bg-surface p-4 shadow-sm">
-                        <p class="font-head text-lg text-heading">{{ $row->subject->displayName() }}</p>
-                        <p class="text-sm text-ink-muted">{{ bn_date($row->exam_date) }} · {{ \Modules\Core\Support\Bangla::weekday($row->exam_date) }}</p>
-                        <p class="text-sm">{{ bn_digits(substr($row->start_time, 0, 5)) }} – {{ bn_digits(substr($row->end_time, 0, 5)) }}@if ($row->room) · {{ __('website::messages.routine.room') }} {{ bn_digits($row->room) }}@endif</p>
-                    </div>
-                @empty
-                    <p class="text-ink-muted">{{ __('website::messages.routine.empty') }}</p>
-                @endforelse
-            </div>
+            @if ($routine->isEmpty())
+                <div style="padding: 40px 20px; border-radius: 20px; border: 2px dashed var(--line-strong); text-align: center; display: grid; gap: 6px;"><span style="font-size: 32px;">🗓</span><strong style="font-size: 18px;">{{ __('website::messages.routine.empty') }}</strong><span style="color: var(--muted);">{{ __('website::messages.routine.empty_body') }}</span></div>
+            @else
+                <div class="hidden md:block" style="border-radius: 20px; overflow: hidden; border: 1px solid var(--line); background: var(--surface);">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead><tr style="background: var(--green-700); color: #fff; text-align: left;"><th style="padding: 12px 16px;">{{ __('website::messages.routine.date') }}</th><th style="padding: 12px 16px;">{{ __('website::messages.routine.day') }}</th><th style="padding: 12px 16px;">{{ __('website::messages.routine.subject') }}</th><th style="padding: 12px 16px;">{{ __('website::messages.routine.time') }}</th></tr></thead>
+                        <tbody>
+                            @foreach ($routine as $row)
+                                <tr style="border-top: 1px solid var(--line); background: {{ $loop->odd ? 'var(--surface)' : 'var(--surface-2)' }};"><td style="padding: 12px 16px; font-weight: 600;">{{ bn_date($row->exam_date) }}</td><td style="padding: 12px 16px; color: var(--muted);">{{ $weekday($row->exam_date) }}</td><td style="padding: 12px 16px; font-weight: 600;">{{ $row->subject->displayName() }}</td><td style="padding: 12px 16px;">{{ $timeLabel($row) }}@if ($row->room) <span style="color: var(--muted);">· {{ __('website::messages.routine.room') }} {{ bn_digits($row->room) }}</span>@endif</td></tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div class="md:hidden" style="display: grid; gap: 10px;">
+                    @foreach ($routine as $row)
+                        <div style="display: grid; grid-template-columns: 64px 1fr; gap: 14px; align-items: center; padding: 12px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line);">
+                            <span style="display: grid; text-align: center; line-height: 1.45; padding: 8px 0; border-radius: 12px; background: var(--green-700); color: #fff;"><span style="font-family: var(--f-head); font-size: 22px;">{{ bn_digits($row->exam_date->format('j')) }}</span><span style="font-size: 12px; font-weight: 700;">{{ $monthLabel($row->exam_date) }}</span></span>
+                            <span style="display: grid; line-height: 1.45;"><strong style="font-size: 17px;">{{ $row->subject->displayName() }}</strong><span style="color: var(--muted); font-size: 14px;">{{ $weekday($row->exam_date) }} · {{ $timeLabel($row) }}@if ($row->room) · {{ __('website::messages.routine.room') }} {{ bn_digits($row->room) }}@endif</span></span>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
         @endif
     </div>
 @endsection

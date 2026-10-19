@@ -51,6 +51,7 @@ class StudentRequest extends FormRequest
             'guardian_phone' => ['nullable', 'string', 'max:20'],
             'guardian_relation' => ['nullable', 'string', 'max:50'],
             'date_of_birth' => ['required', 'date', 'before:today'],
+            'birth_registration_no' => ['nullable', 'string', 'max:30'],
             'gender' => ['required', Rule::in(Gender::values())],
             'blood_group' => ['nullable', Rule::in(self::BLOOD_GROUPS)],
             'religion' => ['nullable', 'string', 'max:50'],

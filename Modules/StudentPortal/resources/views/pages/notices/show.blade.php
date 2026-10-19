@@ -1,13 +1,15 @@
 @extends('student-portal::layouts.portal')
 
-@section('title', $notice->title())
+@section('title', __('student-portal::messages.nav.notices'))
 
 @section('content')
-    <article class="space-y-3">
-        <a href="{{ route('portal.notices') }}" class="text-sm">← {{ __('student-portal::messages.notices') }}</a>
-        <p class="text-xs text-ink-muted">{{ bn_date($notice->shownAt()) }} · {{ $notice->category->label() }}</p>
-        <h1 class="font-head text-2xl text-heading">{{ $notice->title() }}</h1>
-        <div class="whitespace-pre-line leading-relaxed">{{ $notice->body() }}</div>
-        @if ($notice->attachment_url)<a href="{{ $notice->attachment_url }}" target="_blank" class="inline-flex rounded-md border border-line-strong px-4 py-2 font-semibold no-underline">📎 {{ $notice->attachment_name }}</a>@endif
-    </article>
+    <div style="display: grid; gap: 12px; max-width: 760px; width: 100%; justify-self: center;">
+        <a href="{{ route('portal.notices') }}" class="pp-btn" style="min-height: 44px; justify-self: start;">← {{ __('student-portal::messages.nav.notices') }}</a>
+        <article class="pp-card" style="padding: 20px; box-shadow: var(--shadow-md); display: grid; gap: 12px;">
+            <span style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; color: var(--ds-muted);"><span class="pp-pill" style="background: var(--green-50); color: var(--green-700);">{{ $notice->category->label() }}</span>{{ bn_date($notice->shownAt()) }}</span>
+            <h1 class="pp-head" style="margin: 0; color: var(--heading); font-size: 22px; line-height: 1.5; font-weight: 700;">{{ $notice->title() }}</h1>
+            <div style="white-space: pre-line; line-height: 1.8;">{{ $notice->body() }}</div>
+            @if ($notice->attachment_url)<a href="{{ $notice->attachment_url }}" target="_blank" rel="noopener" class="pp-btn" style="justify-self: start;">📎 {{ $notice->attachment_name }}</a>@endif
+        </article>
+    </div>
 @endsection

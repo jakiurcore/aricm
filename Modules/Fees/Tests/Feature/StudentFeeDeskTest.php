@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Carbon;
+use Laramod\Facades\Modules;
 use Modules\Fees\Enums\PaymentMethod;
 use Modules\Fees\Models\FeeInvoice;
 use Modules\Fees\Services\FeeSettings;
@@ -86,7 +87,7 @@ it('menu and summary come from Fees through the core contracts', function () {
     feeSetup($p);
     $student = enrolled($p);
     invoicesFor($student, ['2026-01-01']);
-    $module = Laramod\Facades\Modules::find('fees');
+    $module = Modules::find('fees');
 
     $menu = $module->portalMenu($student)[0];
     expect($menu->badgeFor($student))->toBe(1)->and($menu->route)->toBe('portal.fees');

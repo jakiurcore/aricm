@@ -122,3 +122,13 @@ it('removing a class from an exam clears its setup', function () {
 
     expect(ExamSubject::where('exam_id', $exam->id)->count())->toBe(0);
 });
+
+it('tells the exam list how many distinct subjects and whether the result is out', function () {
+    $p = placement();
+    $exam = examFor($p, withRoutine: false);
+
+    $this->actingAs(userWithRole('admin'))->getJson(route('exams.api.index'))
+        ->assertOk()
+        ->assertJsonPath('data.0.subjects_count', $exam->subjects()->pluck('subject_id')->unique()->count())
+        ->assertJsonPath('data.0.result_published', false);
+});

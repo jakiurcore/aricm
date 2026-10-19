@@ -26,6 +26,10 @@ export interface Student {
     residency_type: string;
     photo_url: string | null;
     must_change_password: boolean;
+    birth_registration_no?: string | null;
+    /** Only on the list: what Fees says (paid / due), and the latest published GPA when asked for. */
+    fee_badge?: 'paid' | 'due' | null;
+    latest_gpa?: number | null;
 }
 
 export const STATUSES = ['active', 'inactive', 'transferred', 'passed_out'] as const;

@@ -99,3 +99,23 @@ it('gives read-only users a list but no writes', function () {
 it('renders the shared public layout with navigation and the language switch', function () {
     $this->get(route('notices.public.index'))->assertOk()->assertSee(route('core.locale', 'en'), false)->assertSee(__('core::nav.notices'));
 });
+
+it('keeps only safe formatting in a notice body', function () {
+    $admin = userWithRole('admin');
+    $dirty = '<p onclick="x()">খবর <b>গুরুত্বপূর্ণ</b></p><script>alert(1)</script><ul><li>এক</li></ul><a href="javascript:alert(1)">খারাপ</a> <a href="https://example.com" onclick="y()">ভালো</a><img src=x onerror=z()>';
+
+    $id = $this->actingAs($admin)->postJson(route('notices.api.store'), ['title_bn' => 'ফরম্যাট', 'body_bn' => $dirty, 'category' => 'general'])->assertCreated()->json('data.id');
+
+    $stored = Notice::find($id)->body_bn;
+    expect($stored)->toContain('<b>গুরুত্বপূর্ণ</b>')->toContain('<li>এক</li>')->toContain('href="https://example.com"')
+        ->not->toContain('script')->not->toContain('onclick')->not->toContain('javascript:')->not->toContain('<img');
+});
+
+it('prints a formatted body as HTML on the public page and as text elsewhere', function () {
+    $notice = Notice::factory()->create(['body_bn' => '<p>প্রথম লাইন</p><ul><li>এক</li><li>দুই</li></ul>']);
+    $plain = Notice::factory()->create(['body_bn' => "প্রথম\nদ্বিতীয় & তৃতীয়"]);
+
+    $this->get(route('notices.public.show', $notice))->assertOk()->assertSee('<li>এক</li>', false);
+    expect($notice->body())->toBe("প্রথম লাইন\n• এক\n• দুই");
+    $this->get(route('notices.public.show', $plain))->assertOk()->assertSee('প্রথম<br />', false)->assertSee('দ্বিতীয় &amp; তৃতীয়', false);
+});

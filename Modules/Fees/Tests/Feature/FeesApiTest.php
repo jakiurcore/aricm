@@ -287,3 +287,40 @@ it('reports the dashboard numbers', function () {
     $this->actingAs(userWithRole('admin'))->getJson(route('fees.api.dashboard'))->assertOk()
         ->assertJsonPath('data.billed_this_month', 130000)->assertJsonPath('data.collected_today', 30000)->assertJsonPath('data.pending_verifications', 1)->assertJsonPath('data.outstanding', 100000);
 });
+
+it('gives the admin dashboard its students, fees, exam and activity in one call', function () {
+    $p = placement();
+    feeSetup($p);
+    $student = enrolled($p);
+    $invoice = invoicesFor($student, [now()->startOfMonth()->toDateString()])[0];
+    submit($student, [$invoice->id], 'OVER000001');
+    app(PaymentService::class)->collectAtCounter($student, taka(300), PaymentMethod::Cash, [], userWithRole('accountant'));
+
+    $this->actingAs(userWithRole('admin'))->getJson(route('fees.api.overview'))->assertOk()
+        ->assertJsonPath('data.students.total', 1)
+        ->assertJsonPath('data.students.by_class.0.count', 1)
+        ->assertJsonPath('data.fees.expected_this_month', 130000)
+        ->assertJsonPath('data.fees.collected_today', 30000)
+        ->assertJsonPath('data.fees.receipts_today', 1)
+        ->assertJsonPath('data.fees.pending_amount', 130000)
+        ->assertJsonPath('data.fees.top_dues.0.due', 100000)
+        ->assertJsonPath('data.pending_verifications', 1)
+        ->assertJsonStructure(['data' => ['exam' => ['count', 'next'], 'activity']]);
+});
+
+it('keeps the dashboard overview away from teachers and guests', function () {
+    $this->getJson(route('fees.api.overview'))->assertUnauthorized();
+    $this->actingAs(userWithRole('teacher'))->getJson(route('fees.api.overview'))->assertForbidden();
+});
+
+it('uses a chosen due date for monthly invoices and lists payments in bigger pages', function () {
+    $p = placement();
+    feeSetup($p);
+    enrolled($p);
+    $admin = userWithRole('admin');
+
+    $this->actingAs($admin)->postJson(route('fees.api.invoices.generate.monthly'), ['month' => '2026-03', 'due_date' => '2026-03-25', 'confirm' => true])->assertOk();
+    expect(FeeInvoice::first()->due_date->toDateString())->toBe('2026-03-25');
+
+    $this->actingAs($admin)->getJson(route('fees.api.invoices.index', ['per_page' => 100]))->assertOk()->assertJsonPath('meta.per_page', 100);
+});
