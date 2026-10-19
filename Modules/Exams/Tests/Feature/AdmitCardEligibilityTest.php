@@ -87,3 +87,28 @@ it('releases and previews the roster through the API', function () {
 
     $this->actingAs(userWithRole('accountant'))->postJson(route('exams.api.admit.release', $exam), ['released' => false])->assertForbidden();
 });
+
+it('prints admit cards as a PDF for eligible students only', function () {
+    $p = placement();
+    enrolled($p, ['roll' => 1]);
+    $exam = examFor($p, released: false);   // an admin may print before releasing
+    $admin = userWithRole('admin');
+    $url = route('exams.api.admit.pdf', ['exam' => $exam, 'class_id' => $p['class']->id]);
+
+    $response = $this->actingAs($admin)->get($url)->assertOk();
+    expect($response->headers->get('Content-Type'))->toBe('application/pdf')->and($response->getContent())->toStartWith('%PDF');
+
+    Modules::register(blockingProvider(false));
+    $this->actingAs($admin)->getJson($url)->assertNotFound();
+    $this->actingAs($admin)->get($url.'&only_eligible=0')->assertOk();
+
+    $this->actingAs(userWithRole('accountant'))->get($url)->assertForbidden();
+});
+
+it('prints nothing for a class that is not part of the exam', function () {
+    $p = placement();
+    $exam = examFor($p);
+    $other = placement();
+
+    $this->actingAs(userWithRole('admin'))->get(route('exams.api.admit.pdf', ['exam' => $exam, 'class_id' => $other['class']->id]))->assertNotFound();
+});

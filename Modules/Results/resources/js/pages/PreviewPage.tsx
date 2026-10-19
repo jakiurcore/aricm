@@ -1,8 +1,10 @@
+import { PrinterIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router';
 
 import { useAcademicOptions } from '@academic/js/hooks/useAcademicOptions';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { api } from '@core/js/api';
 import { NativeSelect } from '@core/js/components/NativeSelect';
 import { t } from '@core/js/i18n';
@@ -66,6 +68,14 @@ export function PreviewPage() {
                         ))}
                     </div>
                 </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+                {(['tabulation', 'merit', 'marksheets'] as const).map((document) => (
+                    <Button key={document} variant="outline" size="sm" render={<a href={`/api/results/exams/${examId}/classes/${classId}/${document}?section_id=${sectionId}`} target="_blank" rel="noreferrer" />}>
+                        <PrinterIcon /> {k(`print_${document}`)}
+                    </Button>
+                ))}
             </div>
 
             <div className="overflow-x-auto rounded-xl border bg-card">

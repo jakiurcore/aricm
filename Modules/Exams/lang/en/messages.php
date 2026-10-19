@@ -10,6 +10,7 @@ return [
     'pass_above_full' => 'Pass marks cannot exceed full marks.',
     'copy_source_invalid' => 'Cannot copy from this exam.',
     'admit' => [
+        'nobody_eligible' => 'No eligible students were found.',
         'not_released' => 'The admit card has not been released yet.',
         'inactive' => 'The student is not active.',
         'not_in_exam' => 'The student’s class is not part of this exam.',

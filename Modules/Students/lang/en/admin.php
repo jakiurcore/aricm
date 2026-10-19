@@ -76,4 +76,5 @@ return [
         'submit' => 'Promote',
         'done' => ':count students promoted',
     ],
+    'id_cards' => 'Print ID cards',
 ];

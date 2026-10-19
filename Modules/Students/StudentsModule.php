@@ -9,15 +9,18 @@ use Laramod\Contracts\ProvidesApiRoutes;
 use Laramod\Contracts\ProvidesConfig;
 use Laramod\Contracts\ProvidesMigrations;
 use Laramod\Contracts\ProvidesTranslations;
+use Laramod\Contracts\ProvidesViews;
 use Laramod\Contracts\ProvidesViteEntries;
 use Modules\Core\Contracts\ProvidesPermissions;
+use Modules\Core\Contracts\ProvidesVerification;
+use Modules\Students\Services\IdCardVerification;
 
 /**
  * Students: records, enrollment history, ID generation, CSV import/export, promotion and the student auth provider.
  * Downstream modules read it through Services\StudentDirectory and extend profiles via Contracts\ProvidesStudentSummary.
  * Depends on Core, Accounts and Academic.
  */
-class StudentsModule implements Module, ProvidesApiRoutes, ProvidesConfig, ProvidesDashboardScripts, ProvidesMigrations, ProvidesPermissions, ProvidesTranslations, ProvidesViteEntries
+class StudentsModule implements Module, ProvidesApiRoutes, ProvidesConfig, ProvidesDashboardScripts, ProvidesMigrations, ProvidesPermissions, ProvidesTranslations, ProvidesVerification, ProvidesViews, ProvidesViteEntries
 {
     public function name(): string
     {
@@ -42,6 +45,16 @@ class StudentsModule implements Module, ProvidesApiRoutes, ProvidesConfig, Provi
     public function translations(): string
     {
         return 'lang';
+    }
+
+    public function views(): string
+    {
+        return 'resources/views';
+    }
+
+    public function verificationHandlers(): array
+    {
+        return ['student-id' => new IdCardVerification];
     }
 
     public function config(): array

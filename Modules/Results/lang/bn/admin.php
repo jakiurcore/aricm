@@ -36,6 +36,10 @@ return [
         ],
     ],
     'preview' => [
+        'print_tabulation' => 'টেবুলেশন শিট (PDF)',
+        'print_merit' => 'মেধা তালিকা (PDF)',
+        'print_marksheets' => 'মার্কশিট (PDF)',
+
         'title' => 'ফলাফল প্রিভিউ',
         'tabulation' => 'টেবুলেশন',
         'merit' => 'মেধা তালিকা',

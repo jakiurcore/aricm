@@ -1,5 +1,5 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { DownloadIcon, EyeIcon, PencilIcon, PlusIcon, Trash2Icon, UploadIcon, ArrowUpRightIcon } from 'lucide-react';
+import { DownloadIcon, EyeIcon, IdCardIcon, PencilIcon, PlusIcon, Trash2Icon, UploadIcon, ArrowUpRightIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { toast } from 'sonner';
@@ -117,6 +117,11 @@ export function StudentsPage() {
                     <Button variant="outline" onClick={() => setImportOpen(true)}>
                         <UploadIcon /> {t('students::admin.import.button')}
                     </Button>
+                    {(selected.length > 0 || filters.class_id) && (
+                        <Button variant="outline" render={<a href={`/api/students/id-cards?${new URLSearchParams(selected.length > 0 ? selected.map((id) => ['ids[]', String(id)]) : [['class_id', filters.class_id], ['section_id', filters.section_id ?? ''], ['session_id', filters.session_id ?? '']]).toString()}`} target="_blank" rel="noreferrer" />}>
+                            <IdCardIcon /> {t('students::admin.id_cards')}
+                        </Button>
+                    )}
                     <Button variant="outline" render={<a href={`/api/students/export?${exportQuery}`} />}>
                         <DownloadIcon /> {t('students::admin.export')}
                     </Button>

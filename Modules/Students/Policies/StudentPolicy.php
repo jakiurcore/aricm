@@ -46,4 +46,9 @@ class StudentPolicy
     {
         return $user->can('students.promote');
     }
+
+    public function printIdCards(User $user): bool
+    {
+        return $user->can('students.id_card');
+    }
 }

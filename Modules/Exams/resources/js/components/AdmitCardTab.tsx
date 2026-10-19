@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { useAcademicOptions } from '@academic/js/hooks/useAcademicOptions';
+import { PrinterIcon } from 'lucide-react';
+
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { api } from '@core/js/api';
 import { Field } from '@core/js/components/Field';
@@ -24,6 +27,7 @@ export function AdmitCardTab({ examId, classId, released, onReleased }: { examId
     const academic = useAcademicOptions();
     const [sectionId, setSectionId] = useState('');
     const [roster, setRoster] = useState<RosterRow[]>([]);
+    const [onlyEligible, setOnlyEligible] = useState(true);
     const sections = academic.classes.find((schoolClass) => schoolClass.id === classId)?.sections ?? [];
 
     useEffect(() => {
@@ -46,10 +50,19 @@ export function AdmitCardTab({ examId, classId, released, onReleased }: { examId
                 </span>
             </label>
 
-            <div className="max-w-xs">
+            <div className="flex flex-wrap items-end gap-4">
+                <div className="min-w-48">
                 <Field label={t('students::admin.fields.section_id')} htmlFor="admit-section">
                     <NativeSelect id="admit-section" placeholder={k('all_sections')} value={sectionId} onChange={(event) => setSectionId(event.target.value)} options={sections.map((section) => ({ value: section.id, label: section.name }))} />
                 </Field>
+                </div>
+                <label className="flex items-center gap-2 pb-2 text-sm">
+                    <Switch checked={onlyEligible} onCheckedChange={setOnlyEligible} />
+                    {k('only_eligible')}
+                </label>
+                <Button render={<a href={`/api/exams/${examId}/admit-cards/pdf?${new URLSearchParams({ class_id: String(classId), section_id: sectionId, only_eligible: onlyEligible ? '1' : '0' })}`} target="_blank" rel="noreferrer" />}>
+                    <PrinterIcon /> {k('print')}
+                </Button>
             </div>
 
             <div className="overflow-x-auto rounded-xl border bg-card">

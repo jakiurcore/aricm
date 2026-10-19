@@ -5,6 +5,7 @@ use Modules\Accounts\Http\Middleware\EnsureAdminAccess;
 use Modules\Results\Http\Controllers\Api\GradingScaleController;
 use Modules\Results\Http\Controllers\Api\MarksController;
 use Modules\Results\Http\Controllers\Api\ProcessingController;
+use Modules\Results\Http\Controllers\Api\ResultPdfController;
 
 /** @var Router $router */
 $router->middleware(['auth', EnsureAdminAccess::class])->prefix('results')->name('results.api.')->group(function (Router $router): void {
@@ -12,6 +13,10 @@ $router->middleware(['auth', EnsureAdminAccess::class])->prefix('results')->name
 
     $router->get('exams/{exam}/classes/{class}/marks', [MarksController::class, 'show'])->name('marks.show');
     $router->put('exams/{exam}/classes/{class}/marks', [MarksController::class, 'update'])->name('marks.update');
+
+    $router->get('exams/{exam}/classes/{class}/marksheets', [ResultPdfController::class, 'marksheets'])->name('pdf.marksheets');
+    $router->get('exams/{exam}/classes/{class}/tabulation', [ResultPdfController::class, 'tabulation'])->name('pdf.tabulation');
+    $router->get('exams/{exam}/classes/{class}/merit', [ResultPdfController::class, 'merit'])->name('pdf.merit');
 
     $router->post('exams/{exam}/process', [ProcessingController::class, 'process'])->name('process');
     $router->get('exams/{exam}/classes/{class}/preview', [ProcessingController::class, 'preview'])->name('preview');
