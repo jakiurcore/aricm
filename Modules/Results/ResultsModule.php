@@ -13,6 +13,7 @@ use Laramod\Contracts\ProvidesSeeders;
 use Laramod\Contracts\ProvidesTranslations;
 use Laramod\Contracts\ProvidesViews;
 use Laramod\Contracts\ProvidesViteEntries;
+use Modules\Accounts\Models\User;
 use Modules\Core\Contracts\ProvidesHomepageSections;
 use Modules\Core\Contracts\ProvidesPermissions;
 use Modules\Core\Contracts\ProvidesPortalMenu;
@@ -23,17 +24,19 @@ use Modules\Exams\Models\Exam;
 use Modules\Results\Database\Seeders\GradingScaleSeeder;
 use Modules\Results\Services\MarksheetVerification;
 use Modules\Results\Services\ResultDirectory;
+use Modules\Results\Services\TeacherMarksEntry;
 use Modules\Students\Contracts\ProvidesStudentSummary;
 use Modules\Students\Models\Student;
 use Modules\Students\Support\StudentSummaryItem;
+use Modules\Teachers\Contracts\ProvidesTeacherMenu;
 
 /**
  * Results: grading scales, the marks grid, the result engine (Services\Engine, no database), processing with
  * positions, publish/unpublish, public result search and marksheet QR verification.
  * Defines Contracts\ProvidesResultEligibility (Fees implements it). Depends on Core, Accounts, Academic, Students,
- * Exams (and Teachers once teacher marks entry is switched on).
+ * Exams and Teachers (teacher marks entry, behind the teacher_marks_entry_enabled setting).
  */
-class ResultsModule implements Module, ProvidesApiRoutes, ProvidesDashboardScripts, ProvidesHomepageSections, ProvidesMigrations, ProvidesPermissions, ProvidesPortalMenu, ProvidesRoutes, ProvidesSeeders, ProvidesStudentSummary, ProvidesTranslations, ProvidesVerification, ProvidesViews, ProvidesViteEntries
+class ResultsModule implements Module, ProvidesApiRoutes, ProvidesDashboardScripts, ProvidesHomepageSections, ProvidesMigrations, ProvidesPermissions, ProvidesPortalMenu, ProvidesRoutes, ProvidesSeeders, ProvidesStudentSummary, ProvidesTeacherMenu, ProvidesTranslations, ProvidesVerification, ProvidesViews, ProvidesViteEntries
 {
     public function name(): string
     {
@@ -108,6 +111,13 @@ class ResultsModule implements Module, ProvidesApiRoutes, ProvidesDashboardScrip
     public function portalMenu(Authenticatable $student): array
     {
         return [new MenuItem(__('results::messages.menu'), 'portal.results', 'chart', 40, true)];
+    }
+
+    public function teacherMenu(User $teacher): array
+    {
+        $entry = app(TeacherMarksEntry::class);
+
+        return $entry->options($teacher) === [] ? [] : [new MenuItem(__('results::messages.teacher_menu'), 'teacher.marks', 'edit', 30, true)];
     }
 
     public function verificationHandlers(): array

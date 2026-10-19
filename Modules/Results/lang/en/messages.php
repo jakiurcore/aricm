@@ -54,4 +54,6 @@ return [
         'result' => 'Result',
         'position' => 'Position in class',
     ],
+    'teacher_entry_off' => 'Marks entry by teachers is switched off.',
+    'teacher_menu' => 'Marks',
 ];

@@ -1,5 +1,8 @@
 <?php
 
+use Modules\Diary\Enums\RemarkKind;
+use Modules\Diary\Services\DiaryFeed;
+use Modules\Diary\Services\DiaryService;
 use Modules\Exams\Models\Exam;
 use Modules\Fees\Enums\PaymentMethod;
 use Modules\Fees\Models\ExamFeeAmount;
@@ -11,6 +14,7 @@ use Modules\Fees\Services\InvoiceGenerator;
 use Modules\Fees\Services\PaymentService;
 use Modules\Notices\Models\Notice;
 use Modules\Results\Services\ResultProcessor;
+use Modules\StudentPortal\Services\PortalMenu;
 use Modules\Students\Models\Student;
 
 function portalStudent(array $overrides = [], bool $withFees = true): Student
@@ -307,4 +311,90 @@ it('renders the portal in English too', function () {
 
     $this->from('/')->get(route('core.locale', 'en'));
     asStudent($this, $student)->get(route('portal.dashboard'))->assertSee('Student portal')->assertSee('Welcome');
+});
+
+/**
+ * A student with a published diary entry for today (Thursday 22 Oct 2026) from a teacher of their section.
+ *
+ * @return array<string, mixed>
+ */
+function portalDiary(array $payload = []): array
+{
+    $s = diarySetup();
+    $s['student']->forceFill(['must_change_password' => false])->save();
+    $entry = app(DiaryService::class)->save($s['teacher']->user, diaryPayload($s, $payload));
+    $s['entry'] = app(DiaryService::class)->publish($s['teacher']->user, $entry);
+
+    return $s;
+}
+
+it('shows a student today’s diary and marks it as seen', function () {
+    $s = portalDiary(['lesson' => 'আজ বিশেষ পাঠ', 'homework' => 'অনুশীলনী ২ করবে']);
+
+    asStudent($this, $s['student'])->get(route('portal.diary'))->assertOk()
+        ->assertSee('আজ বিশেষ পাঠ')->assertSee('অনুশীলনী ২ করবে')->assertSee($s['subject']->name_bn)->assertSee(__('diary::messages.portal.new'));
+
+    // The second visit no longer flags it as new.
+    asStudent($this, $s['student'])->get(route('portal.diary'))->assertDontSee(__('diary::messages.portal.new'));
+    expect(app(DiaryFeed::class)->unseenCount($s['student']))->toBe(0);
+});
+
+it('does not show drafts, other sections or the future', function () {
+    $s = diarySetup();
+    $s['student']->forceFill(['must_change_password' => false])->save();
+    app(DiaryService::class)->save($s['teacher']->user, diaryPayload($s, ['lesson' => 'শুধু খসড়া']));
+
+    asStudent($this, $s['student'])->get(route('portal.diary'))->assertOk()->assertDontSee('শুধু খসড়া')->assertSee(__('diary::messages.portal.no_entries'));
+    asStudent($this, $s['student'])->get(route('portal.diary', ['date' => '2026-12-31']))->assertOk()->assertDontSee('শুধু খসড়া');
+});
+
+it('hides a classmate’s remark but shows the student’s own', function () {
+    $s = portalDiary();
+    $classmate = enrolled($s['p'], ['name_bn' => 'করিম']);
+    $classmate->forceFill(['must_change_password' => false])->save();
+    app(DiaryService::class)->addRemark($s['teacher']->user, $s['entry'], $s['student'], RemarkKind::Praise, 'রহিমের প্রশংসা');
+    app(DiaryService::class)->addRemark($s['teacher']->user, $s['entry'], $classmate, RemarkKind::Concern, 'করিমের মন্তব্য');
+
+    asStudent($this, $s['student'])->get(route('portal.diary'))->assertSee('রহিমের প্রশংসা')->assertDontSee('করিমের মন্তব্য');
+});
+
+it('records an acknowledgement and shows it as done', function () {
+    $s = portalDiary();
+
+    asStudent($this, $s['student'])->post(route('portal.diary.acknowledge', $s['entry']))->assertRedirect();
+    asStudent($this, $s['student'])->get(route('portal.diary'))->assertSee(__('diary::messages.portal.acknowledged'));
+
+    expect($s['entry']->acknowledgements()->whereNotNull('acknowledged_at')->count())->toBe(1);
+});
+
+it('refuses to acknowledge another section’s entry', function () {
+    $s = portalDiary();
+    $outsider = enrolled(['session' => $s['p']['session'], 'class' => $s['p']['class'], 'section' => $s['other']]);
+    $outsider->forceFill(['must_change_password' => false])->save();
+
+    asStudent($this, $outsider)->post(route('portal.diary.acknowledge', $s['entry']))->assertNotFound();
+});
+
+it('acknowledges the whole day at once', function () {
+    $s = portalDiary();
+
+    asStudent($this, $s['student'])->post(route('portal.diary.acknowledge-day'), ['date' => '2026-10-22'])->assertRedirect();
+
+    expect($s['entry']->acknowledgements()->whereNotNull('acknowledged_at')->count())->toBe(1);
+});
+
+it('puts a diary item with an unseen badge in the portal menu', function () {
+    $s = portalDiary();
+    $menu = app(PortalMenu::class)->items($s['student']);
+    $item = collect($menu)->firstWhere('route', 'portal.diary');
+
+    expect($item)->not->toBeNull()->and($item->badgeFor($s['student']))->toBe(1);
+
+    asStudent($this, $s['student'])->get(route('portal.dashboard'))->assertOk()->assertSee(route('portal.diary'));
+});
+
+it('says the madrasa is closed on a holiday', function () {
+    $s = portalDiary();
+
+    asStudent($this, $s['student'])->get(route('portal.diary', ['date' => '2026-10-16']))->assertOk()->assertSee(__('diary::messages.portal.holiday'));
 });

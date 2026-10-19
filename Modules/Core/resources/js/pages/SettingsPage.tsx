@@ -150,6 +150,10 @@ export function SettingsPage() {
                         <Switch checked={Boolean(values.result_requires_fee_paid)} onCheckedChange={(checked) => set('result_requires_fee_paid', checked)} />
                         {text('result_requires_fee_paid')}
                     </label>
+                    <label className="flex items-center gap-3 text-sm">
+                        <Switch checked={Boolean(values.teacher_marks_entry_enabled)} onCheckedChange={(checked) => set('teacher_marks_entry_enabled', checked)} />
+                        {text('teacher_marks_entry_enabled')}
+                    </label>
                 </CardContent>
             </Card>
 

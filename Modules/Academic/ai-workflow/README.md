@@ -17,3 +17,6 @@ Academic sessions, classes (division kids/junior), sections, subjects and the cl
 - Deleting a record used downstream fails on the foreign key and `GuardsDeletion` turns that into a 422 — downstream tables must keep `restrictOnDelete` FKs to academic tables.
 - Never trust a class/section pair from the client: validate with `sectionBelongsToClass()`.
 - Demo data: `Database\Seeders\DemoAcademicSeeder` (called by the app's `DemoSeeder`).
+
+## School calendar
+- `school_calendar_holidays` plus the setting `academic_weekly_holidays` (default `["friday"]`). `Services\SchoolCalendar`: `isSchoolDay`, `nextSchoolDay`, `previousSchoolDay` (bounded to a year so an all-holiday calendar cannot loop). Admin page "ছুটি ও ক্যালেন্ডার", API `academic.api.holidays.*`.

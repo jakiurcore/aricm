@@ -64,6 +64,7 @@ return [
             'admit_card_rules_bn' => 'Admit card rules (Bangla)',
             'admit_card_rules_en' => 'Admit card rules (English)',
             'result_requires_fee_paid' => 'Hide results until fees are paid',
+            'teacher_marks_entry_enabled' => 'Let teachers enter marks for their own subjects',
         ],
     ],
 ];

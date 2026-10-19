@@ -24,4 +24,9 @@ return [
         'menu' => 'Class subjects', 'title' => 'Assign subjects to classes', 'class' => 'Class',
         'taught' => 'Taught', 'optional' => 'Optional', 'saved' => 'Subject list saved',
     ],
+    'calendar' => [
+        'menu' => 'Holidays & calendar', 'title' => 'Holidays & academic calendar', 'weekly' => 'Weekly holidays', 'weekly_hint' => '“Tomorrow’s lesson” always means the next school day: weekly and listed holidays are skipped.',
+        'holidays' => 'Holiday list', 'year' => 'Year', 'holiday_title' => 'Holiday name (e.g. Eid ul-Fitr)', 'add' => 'Add',
+        'days' => ['saturday' => 'Saturday', 'sunday' => 'Sunday', 'monday' => 'Monday', 'tuesday' => 'Tuesday', 'wednesday' => 'Wednesday', 'thursday' => 'Thursday', 'friday' => 'Friday'],
+    ],
 ];

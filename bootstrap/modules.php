@@ -5,6 +5,7 @@ use Modules\Academic\AcademicModule;
 use Modules\Accounts\AccountsModule;
 use Modules\Admission\AdmissionModule;
 use Modules\Core\CoreModule;
+use Modules\Diary\DiaryModule;
 use Modules\Exams\ExamsModule;
 use Modules\Fees\FeesModule;
 use Modules\Gallery\GalleryModule;
@@ -12,6 +13,8 @@ use Modules\Notices\NoticesModule;
 use Modules\Results\ResultsModule;
 use Modules\StudentPortal\StudentPortalModule;
 use Modules\Students\StudentsModule;
+use Modules\TeacherPanel\TeacherPanelModule;
+use Modules\Teachers\TeachersModule;
 use Modules\Website\WebsiteModule;
 
 /*
@@ -22,14 +25,17 @@ return [
     CoreModule::class,
     AccountsModule::class,
     AcademicModule::class,
+    TeachersModule::class,
     StudentsModule::class,
     ExamsModule::class,
     ResultsModule::class,
     FeesModule::class,
+    DiaryModule::class,
     NoticesModule::class,
     GalleryModule::class,
     AdmissionModule::class,
     WebsiteModule::class,
     StudentPortalModule::class,
+    TeacherPanelModule::class,
     AdminModule::class,
 ];

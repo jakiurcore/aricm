@@ -23,6 +23,9 @@
           "@academic/*": [
             "./Modules/Academic/resources/*"
           ],
+          "@teachers/*": [
+            "./Modules/Teachers/resources/*"
+          ],
           "@students/*": [
             "./Modules/Students/resources/*"
           ],
@@ -34,6 +37,9 @@
           ],
           "@fees/*": [
             "./Modules/Fees/resources/*"
+          ],
+          "@diary/*": [
+            "./Modules/Diary/resources/*"
           ],
           "@notices/*": [
             "./Modules/Notices/resources/*"
@@ -49,6 +55,9 @@
           ],
           "@student-portal/*": [
             "./Modules/StudentPortal/resources/*"
+          ],
+          "@teacher-panel/*": [
+            "./Modules/TeacherPanel/resources/*"
           ],
           "@admin/*": [
             "./vendor/protibimbok/laramod-admin/resources/*"
