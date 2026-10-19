@@ -10,6 +10,7 @@ use Modules\Fees\FeesModule;
 use Modules\Gallery\GalleryModule;
 use Modules\Notices\NoticesModule;
 use Modules\Results\ResultsModule;
+use Modules\StudentPortal\StudentPortalModule;
 use Modules\Students\StudentsModule;
 use Modules\Website\WebsiteModule;
 
@@ -29,5 +30,6 @@ return [
     GalleryModule::class,
     AdmissionModule::class,
     WebsiteModule::class,
+    StudentPortalModule::class,
     AdminModule::class,
 ];

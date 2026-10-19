@@ -64,6 +64,14 @@ final class Bangla
             : Carbon::create(2000, $number, 1)->format('F');
     }
 
+    /**
+     * "অক্টোবর ২০২৬" / "October 2026".
+     */
+    public static function monthYear(CarbonInterface $date, ?bool $force = null): string
+    {
+        return self::monthName($date, $force).' '.self::digits($date->year, $force);
+    }
+
     public static function weekday(CarbonInterface $date, ?bool $force = null): string
     {
         return ($force ?? self::isBangla()) ? self::WEEKDAYS[$date->dayOfWeek] : $date->format('l');
