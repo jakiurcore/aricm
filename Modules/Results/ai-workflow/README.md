@@ -19,3 +19,6 @@ Grading scales, the marks grid, the result engine, processing (totals/GPA/grade/
 - Students and the public see results only through `ResultDirectory`.
 - Marks and processing are locked while the exam is published.
 - `exam_subject_id`/`component_id` FKs are restrict: removing a subject with marks fails (Exams turns it into a 422).
+
+## Teacher marks entry
+- `Services\TeacherMarksEntry`, off unless the setting `teacher_marks_entry_enabled` is on (Core settings page). A teacher sees and saves only the exam subjects they teach in their own sections (`TeacherScope::canTeach`); unassigned subjects, other sections and other students are refused, and nothing can change once the result is published. JSON endpoints `results.teacher.*` under `/teacher/api/marks`; the page is in TeacherPanel.

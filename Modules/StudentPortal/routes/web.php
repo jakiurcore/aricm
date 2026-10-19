@@ -3,6 +3,7 @@
 use Illuminate\Routing\Router;
 use Modules\Accounts\Http\Middleware\AuthenticateStudent;
 use Modules\StudentPortal\Http\Controllers\DashboardController;
+use Modules\StudentPortal\Http\Controllers\DiaryController;
 use Modules\StudentPortal\Http\Controllers\ExamController;
 use Modules\StudentPortal\Http\Controllers\FeesController;
 use Modules\StudentPortal\Http\Controllers\NoticeController;
@@ -30,6 +31,10 @@ $router->middleware(AuthenticateStudent::class)->prefix('portal')->name('portal.
     $router->get('fees/ledger', [FeesController::class, 'ledger'])->name('fees.ledger');
     $router->get('fees/invoices/{invoice}', [FeesController::class, 'invoice'])->whereNumber('invoice')->name('fees.invoice');
     $router->get('fees/invoices/{invoice}/pdf', [FeesController::class, 'invoicePdf'])->whereNumber('invoice')->name('fees.invoice.pdf');
+
+    $router->get('diary', [DiaryController::class, 'index'])->name('diary');
+    $router->post('diary/entries/{entry}/acknowledge', [DiaryController::class, 'acknowledge'])->whereNumber('entry')->name('diary.acknowledge');
+    $router->post('diary/acknowledge', [DiaryController::class, 'acknowledgeDay'])->name('diary.acknowledge-day');
 
     $router->get('notices', [NoticeController::class, 'index'])->name('notices');
     $router->get('notices/{notice}', [NoticeController::class, 'show'])->whereNumber('notice')->name('notices.show');

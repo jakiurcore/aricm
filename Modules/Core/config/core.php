@@ -27,6 +27,7 @@ return [
         'admit_card_rules_bn' => null,
         'admit_card_rules_en' => null,
         'result_requires_fee_paid' => false,
+        'teacher_marks_entry_enabled' => false,
     ],
 
     /*

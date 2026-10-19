@@ -25,6 +25,8 @@ use Modules\Results\Database\Seeders\GradingScaleSeeder;
 use Modules\Results\Services\MarksService;
 use Modules\Students\Models\Student;
 use Modules\Students\Services\StudentRegistrar;
+use Modules\Teachers\Models\Teacher;
+use Modules\Teachers\Services\TeacherAssignments;
 use Tests\TestCase;
 
 /*
@@ -235,4 +237,47 @@ function invoicesFor(Student $student, array $months): Collection
 function submit(Student $student, array $invoiceIds, string $txn = 'ABC12345XY', PaymentMethod $method = PaymentMethod::Bkash, ?string $sender = '01711111111', $screenshot = null): Payment
 {
     return app(PaymentService::class)->submitManual($student, $invoiceIds, $method, $txn, $sender, $screenshot);
+}
+
+/**
+ * A class with two sections and a subject, plus a teacher (with login) for it.
+ *
+ * @return array{p: array, other: Section, subject: Subject, teacher: Teacher}
+ */
+function teachingSetup(): array
+{
+    $p = placement();
+    $other = Section::factory()->create(['class_id' => $p['class']->id]);
+    $subject = Subject::factory()->create();
+    $p['class']->subjects()->attach($subject->id, ['sort_order' => 1]);
+
+    return ['p' => $p, 'other' => $other, 'subject' => $subject, 'teacher' => Teacher::factory()->withLogin()->create()];
+}
+
+/**
+ * It is Thursday 22 Oct 2026, a teacher with a login teaches the subject in the section, and a student is enrolled there.
+ * Friday is the weekly holiday, so the next school day after today is Saturday.
+ *
+ * @return array{p: array, other: Section, subject: Subject, teacher: Teacher, student: Student}
+ */
+function diarySetup(): array
+{
+    Carbon::setTestNow('2026-10-22 10:00:00');
+
+    $s = teachingSetup();
+    app(TeacherAssignments::class)->assignSubject($s['teacher'], $s['p']['session']->id, $s['p']['class']->id, $s['p']['section']->id, $s['subject']->id);
+    $s['student'] = enrolled($s['p']);
+
+    return $s;
+}
+
+/**
+ * The payload a teacher posts to save a diary entry for the setup's section and subject.
+ *
+ * @param  array<string, mixed>  $overrides
+ * @return array<string, mixed>
+ */
+function diaryPayload(array $s, array $overrides = []): array
+{
+    return ['class_id' => $s['p']['class']->id, 'section_id' => $s['p']['section']->id, 'subject_id' => $s['subject']->id, 'entry_date' => '2026-10-22', 'lesson' => 'আজ অধ্যায় ১ পড়ানো হয়েছে।', 'homework' => 'পৃষ্ঠা ১০ লিখে আনবে।', ...$overrides];
 }

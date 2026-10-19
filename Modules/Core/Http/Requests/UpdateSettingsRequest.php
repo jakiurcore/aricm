@@ -34,6 +34,7 @@ class UpdateSettingsRequest extends FormRequest
             'admit_card_rules_bn' => ['nullable', 'string', 'max:3000'],
             'admit_card_rules_en' => ['nullable', 'string', 'max:3000'],
             'result_requires_fee_paid' => ['boolean'],
+            'teacher_marks_entry_enabled' => ['boolean'],
         ];
     }
 
