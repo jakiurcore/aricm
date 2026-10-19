@@ -2,6 +2,7 @@
 
 namespace Modules\Exams;
 
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Routing\Router;
 use Laramod\Admin\Contracts\ProvidesDashboardScripts;
 use Laramod\Contracts\Module;
@@ -11,13 +12,15 @@ use Laramod\Contracts\ProvidesTranslations;
 use Laramod\Contracts\ProvidesViews;
 use Laramod\Contracts\ProvidesViteEntries;
 use Modules\Core\Contracts\ProvidesPermissions;
+use Modules\Core\Contracts\ProvidesPortalMenu;
+use Modules\Core\Support\MenuItem;
 
 /**
  * Exams: exams (free-text names), their classes, per-class subject setup with marks and components, routines, and
  * admit card release/eligibility. Defines Contracts\ProvidesAdmitCardEligibility (Fees implements it).
  * Depends on Core, Accounts, Academic, Students.
  */
-class ExamsModule implements Module, ProvidesApiRoutes, ProvidesDashboardScripts, ProvidesMigrations, ProvidesPermissions, ProvidesTranslations, ProvidesViews, ProvidesViteEntries
+class ExamsModule implements Module, ProvidesApiRoutes, ProvidesDashboardScripts, ProvidesMigrations, ProvidesPermissions, ProvidesPortalMenu, ProvidesTranslations, ProvidesViews, ProvidesViteEntries
 {
     public function name(): string
     {
@@ -57,6 +60,14 @@ class ExamsModule implements Module, ProvidesApiRoutes, ProvidesDashboardScripts
     public function dashboardScripts(): array
     {
         return ['resources/js/dashboard.tsx'];
+    }
+
+    public function portalMenu(Authenticatable $student): array
+    {
+        return [
+            new MenuItem(__('exams::messages.portal.routine'), 'portal.routine', 'calendar', 10, true),
+            new MenuItem(__('exams::messages.portal.admit'), 'portal.admit', 'card', 30),
+        ];
     }
 
     public function permissions(): array

@@ -16,4 +16,8 @@ return [
         'not_in_exam' => 'The student’s class is not part of this exam.',
         'no_routine' => 'The exam routine for this class has not been created yet.',
     ],
+    'portal' => [
+        'routine' => 'Exam routine',
+        'admit' => 'Admit card',
+    ],
 ];

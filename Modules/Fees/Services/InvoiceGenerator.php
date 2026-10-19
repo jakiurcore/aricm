@@ -207,6 +207,19 @@ class InvoiceGenerator
     }
 
     /**
+     * What a monthly bill would come to for a student in a month (no invoice is created): used to show a payer the
+     * price of paying ahead before they commit.
+     */
+    public function estimateMonth(Student $student, CarbonInterface $month): Money
+    {
+        $heads = FeeHead::query()->where(['type' => FeeHeadType::Monthly->value, 'is_active' => true])->get();
+        $book = FeeStructure::query()->where(['session_id' => $student->session_id, 'class_id' => $student->class_id])->get();
+        $lines = $this->lines($student, $heads, Carbon::instance($month)->startOfMonth(), $book, StudentConcession::query()->where('student_id', $student->id)->get());
+
+        return Money::poisha(array_sum(array_map(fn (array $line): int => $line['net']->poisha, $lines)));
+    }
+
+    /**
      * @param  Collection<int, FeeHead>  $heads
      * @param  Collection<int, FeeStructure>  $book
      * @param  Collection<int, StudentConcession>  $concessions

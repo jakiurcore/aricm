@@ -28,4 +28,12 @@ return [
         'method' => 'Method',
         'date' => 'Date',
     ],
+    'invoice_title' => 'Invoice',
+    'status' => 'Status',
+    'due_date' => 'Due date',
+    'discount' => 'Discount',
+    'net' => 'Net',
+    'late_fine' => 'Late fine',
+    'paid' => 'Paid',
+    'due' => 'Due',
 ];
