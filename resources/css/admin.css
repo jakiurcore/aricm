@@ -1,0 +1,169 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@500;600;700&family=Hind+Siliguri:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+
+/*
+ * The admin panel's look: the Claude Design "Admin Panel" + "Design Tokens" files mapped onto the shadcn variables the
+ * components in resources/js/components/ui use. Everything is scoped to a page that hosts #admin, so the public site
+ * (resources/css/app.css) is untouched. The raw design tokens (--green-700, --surface, --line, ...) come from app.css.
+ *
+ * The popups of base-ui portal to <body>, outside #admin, which is why the scope is `html:has(#admin)` and not #admin.
+ */
+
+html:has(#admin) {
+    --adm-font-body: 'Noto Sans Bengali', 'Hind Siliguri', 'Poppins', sans-serif;
+    --adm-font-head: 'Noto Serif Bengali', 'Noto Sans Bengali', serif;
+
+    --background: var(--bg);
+    --foreground: var(--ink);
+    --card: var(--surface);
+    --card-foreground: var(--ink);
+    --popover: var(--surface);
+    --popover-foreground: var(--ink);
+    --primary: var(--green-700);
+    --primary-foreground: #ffffff;
+    --secondary: var(--navy-50);
+    --secondary-foreground: var(--navy-800);
+    --muted: var(--surface-2);
+    --muted-foreground: var(--ds-muted);
+    --accent: var(--green-50);
+    --accent-foreground: var(--green-700);
+    --destructive: var(--danger);
+    --border: var(--line);
+    --input: var(--line-strong);
+    --ring: var(--green-500);
+    --radius: 12px;
+
+    --sidebar: var(--green-900);
+    --sidebar-foreground: #e6f2ea;
+    --sidebar-primary: var(--yellow-400);
+    --sidebar-primary-foreground: #17212b;
+    --sidebar-accent: rgb(255 255 255 / 0.14);
+    --sidebar-accent-foreground: var(--yellow-400);
+    --sidebar-border: rgb(255 255 255 / 0.1);
+    --sidebar-ring: var(--yellow-400);
+
+    --chart-1: var(--green-500);
+    --chart-2: var(--green-700);
+    --chart-3: var(--navy-800);
+    --chart-4: var(--yellow-400);
+    --chart-5: var(--red-600);
+
+    /* The design never sets a line-height of its own on text: everything runs on the body's 1.65. Tailwind's text-lg and
+       friends would swap that for a tighter pairing, so they are pinned to it here. */
+    --text-xs--line-height: 1.65;
+    --text-sm--line-height: 1.65;
+    --text-base--line-height: 1.65;
+    --text-lg--line-height: 1.65;
+    --text-xl--line-height: 1.65;
+    --text-2xl--line-height: 1.65;
+    --text-3xl--line-height: 1.65;
+    --text-4xl--line-height: 1.65;
+
+    font-size: 16px;
+    color-scheme: light;
+}
+
+html[data-theme='dark']:has(#admin) {
+    color-scheme: dark;
+    --primary: var(--green-700);
+    --primary-foreground: #ffffff;
+    --secondary: var(--navy-50);
+    --secondary-foreground: var(--navy-800);
+}
+
+html:has(#admin) body {
+    font-family: var(--adm-font-body);
+    line-height: 1.65;
+    background: var(--bg);
+    color: var(--ink);
+}
+
+html[data-lang='en']:has(#admin) body {
+    font-family: 'Poppins', 'Noto Sans Bengali', sans-serif;
+    --adm-font-head: 'Poppins', sans-serif;
+}
+
+#admin .font-head {
+    font-family: var(--adm-font-head);
+}
+
+#admin a {
+    text-underline-offset: 3px;
+}
+
+/* A page's own <h1> (ResourcePage and friends): the topbar already carries the page name, so it reads as a section heading. */
+#admin main h1 {
+    font-family: var(--adm-font-head);
+    font-size: 22px;
+    line-height: 1.35;
+    font-weight: 700;
+    letter-spacing: 0;
+    color: var(--heading);
+}
+
+@keyframes arm-shimmer {
+    0% {
+        background-position: -400px 0;
+    }
+    100% {
+        background-position: 400px 0;
+    }
+}
+
+@keyframes arm-fade {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* The design's loading placeholder: a shimmer band, never a pulse. */
+.adm-skeleton {
+    background: linear-gradient(90deg, var(--surface-2) 0, var(--line) 50%, var(--surface-2) 100%);
+    background-size: 800px 100%;
+    animation: arm-shimmer 1.2s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .adm-skeleton {
+        animation: none;
+    }
+}
+
+/* The sidebar scrolls on its own; keep its bar quiet on the green. */
+.adm-sidebar {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(255 255 255 / 0.25) transparent;
+}
+
+.adm-nav-item {
+    transition: background-color 0.12s ease;
+}
+
+.adm-nav-item:hover {
+    background: rgb(255 255 255 / 0.08);
+}
+
+.adm-nav-item[aria-current='page'] {
+    background: rgb(255 255 255 / 0.14);
+    color: var(--yellow-400);
+}
+
+/* Cards of the dashboard that are links. */
+.adm-card-link {
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.adm-card-link:hover {
+    box-shadow: var(--shadow-md);
+}
+
+@media print {
+    .adm-sidebar,
+    .adm-topbar {
+        display: none !important;
+    }
+}

@@ -4,10 +4,13 @@ namespace Modules\Fees\Http\Controllers\Api;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Modules\Core\Http\Controllers\Concerns\ServesPdf;
 use Modules\Fees\Enums\PaymentMethod;
 use Modules\Fees\Http\Requests\CollectRequest;
 use Modules\Fees\Http\Resources\InvoiceResource;
 use Modules\Fees\Http\Resources\PaymentResource;
+use Modules\Fees\Services\InvoicePdf;
 use Modules\Fees\Services\PaymentService;
 use Modules\Fees\Services\StudentFeeDesk;
 use Modules\Fees\Support\Money;
@@ -20,6 +23,8 @@ use Modules\Students\Services\StudentDirectory;
  */
 class CollectionController
 {
+    use ServesPdf;
+
     public function search(Request $request, StudentDirectory $students, StudentFeeDesk $desk): JsonResponse
     {
         abort_unless($request->user()->can('fees.collect'), 403);
@@ -33,6 +38,16 @@ class CollectionController
             'id' => $student->id, 'student_id' => $student->student_id, 'name' => $student->name_bn, 'class' => $student->schoolClass?->displayName(), 'roll' => $student->roll,
             'guardian_phone' => $student->guardian_phone, 'photo_url' => $student->photo_url, 'due' => $desk->totalDue($student)->poisha,
         ])->values()]);
+    }
+
+    /**
+     * The printed "fees overdue" letter for one student, listing every open invoice.
+     */
+    public function dueNotice(Request $request, Student $student, InvoicePdf $pdf): Response
+    {
+        abort_unless($request->user()->can('fees.collect'), 403);
+
+        return $this->pdf($pdf->dueNotice($student), "due-notice-{$student->student_id}.pdf");
     }
 
     public function student(Request $request, Student $student, StudentFeeDesk $desk): JsonResponse

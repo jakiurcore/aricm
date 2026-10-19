@@ -12,6 +12,7 @@ use Modules\Diary\Models\DiaryEntry;
 use Modules\Diary\Models\DiaryStudentRemark;
 use Modules\Diary\Models\QuickPhrase;
 use Modules\Diary\Services\DiaryService;
+use Modules\Diary\Services\DiarySettings;
 use Modules\Students\Models\Student;
 use Modules\Teachers\Services\TeacherScope;
 
@@ -68,7 +69,7 @@ class TeacherDiaryController
 
     public function attach(Request $request, DiaryEntry $entry): JsonResponse
     {
-        $request->validate(['file' => ['required', 'file', 'mimes:'.implode(',', config('modules.diary.attachments.mimes')), 'max:'.config('modules.diary.attachments.max_kb')]]);
+        $request->validate(['file' => ['required', 'file', 'mimes:'.implode(',', config('modules.diary.attachments.mimes')), 'max:'.app(DiarySettings::class)->maxAttachmentKb()]]);
 
         $attachment = $this->diary->addAttachment($request->user(), $entry, $request->file('file'));
 
@@ -84,9 +85,9 @@ class TeacherDiaryController
 
     public function remark(Request $request, DiaryEntry $entry): JsonResponse
     {
-        $data = $request->validate(['student_id' => ['required', 'integer', 'exists:students,id'], 'kind' => ['required', 'in:'.implode(',', array_column(RemarkKind::cases(), 'value'))], 'text' => ['required', 'string', 'max:500']]);
+        $data = $request->validate(['student_id' => ['required', 'integer', 'exists:students,id'], 'kind' => ['required', 'in:'.implode(',', array_column(RemarkKind::cases(), 'value'))], 'text' => ['nullable', 'string', 'max:500']]);
 
-        $remark = $this->diary->addRemark($request->user(), $entry, Student::findOrFail($data['student_id']), RemarkKind::from($data['kind']), $data['text']);
+        $remark = $this->diary->addRemark($request->user(), $entry, Student::findOrFail($data['student_id']), RemarkKind::from($data['kind']), (string) ($data['text'] ?? ''));
 
         return response()->json(['data' => $this->remarkRow($remark->load('student'))], 201);
     }
@@ -139,7 +140,7 @@ class TeacherDiaryController
     {
         return [
             'id' => $entry->id, 'status' => $entry->status->value, 'entry_date' => $entry->entry_date->toDateString(), 'class_id' => $entry->class_id, 'section_id' => $entry->section_id, 'subject_id' => $entry->subject_id,
-            'lesson' => $entry->lesson, 'homework' => $entry->homework, 'note' => $entry->note, 'homework_due_date' => $entry->homework_due_date?->toDateString(),
+            'lesson' => $entry->lesson, 'next_lesson' => $entry->next_lesson, 'homework' => $entry->homework, 'note' => $entry->note, 'homework_due_date' => $entry->homework_due_date?->toDateString(),
             'published_at' => $entry->published_at?->toIso8601String(), 'saved_at' => $entry->updated_at?->toIso8601String(), 'can_edit' => $this->diary->canEdit(request()->user(), $entry),
             'attachments' => $entry->attachments->map(fn (DiaryAttachment $attachment): array => $this->attachment($attachment))->values(),
             'remarks' => $entry->remarks->map(fn (DiaryStudentRemark $remark): array => $this->remarkRow($remark))->values(),

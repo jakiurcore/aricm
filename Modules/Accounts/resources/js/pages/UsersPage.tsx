@@ -1,6 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import type { ColumnDef } from '@tanstack/react-table';
-import { PencilIcon, PlusIcon, Trash2Icon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -9,17 +7,17 @@ import { z } from 'zod';
 import { HeaderActions } from '@admin/js';
 import { api, ApiError } from '@core/js/api';
 import { ConfirmDialog } from '@core/js/components/ConfirmDialog';
-import { DataTable } from '@core/js/components/DataTable';
+import { TablePagination } from '@core/js/components/DataTable';
 import { Field } from '@core/js/components/Field';
+import { ErrorState, LoadingState } from '@core/js/components/States';
+import { FilterBar, IconButton, ListCard, ToggleRow } from '@core/js/components/Surface';
 import { usePaginated } from '@core/js/hooks/usePaginated';
 import { t } from '@core/js/i18n';
 import { formatDate } from '@core/js/number';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
 
 import type { Role, User } from '../types';
 
@@ -77,7 +75,7 @@ function UserDialog({ user, roles, open, onClose, onSaved }: { user: User | null
                 <DialogHeader>
                     <DialogTitle>{user ? label('edit') : label('new')}</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={submit} className="space-y-4">
+                <form onSubmit={submit} className="grid gap-3">
                     <Field label={label('name')} htmlFor="name" error={errors.name?.message}>
                         <Input id="name" {...register('name')} />
                     </Field>
@@ -97,12 +95,14 @@ function UserDialog({ user, roles, open, onClose, onSaved }: { user: User | null
                             control={control}
                             name="roles"
                             render={({ field }) => (
-                                <div className="grid gap-2 sm:grid-cols-2">
+                                <div className="grid gap-1 sm:grid-cols-2">
                                     {roles.map((role) => (
-                                        <label key={role.name} className="flex items-center gap-2 text-sm">
-                                            <Checkbox
+                                        <label key={role.name} className="flex min-h-11 cursor-pointer items-center gap-2.5 font-normal">
+                                            <input
+                                                type="checkbox"
+                                                className="m-[3px_3px_3px_4px] size-[22px] min-h-0 accent-green-700"
                                                 checked={field.value.includes(role.name)}
-                                                onCheckedChange={(checked) => field.onChange(checked ? [...field.value, role.name] : field.value.filter((name) => name !== role.name))}
+                                                onChange={(event) => field.onChange(event.target.checked ? [...field.value, role.name] : field.value.filter((name) => name !== role.name))}
                                             />
                                             {role.label}
                                         </label>
@@ -114,12 +114,7 @@ function UserDialog({ user, roles, open, onClose, onSaved }: { user: User | null
                     <Controller
                         control={control}
                         name="is_active"
-                        render={({ field }) => (
-                            <label className="flex items-center gap-3 text-sm">
-                                <Switch checked={field.value} onCheckedChange={field.onChange} />
-                                {label('active')}
-                            </label>
-                        )}
+                        render={({ field }) => <ToggleRow label={label('active')} on={field.value} onToggle={() => field.onChange(!field.value)} />}
                     />
                     <DialogFooter>
                         <Button type="button" variant="outline" onClick={onClose}>
@@ -135,10 +130,14 @@ function UserDialog({ user, roles, open, onClose, onSaved }: { user: User | null
     );
 }
 
+/** Admins read navy, teachers green (the design's two pills); any other role is a neutral grey one. */
+const ROLE_CLASS: Record<string, string> = { super_admin: 'bg-navy-50 text-navy-800', admin: 'bg-navy-50 text-navy-800', teacher: 'bg-green-50 text-green-700' };
+
+/** The design's "ব্যবহারকারী ও ভূমিকা": a list card, avatar and name on the left, the role pills on the right. */
 export function UsersPage() {
     const [search, setSearch] = useState('');
     const [debounced, setDebounced] = useState('');
-    const { rows, meta, loading, setPage, reload } = usePaginated<User>('/accounts/users', { search: debounced });
+    const { rows, meta, loading, failed, setPage, reload } = usePaginated<User>('/accounts/users', { search: debounced });
     const [roles, setRoles] = useState<Role[]>([]);
     const [editing, setEditing] = useState<User | null>(null);
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -155,41 +154,6 @@ export function UsersPage() {
     }, [search]);
 
     const roleLabels = useMemo(() => Object.fromEntries(roles.map((role) => [role.name, role.label])), [roles]);
-
-    const columns: ColumnDef<User>[] = [
-        { header: label('name'), accessorKey: 'name' },
-        { header: label('email'), accessorKey: 'email' },
-        {
-            header: label('roles'),
-            cell: ({ row }) => (
-                <div className="flex flex-wrap gap-1">
-                    {row.original.roles.map((role) => (
-                        <Badge key={role} variant="secondary">
-                            {roleLabels[role] ?? role}
-                        </Badge>
-                    ))}
-                </div>
-            ),
-        },
-        {
-            header: label('status'),
-            cell: ({ row }) => <Badge variant={row.original.is_active ? 'default' : 'outline'}>{row.original.is_active ? label('active') : label('inactive')}</Badge>,
-        },
-        { header: label('last_login'), cell: ({ row }) => (row.original.last_login_at ? formatDate(row.original.last_login_at) : label('never')) },
-        {
-            header: t('core::admin.common.actions'),
-            cell: ({ row }) => (
-                <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" aria-label={t('core::admin.common.edit')} onClick={() => { setEditing(row.original); setDialogOpen(true); }}>
-                        <PencilIcon />
-                    </Button>
-                    <Button variant="ghost" size="icon" aria-label={t('core::admin.common.delete')} onClick={() => setDeleting(row.original)}>
-                        <Trash2Icon />
-                    </Button>
-                </div>
-            ),
-        },
-    ];
 
     const remove = async () => {
         if (!deleting) {
@@ -208,17 +172,54 @@ export function UsersPage() {
     };
 
     return (
-        <div className="space-y-4">
+        <div className="grid max-w-[900px] gap-3.5">
             <HeaderActions.Fill>
-                <Button onClick={() => { setEditing(null); setDialogOpen(true); }}>
-                    <PlusIcon /> {label('new')}
-                </Button>
+                <Button onClick={() => { setEditing(null); setDialogOpen(true); }}>+ {label('new')}</Button>
             </HeaderActions.Fill>
 
-            <h1 className="text-2xl font-semibold tracking-tight">{label('title')}</h1>
-            <Input className="max-w-sm" placeholder={t('core::admin.common.search')} value={search} onChange={(event) => setSearch(event.target.value)} />
+            <FilterBar>
+                <Input className="col-span-2" placeholder={`🔍 ${t('core::admin.common.search')}`} aria-label={t('core::admin.common.search')} value={search} onChange={(event) => setSearch(event.target.value)} />
+            </FilterBar>
 
-            <DataTable columns={columns} data={rows} loading={loading} meta={meta} onPageChange={setPage} />
+            {failed && rows.length === 0 && <ErrorState onRetry={reload} />}
+            {loading && rows.length === 0 && !failed && <LoadingState />}
+            {!loading && !failed && rows.length === 0 && <div className="rounded-2xl border-2 border-dashed border-input p-9 text-center text-muted-foreground">{t('core::admin.common.empty')}</div>}
+
+            {rows.length > 0 && (
+                <ListCard>
+                    {rows.map((user) => (
+                        <div key={user.id} className={`flex flex-wrap items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 ${loading ? 'opacity-60' : ''}`}>
+                            <span className="grid size-10 flex-none place-items-center rounded-full bg-navy-50 font-bold text-navy-800">{user.name.trim().slice(0, 1)}</span>
+                            <span className="grid min-w-40 flex-1 leading-[1.4]">
+                                <strong>{user.name}</strong>
+                                <span className="text-[13px] text-muted-foreground">
+                                    {user.email} · {label('last_login')}: {user.last_login_at ? formatDate(user.last_login_at) : label('never')}
+                                </span>
+                            </span>
+                            <span className="flex flex-wrap items-center gap-1.5">
+                                {user.roles.map((role) => (
+                                    <Badge key={role} variant="secondary" className={`px-3 py-0.5 ${ROLE_CLASS[role] ?? ''}`}>
+                                        {roleLabels[role] ?? role}
+                                    </Badge>
+                                ))}
+                                {!user.is_active && (
+                                    <Badge variant="secondary" className="px-3 py-0.5">
+                                        {label('inactive')}
+                                    </Badge>
+                                )}
+                            </span>
+                            <IconButton aria-label={t('core::admin.common.edit')} title={t('core::admin.common.edit')} onClick={() => { setEditing(user); setDialogOpen(true); }}>
+                                ✎
+                            </IconButton>
+                            <IconButton tone="danger" aria-label={t('core::admin.common.delete')} title={t('core::admin.common.delete')} onClick={() => setDeleting(user)}>
+                                🗑
+                            </IconButton>
+                        </div>
+                    ))}
+                </ListCard>
+            )}
+
+            {meta && <TablePagination meta={meta} onPageChange={setPage} />}
 
             <UserDialog user={editing} roles={roles} open={dialogOpen} onClose={() => setDialogOpen(false)} onSaved={() => { setDialogOpen(false); reload(); }} />
             <ConfirmDialog open={deleting !== null} description={deleting?.name} onConfirm={() => void remove()} onClose={() => setDeleting(null)} />

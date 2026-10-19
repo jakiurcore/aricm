@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use Modules\Notices\Http\Requests\NoticeRequest;
 use Modules\Notices\Http\Resources\NoticeResource;
 use Modules\Notices\Models\Notice;
+use Modules\Notices\Support\SafeHtml;
 
 class NoticeController
 {
@@ -65,6 +66,8 @@ class NoticeController
     protected function attributes(NoticeRequest $request): array
     {
         $data = $request->safe()->except(['attachment', 'remove_attachment']);
+        $data['body_bn'] = SafeHtml::clean($data['body_bn']);
+        $data['body_en'] = isset($data['body_en']) ? SafeHtml::clean($data['body_en']) : null;
 
         if ($file = $request->file('attachment')) {
             $data['attachment'] = $file->store('notices', 'public');

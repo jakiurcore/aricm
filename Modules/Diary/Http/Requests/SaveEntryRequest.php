@@ -22,6 +22,7 @@ class SaveEntryRequest extends FormRequest
             'subject_id' => ['nullable', 'integer', 'exists:subjects,id'],
             'entry_date' => ['required', 'date_format:Y-m-d'],
             'lesson' => ['nullable', 'string', 'max:5000'],
+            'next_lesson' => ['nullable', 'string', 'max:5000'],
             'homework' => ['nullable', 'string', 'max:5000'],
             'note' => ['nullable', 'string', 'max:5000'],
             'homework_due_date' => ['nullable', 'date_format:Y-m-d'],

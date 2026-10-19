@@ -1,6 +1,7 @@
 @extends('teacher-panel::layouts.panel')
 
 @section('title', __('teacher-panel::messages.marks.title'))
+@section('screen_title', $exam->displayName())
 
 @php
     $config = [
@@ -10,50 +11,56 @@
 @endphp
 
 @section('content')
-    <div class="space-y-4" x-data="marksEntry(@js($config))" x-init="boot()">
-        <a href="{{ route('teacher.marks') }}" class="text-sm">← {{ __('teacher-panel::messages.marks.title') }}</a>
-        <div>
-            <h1 class="font-head text-2xl text-heading">{{ $exam->displayName() }}</h1>
-            <p class="text-sm text-ink-muted">{{ $class->displayName() }} — {{ $section->displayName() }}</p>
-        </div>
+    <div class="grid gap-3.5" x-data="marksEntry(@js($config))" x-init="boot()">
+        <span class="grid leading-[1.45]"><strong class="font-head text-[20px] font-bold text-heading">{{ $exam->displayName() }}</strong><span class="text-[14px] text-ink-muted">{{ \Modules\TeacherPanel\Support\PanelFormat::section($class->displayName(), $section->displayName()) }}</span></span>
 
-        <p x-show="message" x-cloak x-text="message" class="rounded-md bg-success-bg p-3 text-success"></p>
-        <p x-show="error" x-cloak x-text="error" class="rounded-md bg-danger-bg p-3 text-danger"></p>
-        <p x-show="grid && grid.published" x-cloak class="rounded-md bg-warn-bg p-3 text-warn">{{ __('teacher-panel::messages.marks.published') }}</p>
+        <p x-show="message" x-cloak x-text="message" class="rounded-[14px] bg-success-bg px-3.5 py-3 font-semibold text-success"></p>
+        <p x-show="error" x-cloak x-text="error" role="alert" class="rounded-[14px] bg-danger-bg px-3.5 py-3 font-semibold text-danger"></p>
+        <p x-show="grid && grid.published" x-cloak class="rounded-[14px] bg-warn-bg px-3.5 py-3 font-semibold text-warn">{{ __('teacher-panel::messages.marks.published') }}</p>
+
+        <div x-show="!grid && !error" class="grid gap-3" aria-hidden="true">@for ($i = 0; $i < 4; $i++)<div class="tp-skeleton h-[104px] rounded-[20px]"></div>@endfor</div>
 
         <template x-if="grid">
-            <div class="space-y-3">
-                <div class="text-sm text-ink-muted" x-show="grid.columns.length"><template x-for="column in grid.columns" :key="column.key"><span class="mr-3">{{ __('teacher-panel::messages.marks.full') }} <strong x-text="column.label + ': ' + column.full"></strong></span></template></div>
-                <template x-for="student in grid.students" :key="student.id">
-                    <div class="rounded-xl border border-line bg-surface p-3 shadow-sm">
-                        <p class="mb-2 font-semibold"><span class="text-ink-muted" x-text="student.roll ? '{{ __('teacher-panel::messages.marks.roll') }} ' + student.roll + ' · ' : ''"></span><span x-text="student.name"></span></p>
-                        <div class="grid grid-cols-2 gap-3">
-                            <template x-for="column in grid.columns" :key="column.key">
-                                <div>
-                                    <label class="mb-1 block text-xs text-ink-muted" x-text="column.label + ' (' + column.full + ')'"></label>
-                                    <input type="number" inputmode="decimal" step="0.25" min="0" :max="column.full" :disabled="grid.published || cell(student, column).absent" :value="cell(student, column).obtained ?? ''" @input="set(student, column, 'obtained', $event.target.value)" class="min-h-11 w-full rounded-lg border border-line-strong bg-surface px-3 text-lg">
-                                    <label class="mt-1 flex items-center gap-2 text-xs"><input type="checkbox" :disabled="grid.published" :checked="cell(student, column).absent" @change="set(student, column, 'absent', $event.target.checked)"> {{ __('teacher-panel::messages.marks.absent') }}</label>
-                                </div>
-                            </template>
+            <div class="grid gap-3">
+                <div class="flex flex-wrap gap-2 text-[13px] text-ink-muted" x-show="grid.columns.length"><template x-for="column in grid.columns" :key="column.key"><span class="rounded-full bg-surface-2 px-2.5 py-0.5">{{ __('teacher-panel::messages.marks.full') }} <strong x-text="column.label + ': ' + column.full"></strong></span></template></div>
+                <div class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,320px),1fr))] gap-3">
+                    <template x-for="student in grid.students" :key="student.id">
+                        <div class="grid gap-2.5 rounded-[20px] border border-line bg-surface p-3.5">
+                            <p class="m-0 flex items-center gap-3 font-bold"><span class="grid size-11 flex-none place-items-center rounded-full bg-green-100 text-[18px] text-green-700" x-text="(student.name || '').charAt(0)"></span><span class="grid leading-[1.4]"><span class="text-[16px]" x-text="student.name"></span><span class="text-[13px] font-normal text-ink-muted" x-text="student.roll ? '{{ __('teacher-panel::messages.marks.roll') }} ' + student.roll : ''"></span></span></p>
+                            <div class="grid grid-cols-2 gap-3">
+                                <template x-for="column in grid.columns" :key="column.key">
+                                    <div>
+                                        <label class="mb-1 block text-[12px] font-semibold text-ink-muted" x-text="column.label + ' (' + column.full + ')'"></label>
+                                        <input type="number" inputmode="decimal" step="0.25" min="0" :max="column.full" :disabled="grid.published || cell(student, column).absent" :value="cell(student, column).obtained ?? ''" @input="set(student, column, 'obtained', $event.target.value)" class="h-12 w-full rounded-xl border border-line-strong bg-surface px-3 text-[18px]">
+                                        <label class="mt-1 flex items-center gap-2 text-[13px]"><input type="checkbox" class="size-5 min-h-0" :disabled="grid.published" :checked="cell(student, column).absent" @change="set(student, column, 'absent', $event.target.checked)"> {{ __('teacher-panel::messages.marks.absent') }}</label>
+                                    </div>
+                                </template>
+                            </div>
                         </div>
-                    </div>
-                </template>
+                    </template>
+                </div>
             </div>
         </template>
-
-        <div class="sticky bottom-20 z-20 flex items-center justify-between gap-3 rounded-xl border border-line bg-surface p-3 shadow-md lg:bottom-4" x-show="grid && !grid.published" x-cloak>
-            <span class="text-sm text-warn" x-text="changedCount ? text.changed.replace(':count', changedCount) : ''"></span>
-            <button type="button" class="min-h-11 rounded-lg bg-brand px-6 font-semibold text-white" :disabled="busy || !changedCount" @click="save()">{{ __('teacher-panel::messages.marks.save') }}</button>
-        </div>
     </div>
 
     <script>
         document.addEventListener('alpine:init', () => {
+            Alpine.store('marks', { visible: false, changed: '', disabled: true });
             Alpine.data('marksEntry', (cfg) => ({
                 grid: null, edits: {}, busy: false, message: '', error: '', text: cfg.text,
                 get changedCount() { return Object.keys(this.edits).length; },
                 headers() { return { Accept: 'application/json', 'Content-Type': 'application/json', 'X-CSRF-TOKEN': cfg.csrf }; },
-                async boot() { await this.load(); },
+                async boot() {
+                    window.addEventListener('tp-marks-save', () => this.save());
+                    ['edits', 'busy', 'grid'].forEach((name) => this.$watch(name, () => this.sync()));
+                    await this.load();
+                },
+                sync() {
+                    const store = Alpine.store('marks');
+                    store.visible = !!this.grid && !this.grid.published;
+                    store.disabled = this.busy || !this.changedCount;
+                    store.changed = this.changedCount ? this.text.changed.replace(':count', this.changedCount) : '';
+                },
                 async load() {
                     const response = await fetch(cfg.url, { credentials: 'same-origin', headers: this.headers() });
                     const data = await response.json();
@@ -84,4 +91,11 @@
             }));
         });
     </script>
+@endsection
+
+@section('action_bar')
+    <div x-data class="flex items-center gap-2.5 border-t border-line bg-surface px-4 py-2.5 shadow-[0_-6px_20px_rgba(0,0,0,.06)]" x-show="$store.marks.visible" x-cloak>
+        <span class="flex-1 text-[14px] font-semibold text-warn" x-text="$store.marks.changed"></span>
+        <button type="button" :disabled="$store.marks.disabled" @click="window.dispatchEvent(new CustomEvent('tp-marks-save'))" class="h-[52px] cursor-pointer rounded-full bg-green-700 px-8 text-[16px] font-bold text-white disabled:opacity-60">{{ __('teacher-panel::messages.marks.save') }}</button>
+    </div>
 @endsection

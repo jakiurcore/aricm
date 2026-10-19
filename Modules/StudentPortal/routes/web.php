@@ -17,6 +17,7 @@ $router->middleware(AuthenticateStudent::class)->prefix('portal')->name('portal.
 
     $router->get('profile', [ProfileController::class, 'show'])->name('profile');
     $router->get('id-card', [ProfileController::class, 'idCard'])->name('idcard');
+    $router->get('id-card/pdf', [ProfileController::class, 'idCardPdf'])->name('idcard.pdf');
 
     $router->get('routine', [ExamController::class, 'routine'])->name('routine');
     $router->get('admit-card', [ExamController::class, 'admit'])->name('admit');

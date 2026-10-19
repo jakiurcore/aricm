@@ -1,5 +1,4 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { PencilIcon, PlusIcon, Trash2Icon } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -16,9 +15,11 @@ import { api, ApiError } from '../api';
 import { usePaginated } from '../hooks/usePaginated';
 import { t } from '../i18n';
 import { ConfirmDialog } from './ConfirmDialog';
-import { DataTable } from './DataTable';
+import { DataTable, TablePagination } from './DataTable';
 import { Field } from './Field';
+import { FilterBar, IconButton, ListCard, ListCardHead, ListRow } from './Surface';
 import { NativeSelect, type Option } from './NativeSelect';
+import { ErrorState, LoadingState } from './States';
 
 export interface FieldDef {
     name: string;
@@ -56,6 +57,11 @@ export interface ResourcePageProps<T extends { id: number }> {
     canDelete?: (row: T) => boolean;
     hideCreate?: boolean;
     description?: ReactNode;
+    /**
+     * The design's "list card" layout (the academic setup tabs): a title band with the add button, then one row per
+     * record (bold primary, muted secondary, a ✎ button). Editing happens in the dialog, which also carries delete.
+     */
+    list?: { title: string; primary: (row: T) => ReactNode; secondary?: (row: T) => ReactNode; empty?: string };
 }
 
 type Values = Record<string, any>;
@@ -88,12 +94,12 @@ function toPayload(values: Values, editing: boolean): Values | FormData {
 }
 
 export function ResourcePage<T extends { id: number }>(props: ResourcePageProps<T>) {
-    const { title, newLabel, editLabel, endpoint, columns, fields, defaults, searchable = true, filters = [], toForm, rowActions, canEdit, canDelete, hideCreate, description } = props;
+    const { title, newLabel, editLabel, endpoint, columns, fields, defaults, searchable = true, filters = [], toForm, rowActions, canEdit, canDelete, hideCreate, description, list } = props;
 
     const [search, setSearch] = useState('');
     const [debounced, setDebounced] = useState('');
     const [filterValues, setFilterValues] = useState<Record<string, string>>({});
-    const { rows, meta, loading, setPage, reload } = usePaginated<T>(endpoint, { search: debounced, ...filterValues });
+    const { rows, meta, loading, failed, setPage, reload } = usePaginated<T>(endpoint, { search: debounced, ...filterValues });
     const [editing, setEditing] = useState<T | null>(null);
     const [open, setOpen] = useState(false);
     const [deleting, setDeleting] = useState<T | null>(null);
@@ -160,17 +166,17 @@ export function ResourcePage<T extends { id: number }>(props: ResourcePageProps<
             id: 'actions',
             header: t('core::admin.common.actions'),
             cell: ({ row }) => (
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1.5">
                     {rowActions?.(row.original, reload)}
                     {(canEdit?.(row.original) ?? true) && (
-                        <Button variant="ghost" size="icon" aria-label={t('core::admin.common.edit')} onClick={() => openForm(row.original)}>
-                            <PencilIcon />
-                        </Button>
+                        <IconButton aria-label={t('core::admin.common.edit')} title={t('core::admin.common.edit')} onClick={() => openForm(row.original)}>
+                            ✎
+                        </IconButton>
                     )}
                     {(canDelete?.(row.original) ?? true) && (
-                        <Button variant="ghost" size="icon" aria-label={t('core::admin.common.delete')} onClick={() => setDeleting(row.original)}>
-                            <Trash2Icon />
-                        </Button>
+                        <IconButton tone="danger" aria-label={t('core::admin.common.delete')} title={t('core::admin.common.delete')} onClick={() => setDeleting(row.original)}>
+                            🗑
+                        </IconButton>
                     )}
                 </div>
             ),
@@ -233,25 +239,22 @@ export function ResourcePage<T extends { id: number }>(props: ResourcePageProps<
     };
 
     return (
-        <div className="space-y-4">
-            {!hideCreate && (
+        <div className="grid content-start gap-4">
+            {!hideCreate && !list && (
                 <HeaderActions.Fill>
-                    <Button onClick={() => openForm(null)}>
-                        <PlusIcon /> {newLabel}
-                    </Button>
+                    <Button onClick={() => openForm(null)}>+ {newLabel}</Button>
                 </HeaderActions.Fill>
             )}
 
-            <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+            <h1 className="sr-only">{title}</h1>
             {description && <p className="text-sm text-muted-foreground">{description}</p>}
 
             {(searchable || filters.length > 0) && (
-                <div className="flex flex-wrap gap-2">
-                    {searchable && <Input className="max-w-xs" placeholder={t('core::admin.common.search')} value={search} onChange={(event) => setSearch(event.target.value)} />}
+                <FilterBar>
+                    {searchable && <Input className="sm:col-span-2" placeholder={`🔍 ${t('core::admin.common.search')}`} value={search} onChange={(event) => setSearch(event.target.value)} />}
                     {filters.map((filter) => (
                         <NativeSelect
                             key={filter.name}
-                            className="w-auto"
                             aria-label={filter.label}
                             placeholder={filter.label}
                             options={filter.options}
@@ -259,19 +262,55 @@ export function ResourcePage<T extends { id: number }>(props: ResourcePageProps<
                             onChange={(event) => setFilterValues({ ...filterValues, [filter.name]: event.target.value })}
                         />
                     ))}
-                </div>
+                </FilterBar>
             )}
 
-            <DataTable columns={allColumns} data={rows} loading={loading} meta={meta} onPageChange={setPage} />
+            {list ? (
+                <>
+                    {failed && rows.length === 0 ? (
+                        <ErrorState onRetry={reload} />
+                    ) : (
+                        <ListCard>
+                            <ListCardHead action={!hideCreate && <Button size="sm" className="h-10 rounded-full px-3.5" onClick={() => openForm(null)}>+ {t('core::admin.common.add')}</Button>}>{list.title}</ListCardHead>
+                            {loading && rows.length === 0 && (
+                                <div className="p-4">
+                                    <LoadingState rows={3} height={48} />
+                                </div>
+                            )}
+                            {!loading && rows.length === 0 && <div className="border-t border-line p-6 text-center text-muted-foreground">{list.empty ?? t('core::admin.common.empty')}</div>}
+                            {rows.map((row) => (
+                                <ListRow key={row.id} className={loading ? 'opacity-60' : undefined}>
+                                    <span className="flex-1 font-semibold">{list.primary(row)}</span>
+                                    {list.secondary && <span className="text-sm text-muted-foreground">{list.secondary(row)}</span>}
+                                    {rowActions?.(row, reload)}
+                                    {(canEdit?.(row) ?? true) && (
+                                        <IconButton aria-label={t('core::admin.common.edit')} title={t('core::admin.common.edit')} onClick={() => openForm(row)}>
+                                            ✎
+                                        </IconButton>
+                                    )}
+                                </ListRow>
+                            ))}
+                        </ListCard>
+                    )}
+                    {meta && <TablePagination meta={meta} onPageChange={setPage} />}
+                </>
+            ) : (
+                <DataTable columns={allColumns} data={rows} loading={loading} failed={failed} onRetry={reload} meta={meta} onPageChange={setPage} />
+            )}
 
             <Dialog open={open} onOpenChange={setOpen}>
-                <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
+                <DialogContent className="sm:max-w-xl">
                     <DialogHeader>
                         <DialogTitle>{editing ? editLabel : newLabel}</DialogTitle>
                     </DialogHeader>
                     <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2">
                         {fields.map(renderField)}
                         <DialogFooter className="sm:col-span-2">
+                            {list && editing && (canDelete?.(editing) ?? true) && (
+                                <Button type="button" variant="outline" className="border-danger text-danger sm:mr-auto" onClick={() => { setOpen(false); setDeleting(editing); }}>
+                                    {t('core::admin.common.delete')}
+                                </Button>
+                            )}
                             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                                 {t('core::admin.common.cancel')}
                             </Button>

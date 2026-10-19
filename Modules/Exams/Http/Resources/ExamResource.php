@@ -18,6 +18,7 @@ class ExamResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'name' => $this->displayName(),
             'name_bn' => $this->name_bn,
             'name_en' => $this->name_en,
             'session_id' => $this->session_id,
@@ -26,6 +27,8 @@ class ExamResource extends JsonResource
             'end_date' => $this->end_date?->toDateString(),
             'status' => $this->status->value,
             'admit_card_released' => $this->admit_card_released,
+            'result_published' => (bool) ($this->result_published ?? false),
+            'subjects_count' => $this->whenLoaded('subjects', fn () => $this->subjects->pluck('subject_id')->unique()->count()),
             'grading_scale_id' => $this->grading_scale_id,
             'description' => $this->description,
             'class_ids' => $this->whenLoaded('classes', fn () => $this->classes->pluck('id')->values()),

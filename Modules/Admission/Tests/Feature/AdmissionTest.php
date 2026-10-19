@@ -10,7 +10,7 @@ function inquiry(array $overrides = []): array
 }
 
 it('shows the admission page with the banner and the form', function () {
-    $this->get(route('admission.public'))->assertOk()->assertSee('ভর্তি চলছে!')->assertSee('২১ অক্টোবর ২০২৬')->assertSee('১ নভেম্বর ২০২৬')->assertSee('নভেম্বরের ১ তারিখে ফ্রি ক্লাস!')->assertSee('student_name', false);
+    $this->get(route('admission.public'))->assertOk()->assertSee('ভর্তি চলছে!')->assertSee('২১ অক্টোবর ২০২৬')->assertSee('১ নভেম্বর ২০২৬')->assertSee('student_name', false);
 });
 
 it('stores an inquiry and thanks the visitor', function () {

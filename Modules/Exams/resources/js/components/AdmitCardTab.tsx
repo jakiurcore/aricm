@@ -1,17 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 import { useAcademicOptions } from '@academic/js/hooks/useAcademicOptions';
-import { PrinterIcon } from 'lucide-react';
-
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { api } from '@core/js/api';
+import { DashedEmpty, Panel, Pill, TableCard, Toggle } from '@core/js/components/design';
 import { Field } from '@core/js/components/Field';
 import { NativeSelect } from '@core/js/components/NativeSelect';
+import { LoadingState } from '@core/js/components/States';
 import { t } from '@core/js/i18n';
 import { bnDigits } from '@core/js/number';
+import { can } from '@core/js/permissions';
 
 interface RosterRow {
     student_id: number;
@@ -23,16 +22,24 @@ interface RosterRow {
 
 const k = (key: string) => t(`exams::admin.admit.${key}`);
 
+/**
+ * The admit-card tab: the release switch panel of the design, then the generator block (section filter and the navy
+ * "preview & print" pill) over the class roster with a tick and a ready / blocked pill for each student.
+ */
 export function AdmitCardTab({ examId, classId, released, onReleased }: { examId: number; classId: number; released: boolean; onReleased: (value: boolean) => void }) {
     const academic = useAcademicOptions();
     const [sectionId, setSectionId] = useState('');
-    const [roster, setRoster] = useState<RosterRow[]>([]);
-    const [onlyEligible, setOnlyEligible] = useState(true);
+    const [roster, setRoster] = useState<RosterRow[] | null>(null);
+    const [skipped, setSkipped] = useState<number[]>([]);
     const sections = academic.classes.find((schoolClass) => schoolClass.id === classId)?.sections ?? [];
 
     useEffect(() => {
+        setRoster(null);
+        setSkipped([]);
         void api.get<{ data: RosterRow[] }>(`/exams/${examId}/admit-cards/roster`, { class_id: classId, section_id: sectionId }).then((response) => setRoster(response.data));
     }, [examId, classId, sectionId]);
+
+    useEffect(() => setSectionId(''), [classId]);
 
     const toggle = async (value: boolean) => {
         await api.post(`/exams/${examId}/admit-cards/release`, { released: value });
@@ -40,60 +47,69 @@ export function AdmitCardTab({ examId, classId, released, onReleased }: { examId
         toast.success(t('core::admin.common.saved'));
     };
 
-    return (
-        <div className="space-y-4">
-            <label className="flex items-center gap-3 rounded-xl border bg-card p-4 text-sm">
-                <Switch checked={released} onCheckedChange={(checked) => void toggle(checked)} />
-                <span>
-                    <span className="font-medium">{k('release')}</span>
-                    <span className="block text-muted-foreground">{k('release_help')}</span>
-                </span>
-            </label>
+    const chosen = useMemo(() => (roster ?? []).filter((row) => row.eligibility.allowed && !skipped.includes(row.student_id)), [roster, skipped]);
+    const printUrl = useMemo(() => {
+        const query = new URLSearchParams({ class_id: String(classId), section_id: sectionId });
+        chosen.forEach((row) => query.append('student_ids[]', String(row.student_id)));
 
-            <div className="flex flex-wrap items-end gap-4">
-                <div className="min-w-48">
+        return `/api/exams/${examId}/admit-cards/pdf?${query}`;
+    }, [examId, classId, sectionId, chosen]);
+
+    return (
+        <div className="grid gap-4">
+            <Panel className="max-w-[640px] gap-3">
+                <div className="flex min-h-11 items-center justify-between gap-3">
+                    <span className="grid leading-[1.4]">
+                        <strong>{k('release')}</strong>
+                        <span className="text-sm text-muted-foreground">{k('release_help')}</span>
+                    </span>
+                    <Toggle checked={released} label={k('release')} disabled={!can('exams.admit_card')} onChange={(value) => void toggle(value)} />
+                </div>
+                <div className="flex min-h-11 items-center justify-between gap-3 border-t border-line pt-2.5">
+                    <span className="grid leading-[1.4]">
+                        <strong>{k('block_unpaid')}</strong>
+                        <span className="text-sm text-muted-foreground">{k('block_unpaid_help')}</span>
+                    </span>
+                </div>
+            </Panel>
+
+            <div className="grid items-end gap-2.5 rounded-[20px] border border-line bg-surface p-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))' }}>
                 <Field label={t('students::admin.fields.section_id')} htmlFor="admit-section">
                     <NativeSelect id="admit-section" placeholder={k('all_sections')} value={sectionId} onChange={(event) => setSectionId(event.target.value)} options={sections.map((section) => ({ value: section.id, label: section.name }))} />
                 </Field>
-                </div>
-                <label className="flex items-center gap-2 pb-2 text-sm">
-                    <Switch checked={onlyEligible} onCheckedChange={setOnlyEligible} />
-                    {k('only_eligible')}
-                </label>
-                <Button render={<a href={`/api/exams/${examId}/admit-cards/pdf?${new URLSearchParams({ class_id: String(classId), section_id: sectionId, only_eligible: onlyEligible ? '1' : '0' })}`} target="_blank" rel="noreferrer" />}>
-                    <PrinterIcon /> {k('print')}
-                </Button>
+                {can('exams.admit_card') && (
+                    <a
+                        href={chosen.length > 0 ? printUrl : undefined}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-disabled={chosen.length === 0}
+                        className="grid h-11 place-items-center rounded-full bg-navy-800 px-4 font-bold text-white no-underline aria-disabled:pointer-events-none aria-disabled:opacity-50"
+                    >
+                        🖨 {k('print')}
+                    </a>
+                )}
             </div>
 
-            <div className="overflow-x-auto rounded-xl border bg-card">
-                <table className="w-full text-sm">
-                    <thead>
-                        <tr className="border-b text-left text-muted-foreground">
-                            <th className="p-3">{t('students::admin.fields.roll')}</th>
-                            <th className="p-3">{t('students::admin.fields.name_bn')}</th>
-                            <th className="p-3">ID</th>
-                            <th className="p-3">{k('eligibility')}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {roster.length === 0 && (
-                            <tr>
-                                <td colSpan={4} className="p-4 text-center text-muted-foreground">
-                                    {t('core::admin.common.empty')}
-                                </td>
-                            </tr>
-                        )}
-                        {roster.map((row) => (
-                            <tr key={row.student_id} className="border-b last:border-0">
-                                <td className="p-3">{row.roll ? bnDigits(row.roll) : '—'}</td>
-                                <td className="p-3">{row.name}</td>
-                                <td className="p-3 text-muted-foreground">{row.code}</td>
-                                <td className="p-3">{row.eligibility.allowed ? <Badge>{k('eligible')}</Badge> : <Badge variant="outline">{row.eligibility.reason}</Badge>}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+            {roster === null && <LoadingState rows={4} height={52} />}
+            {roster?.length === 0 && <DashedEmpty glyph="🎫" title={t('core::admin.common.empty')} />}
+            {roster && roster.length > 0 && (
+                <TableCard className="overflow-hidden">
+                    {roster.map((row) => {
+                        const blocked = !row.eligibility.allowed;
+                        const on = !blocked && !skipped.includes(row.student_id);
+
+                        return (
+                            <label key={row.student_id} className="flex cursor-pointer items-center gap-3 border-b border-line px-4 py-2.5 last:border-b-0 aria-disabled:cursor-default" aria-disabled={blocked}>
+                                <Checkbox checked={on} disabled={blocked} className="size-[22px]" onCheckedChange={(checked) => setSkipped(checked ? skipped.filter((id) => id !== row.student_id) : [...skipped, row.student_id])} />
+                                <span className="flex-1">
+                                    {row.name} <span className="text-[13px] text-muted-foreground">· {row.roll ? `${t('students::admin.fields.roll')} ${bnDigits(row.roll)} · ` : ''}{row.code}</span>
+                                </span>
+                                <Pill tone={blocked ? 'danger' : 'success'}>{blocked ? (row.eligibility.reason ?? k('blocked')) : k('ready')}</Pill>
+                            </label>
+                        );
+                    })}
+                </TableCard>
+            )}
         </div>
     );
 }

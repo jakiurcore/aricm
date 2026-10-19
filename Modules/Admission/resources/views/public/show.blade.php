@@ -3,64 +3,78 @@
 @section('title', __('admission::messages.title'))
 
 @section('content')
-    <div class="mx-auto max-w-5xl px-4 py-10">
-        <h1 class="font-head text-3xl text-heading">{{ __('admission::messages.title') }}</h1>
+    @php
+        $start = $settings->get('admission_start');
+        $classStart = $settings->get('class_start');
+        $sessionYear = (int) \Illuminate\Support\Carbon::parse($start ?: now())->format('Y');
+        $session = bn_digits($sessionYear).'–'.bn_digits(str_pad((string) (($sessionYear + 1) % 100), 2, '0', STR_PAD_LEFT));
+    @endphp
+    <div style="max-width: 1140px; margin: 0 auto; padding: 40px 16px 0; display: grid; gap: 32px;">
+        <div style="display: grid; gap: 10px;">
+            <span style="justify-self: start; padding: 4px 14px; border-radius: 999px; background: var(--red-600); color: #fff; font-weight: 700; font-size: 14px;">{{ ($settings->bannerEnabled() ? $settings->text('banner_title') : '') ?: __('core::nav.admission_open') }}</span>
+            <h1 class="pub-h1">{{ __('admission::messages.page_title', ['session' => $session]) }}</h1>
+            <p style="margin: 0; font-size: 18px; color: var(--muted); max-width: 66ch;">{{ __('admission::messages.intro', ['start' => $start ? bn_date($start) : '—', 'class_start' => $classStart ? bn_date($classStart) : '—']) }}</p>
+        </div>
 
-        @if ($settings->bannerEnabled())
-            <div class="mt-4 rounded-xl bg-green-50 p-5">
-                <p class="font-head text-2xl text-green-700">{{ $settings->text('banner_title') }}</p>
-                <p class="mt-1 text-ink">
-                    @if ($settings->get('admission_start')){{ __('admission::messages.admission_start') }}: <strong>{{ bn_date($settings->get('admission_start')) }}</strong>@endif
-                    @if ($settings->get('class_start')) · {{ __('admission::messages.class_start') }}: <strong>{{ bn_date($settings->get('class_start')) }}</strong>@endif
-                </p>
-                @if ($settings->text('free_class_note'))<p class="mt-2 font-semibold text-red-700">{{ $settings->text('free_class_note') }}</p>@endif
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 20px; align-items: start;">
+            <div style="display: grid; gap: 20px;">
+                <div class="pub-card" style="display: grid; gap: 12px;">
+                    <h2 style="margin: 0; font-family: var(--f-head); color: var(--heading); font-size: 22px;">{{ __('admission::messages.docs_title') }}</h2>
+                    @foreach (__('admission::messages.docs') as $doc)
+                        <div style="display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: start;"><span style="width: 28px; height: 28px; border-radius: 50%; background: var(--green-50); color: var(--green-700); display: grid; place-items: center; font-weight: 700;">✓</span><span>{{ $doc }}</span></div>
+                    @endforeach
+                    @if ($settings->text('content'))
+                        <p style="margin: 6px 0 0; padding-top: 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: 15px; white-space: pre-line;">{{ $settings->text('content') }}</p>
+                    @endif
+                </div>
+                <div style="border-radius: 20px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); overflow: hidden;">
+                    <h2 style="margin: 0; padding: 18px 22px 10px; font-family: var(--f-head); color: var(--heading); font-size: 22px;">{{ __('admission::messages.fees_title') }}</h2>
+                    <div style="display: grid; grid-template-columns: 1.4fr 1fr 1fr; padding: 10px 22px; background: var(--surface-2); font-size: 14px; font-weight: 700; color: var(--muted);"><span>{{ __('admission::messages.fee_item') }}</span><span>{{ __('admission::messages.kids') }}</span><span>{{ __('admission::messages.junior') }}</span></div>
+                    @foreach (__('admission::messages.fee_rows') as [$label, $kids, $junior])
+                        <div style="display: grid; grid-template-columns: 1.4fr 1fr 1fr; padding: 12px 22px; border-top: 1px solid var(--line);"><span>{{ $label }}</span><span style="font-weight: 600;">৳ {{ bn_number($kids) }}</span><span style="font-weight: 600;">৳ {{ bn_number($junior) }}</span></div>
+                    @endforeach
+                </div>
             </div>
-        @endif
 
-        <div class="mt-8 grid gap-8 lg:grid-cols-2">
-            <div>
-                @if ($settings->text('program'))<h2 class="mb-2 font-head text-xl text-heading">{{ $settings->text('program') }}</h2>@endif
-                <div class="whitespace-pre-line leading-relaxed">{{ $settings->text('content') }}</div>
-                <p class="mt-6 text-sm text-ink-muted">{{ __('admission::messages.call_us') }}:
-                    @foreach ((array) setting('phones', []) as $phone)<a href="tel:{{ $phone }}">{{ bn_digits($phone) }}</a>@if (! $loop->last), @endif @endforeach
-                </p>
-            </div>
-
-            <div class="rounded-2xl border border-line bg-surface p-6 shadow-md">
-                <h2 class="mb-4 font-head text-xl text-heading">{{ __('admission::messages.form_title') }}</h2>
+            <div class="pub-card" style="box-shadow: var(--shadow-md); display: grid; gap: 14px;">
+                <h2 style="margin: 0; font-family: var(--f-head); color: var(--heading); font-size: 22px;">{{ __('admission::messages.inquiry_title') }}</h2>
 
                 @if (session('inquiry_sent'))
-                    <p class="mb-4 rounded-md bg-success-bg p-3 font-medium text-success">{{ __('admission::messages.sent') }}</p>
-                @endif
+                    <div role="status" style="padding: 28px 16px; border-radius: 16px; background: var(--success-bg); color: var(--success); text-align: center; display: grid; gap: 6px;">
+                        <span style="font-size: 36px;">✓</span><strong style="font-size: 18px;">{{ __('admission::messages.sent_title') }}</strong><span style="color: var(--ink);">{{ __('admission::messages.sent_body') }}</span>
+                        <a href="{{ route('admission.public') }}" style="justify-self: center; margin-top: 6px; height: 44px; padding: 0 18px; border-radius: 999px; border: 2px solid var(--green-700); background: transparent; color: var(--green-700); font-weight: 700; display: inline-flex; align-items: center; text-decoration: none;">{{ __('admission::messages.send_another') }}</a>
+                    </div>
+                @else
+                    <form method="POST" action="{{ route('admission.inquiry.store') }}" style="display: grid; gap: 12px;">
+                        @csrf
+                        <div class="hidden" aria-hidden="true"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
 
-                <form method="POST" action="{{ route('admission.inquiry.store') }}" class="space-y-4">
-                    @csrf
-                    <div class="hidden" aria-hidden="true"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
-
-                    @foreach ([['student_name', 'text'], ['guardian_name', 'text'], ['phone', 'tel']] as [$name, $type])
-                        <div>
-                            <label for="{{ $name }}" class="mb-1 block text-sm font-medium">{{ __("admission::messages.{$name}") }}</label>
-                            <input id="{{ $name }}" name="{{ $name }}" type="{{ $type }}" value="{{ old($name) }}" required class="w-full rounded-md border border-line-strong bg-surface px-3">
-                            @error($name)<p class="mt-1 text-sm text-danger">{{ $message }}</p>@enderror
+                        <label class="pub-field" for="student_name">{{ __('admission::messages.student_name') }} *
+                            <input id="student_name" name="student_name" type="text" value="{{ old('student_name') }}" required class="pub-input" @error('student_name') aria-invalid="true" @enderror>
+                            @error('student_name')<span class="pub-err">{{ $message }}</span>@enderror
+                        </label>
+                        <label class="pub-field" for="guardian_name">{{ __('admission::messages.guardian_name') }}
+                            <input id="guardian_name" name="guardian_name" type="text" value="{{ old('guardian_name') }}" class="pub-input">
+                            @error('guardian_name')<span class="pub-err">{{ $message }}</span>@enderror
+                        </label>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr)); gap: 12px;">
+                            <label class="pub-field" for="phone">{{ __('admission::messages.phone') }} *
+                                <input id="phone" name="phone" type="tel" inputmode="tel" value="{{ old('phone') }}" placeholder="{{ __('admission::messages.phone_placeholder') }}" required class="pub-input" @error('phone') aria-invalid="true" @enderror>
+                                @error('phone')<span class="pub-err">{{ $message }}</span>@enderror
+                            </label>
+                            <label class="pub-field" for="desired_class">{{ __('admission::messages.desired_class') }}
+                                <select id="desired_class" name="desired_class" class="pub-input">
+                                    @foreach ($settings->classes() as $class)<option value="{{ $class }}" @selected(old('desired_class') === $class)>{{ $class }}</option>@endforeach
+                                </select>
+                                @error('desired_class')<span class="pub-err">{{ $message }}</span>@enderror
+                            </label>
                         </div>
-                    @endforeach
-
-                    <div>
-                        <label for="desired_class" class="mb-1 block text-sm font-medium">{{ __('admission::messages.desired_class') }}</label>
-                        <select id="desired_class" name="desired_class" class="w-full rounded-md border border-line-strong bg-surface px-3">
-                            <option value="">—</option>
-                            @foreach ($settings->classes() as $class)<option value="{{ $class }}" @selected(old('desired_class') === $class)>{{ $class }}</option>@endforeach
-                        </select>
-                        @error('desired_class')<p class="mt-1 text-sm text-danger">{{ $message }}</p>@enderror
-                    </div>
-
-                    <div>
-                        <label for="message" class="mb-1 block text-sm font-medium">{{ __('admission::messages.message') }}</label>
-                        <textarea id="message" name="message" rows="3" class="w-full rounded-md border border-line-strong bg-surface px-3 py-2">{{ old('message') }}</textarea>
-                    </div>
-
-                    <button type="submit" class="min-h-11 w-full rounded-md bg-brand px-5 font-semibold text-white">{{ __('admission::messages.submit') }}</button>
-                </form>
+                        <label class="pub-field" for="message">{{ __('admission::messages.message') }}
+                            <textarea id="message" name="message" rows="3" class="pub-input" style="height: auto; padding: 10px 12px; resize: vertical;">{{ old('message') }}</textarea>
+                        </label>
+                        <button type="submit" style="height: 52px; border: 0; border-radius: 999px; background: var(--red-600); color: #fff; font-weight: 700; font-size: 17px; cursor: pointer;">{{ __('admission::messages.send') }}</button>
+                    </form>
+                @endif
             </div>
         </div>
     </div>

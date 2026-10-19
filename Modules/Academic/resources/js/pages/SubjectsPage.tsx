@@ -1,6 +1,8 @@
 import { ResourcePage } from '@core/js/components/ResourcePage';
 import { t } from '@core/js/i18n';
 
+import { AcademicTabs } from '../components/AcademicTabs';
+
 interface Subject {
     id: number;
     name_bn: string;
@@ -12,7 +14,9 @@ const k = (key: string) => t(`academic::admin.subjects.${key}`);
 
 export function SubjectsPage() {
     return (
-        <ResourcePage<Subject>
+        <div className="grid gap-3.5">
+            <AcademicTabs />
+            <ResourcePage<Subject>
             title={k('title')}
             newLabel={k('new')}
             editLabel={k('edit')}
@@ -25,11 +29,13 @@ export function SubjectsPage() {
                 { name: 'code', label: k('code'), type: 'text' },
             ]}
             toForm={(row) => ({ name_bn: row.name_bn, name_en: row.name_en ?? '', code: row.code ?? '' })}
-            columns={[
-                { header: k('name_bn'), accessorKey: 'name_bn' },
-                { header: k('name_en'), accessorKey: 'name_en' },
-                { header: k('code'), accessorKey: 'code' },
-            ]}
-        />
+            columns={[]}
+            list={{
+                title: t('academic::admin.tabs.subjects'),
+                primary: (row) => row.name_bn,
+                secondary: (row) => [row.name_en, row.code].filter(Boolean).join(' · '),
+            }}
+            />
+        </div>
     );
 }

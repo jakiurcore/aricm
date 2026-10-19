@@ -1,17 +1,16 @@
-import { KeyRoundIcon } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import { Link, useNavigate, useParams } from 'react-router';
 import { toast } from 'sonner';
 
-import { HeaderActions } from '@admin/js';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
+import { usePageTitle } from '@/admin-shell/pageTitle';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { api } from '@core/js/api';
+import { api, ApiError } from '@core/js/api';
 import { ConfirmDialog } from '@core/js/components/ConfirmDialog';
+import { ErrorState, LoadingState } from '@core/js/components/States';
+import { ListCard, Panel } from '@core/js/components/Surface';
 import { t } from '@core/js/i18n';
 import { bnDigits, formatDate } from '@core/js/number';
+import { can } from '@core/js/permissions';
 
 import type { Student } from '../types';
 
@@ -21,115 +20,155 @@ interface Profile {
     summary: { label: string; value: string; tone: string; route: string | null }[];
 }
 
-const toneClass: Record<string, string> = { neutral: '', success: 'text-green-700', warn: 'text-amber-700', danger: 'text-destructive' };
+const toneClass: Record<string, string> = { neutral: '', success: 'text-success', warn: 'text-warn', danger: 'text-danger' };
 
+const k = (key: string) => t(`students::admin.fields.${key}`);
+const dash = (value: ReactNode) => (value === null || value === undefined || value === '' ? '—' : value);
+
+function Group({ title, rows }: { title: string; rows: [string, ReactNode, string?][] }) {
+    return (
+        <ListCard>
+            <h3 className="m-0 bg-surface-2 px-4 py-3 text-base leading-[1.65] font-bold">{title}</h3>
+            {rows.map(([label, value, tone]) => (
+                <div key={label} className="grid gap-2.5 border-t border-line px-4 py-[9px] text-[15px]" style={{ gridTemplateColumns: '40% 1fr' }}>
+                    <span className="text-muted-foreground">{label}</span>
+                    <strong className={`font-semibold ${tone ?? ''}`}>{dash(value)}</strong>
+                </div>
+            ))}
+        </ListCard>
+    );
+}
+
+/** The design's "শিক্ষার্থীর প্রোফাইল": the identity card on top, then the detail groups. */
 export function StudentProfilePage() {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [profile, setProfile] = useState<Profile | null>(null);
-    const [confirmReset, setConfirmReset] = useState(false);
+    const [failed, setFailed] = useState(false);
+    const [confirm, setConfirm] = useState<'reset' | 'delete' | null>(null);
 
-    const load = useCallback(async () => setProfile(await api.get<Profile>(`/students/${id}`)), [id]);
+    usePageTitle(t('students::admin.profile_page.title'));
 
-    useEffect(() => {
-        void load();
-    }, [load]);
+    const load = useCallback(() => {
+        setFailed(false);
+        api.get<Profile>(`/students/${id}`).then(setProfile).catch(() => setFailed(true));
+    }, [id]);
+
+    useEffect(load, [load]);
+
+    if (failed) {
+        return <ErrorState onRetry={load} />;
+    }
 
     if (!profile) {
-        return <p className="text-muted-foreground">{t('core::admin.common.loading')}</p>;
+        return <LoadingState />;
     }
 
     const student = profile.data;
-    const rows: [string, string][] = [
-        [t('students::admin.fields.father_name'), student.father_name ?? '—'],
-        [t('students::admin.fields.mother_name'), student.mother_name ?? '—'],
-        [t('students::admin.fields.guardian_name'), `${student.guardian_name ?? '—'} (${student.guardian_relation ?? ''})`],
-        [t('students::admin.fields.guardian_phone'), bnDigits(student.guardian_phone ?? '—')],
-        [t('students::admin.fields.date_of_birth'), formatDate(student.date_of_birth)],
-        [t('students::admin.fields.gender'), t(`students::admin.gender.${student.gender}`)],
-        [t('students::admin.fields.blood_group'), student.blood_group ?? '—'],
-        [t('students::admin.fields.religion'), student.religion ?? '—'],
-        [t('students::admin.fields.admission_date'), formatDate(student.admission_date)],
-        [t('students::admin.fields.residency_type'), t(`students::admin.residency.${student.residency_type}`)],
-        [t('students::admin.fields.present_address'), student.present_address ?? '—'],
-        [t('students::admin.fields.permanent_address'), student.permanent_address ?? '—'],
-    ];
+    const classLine = [student.class_name, student.section_name].filter(Boolean).join(' – ');
 
-    const reset = async () => {
-        await api.post(`/students/${student.id}/reset-password`);
-        toast.success(t('students::admin.password_reset'));
-        setConfirmReset(false);
+    const act = async () => {
+        try {
+            if (confirm === 'reset') {
+                await api.post(`/students/${student.id}/reset-password`);
+                toast.success(t('students::admin.password_reset'));
+            } else {
+                await api.delete(`/students/${student.id}`);
+                toast.success(t('core::admin.common.deleted'));
+                navigate('/students');
+            }
+        } catch (error) {
+            toast.error(error instanceof ApiError ? error.message : t('core::admin.common.error'));
+        } finally {
+            setConfirm(null);
+        }
     };
 
     return (
-        <div className="max-w-4xl space-y-4">
-            <HeaderActions.Fill>
-                <Button variant="outline" onClick={() => setConfirmReset(true)}>
-                    <KeyRoundIcon /> {t('students::admin.reset_password')}
-                </Button>
-            </HeaderActions.Fill>
-
-            <Link to="/students" className="text-sm text-muted-foreground underline">
-                ← {t('students::admin.title')}
-            </Link>
-
-            <div className="flex items-center gap-4">
-                <Avatar className="size-20">
-                    {student.photo_url && <AvatarImage src={student.photo_url} alt="" />}
-                    <AvatarFallback className="text-2xl">{student.name_bn.slice(0, 1)}</AvatarFallback>
-                </Avatar>
-                <div>
-                    <h1 className="text-2xl font-semibold tracking-tight">{student.name_bn}</h1>
-                    <p className="text-muted-foreground">
-                        {student.student_id} · {[student.class_name, student.section_name].filter(Boolean).join(' / ')} · {t('students::admin.fields.roll')} {student.roll ? bnDigits(student.roll) : '—'}
-                    </p>
-                    <Badge variant={student.status === 'active' ? 'default' : 'outline'}>{t(`students::admin.status.${student.status}`)}</Badge>
+        <div className="grid gap-4">
+            <Panel className="flex flex-wrap items-center gap-4">
+                <div className="h-[116px] w-24 flex-none overflow-hidden rounded-2xl bg-surface-2">
+                    {student.photo_url ? (
+                        <img src={student.photo_url} alt="" className="size-full object-cover" />
+                    ) : (
+                        <span className="grid size-full place-items-center text-[13px] font-medium text-muted-foreground">{t('students::admin.fields.photo')}</span>
+                    )}
                 </div>
+                <div className="grid min-w-[200px] flex-1 leading-normal">
+                    <strong className="font-head text-[22px] text-heading">{student.name_bn}</strong>
+                    <span className="text-muted-foreground">
+                        ID {bnDigits(student.student_id)} · {classLine} · {t('students::admin.list.roll_short')} {student.roll ? bnDigits(student.roll) : '—'}
+                    </span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                    {can('students.manage') && (
+                        <Button variant="secondary" className="font-bold" render={<Link to={`/students/${student.id}/edit`} />}>
+                            {t('core::admin.common.edit')}
+                        </Button>
+                    )}
+                    {can('students.id_card') && (
+                        <Button variant="outline" render={<a href={`/api/students/${student.id}/id-card`} target="_blank" rel="noreferrer" />}>
+                            🪪 {t('students::admin.profile_page.id_card')}
+                        </Button>
+                    )}
+                    {can('students.reset_password') && (
+                        <Button variant="outline" onClick={() => setConfirm('reset')}>
+                            🔑 {t('students::admin.reset_password')}
+                        </Button>
+                    )}
+                    {can('students.manage') && (
+                        <Button variant="outline" className="border-danger text-danger" onClick={() => setConfirm('delete')}>
+                            🗑 {t('core::admin.common.delete')}
+                        </Button>
+                    )}
+                </div>
+            </Panel>
+
+            <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))' }}>
+                <Group
+                    title={t('students::admin.form.personal')}
+                    rows={[
+                        [k('name_en'), student.name_en],
+                        [k('date_of_birth'), formatDate(student.date_of_birth)],
+                        [t('students::admin.form.birth_registration_no'), student.birth_registration_no ? bnDigits(student.birth_registration_no) : null],
+                        [k('blood_group'), student.blood_group],
+                        [k('gender'), t(`students::admin.gender.${student.gender}`)],
+                        [k('religion'), student.religion],
+                        [k('section_id'), student.section_name],
+                        [k('session_id'), student.session_name ? bnDigits(student.session_name) : null],
+                        [k('admission_date'), formatDate(student.admission_date)],
+                        [k('residency_type'), t(`students::admin.residency.${student.residency_type}`)],
+                        [k('status'), t(`students::admin.status.${student.status}`)],
+                    ]}
+                />
+                <Group
+                    title={t('students::admin.form.guardian')}
+                    rows={[
+                        [k('father_name'), student.father_name],
+                        [k('mother_name'), student.mother_name],
+                        [t('students::admin.form.guardian_phone'), student.guardian_phone ? bnDigits(student.guardian_phone) : null],
+                        [k('guardian_name'), [student.guardian_name, student.guardian_relation && `(${student.guardian_relation})`].filter(Boolean).join(' ')],
+                        [k('present_address'), student.present_address],
+                        [k('permanent_address'), student.permanent_address],
+                    ]}
+                />
+                {profile.summary.length > 0 && <Group title={t('students::admin.profile_page.summary')} rows={profile.summary.map((item): [string, ReactNode, string] => [item.label, item.value, toneClass[item.tone] ?? ''])} />}
+                {profile.enrollments.length > 0 && (
+                    <Group
+                        title={t('students::admin.history')}
+                        rows={profile.enrollments.map((row): [string, ReactNode] => [bnDigits(row.session), `${row.class}${row.section ? ` – ${row.section}` : ''} · ${t('students::admin.list.roll_short')} ${row.roll ? bnDigits(row.roll) : '—'}`])}
+                    />
+                )}
             </div>
 
-            {profile.summary.length > 0 && (
-                <div className="grid gap-3 sm:grid-cols-3">
-                    {profile.summary.map((item) => (
-                        <Card key={item.label}>
-                            <CardContent className="pt-4">
-                                <p className="text-xs text-muted-foreground">{item.label}</p>
-                                <p className={`text-xl font-semibold ${toneClass[item.tone] ?? ''}`}>{item.value}</p>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
-            )}
-
-            <Card>
-                <CardHeader>
-                    <CardTitle>{t('students::admin.details')}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <dl className="grid gap-x-8 gap-y-2 text-sm sm:grid-cols-2">
-                        {rows.map(([label, value]) => (
-                            <div key={label} className="flex justify-between gap-4 border-b py-1.5">
-                                <dt className="text-muted-foreground">{label}</dt>
-                                <dd className="text-right font-medium">{value}</dd>
-                            </div>
-                        ))}
-                    </dl>
-                </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle>{t('students::admin.history')}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-1 text-sm">
-                    {profile.enrollments.map((row) => (
-                        <div key={row.session} className="flex justify-between border-b py-1.5">
-                            <span>{row.session} — {row.class}{row.section ? ` / ${row.section}` : ''}</span>
-                            <span className="text-muted-foreground">{t('students::admin.fields.roll')} {row.roll ? bnDigits(row.roll) : '—'} · {row.status}</span>
-                        </div>
-                    ))}
-                </CardContent>
-            </Card>
-
-            <ConfirmDialog open={confirmReset} title={t('students::admin.reset_password')} description={t('students::admin.reset_confirm')} confirmLabel={t('students::admin.reset_password')} onConfirm={() => void reset()} onClose={() => setConfirmReset(false)} />
+            <ConfirmDialog
+                open={confirm !== null}
+                title={confirm === 'reset' ? t('students::admin.reset_password') : undefined}
+                description={confirm === 'reset' ? t('students::admin.reset_confirm') : student.name_bn}
+                confirmLabel={confirm === 'reset' ? t('students::admin.reset_password') : undefined}
+                onConfirm={() => void act()}
+                onClose={() => setConfirm(null)}
+            />
         </div>
     );
 }

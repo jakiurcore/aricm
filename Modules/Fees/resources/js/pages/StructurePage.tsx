@@ -1,14 +1,16 @@
-import { CopyIcon } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { useAcademicOptions } from '@academic/js/hooks/useAcademicOptions';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { api, ApiError } from '@core/js/api';
+import { PageTitle, Segmented, DesignTable, TableCard, Th, toAsciiDigits } from '@core/js/components/design';
 import { NativeSelect } from '@core/js/components/NativeSelect';
 import { t } from '@core/js/i18n';
-import { poishaToTaka } from '@core/js/money';
+import { formatMoney, poishaToTaka } from '@core/js/money';
+import { bnDigits } from '@core/js/number';
+import { can } from '@core/js/permissions';
 
 interface Head {
     id: number;
@@ -34,7 +36,7 @@ export function StructurePage() {
     const [cells, setCells] = useState<Record<string, string>>({});
     const [dirty, setDirty] = useState<Set<string>>(new Set());
     const [copyFrom, setCopyFrom] = useState('');
-    const [showResidential, setShowResidential] = useState(false);
+    const [residential, setResidential] = useState(false);
 
     const keyOf = (classId: number, headId: number, residency: string | null) => `${classId}|${headId}|${residency ?? 'all'}`;
 
@@ -55,15 +57,12 @@ export function StructurePage() {
 
         const response = await api.get<{ data: Cell[] }>('/fees/structures', { session_id: sessionId });
         setCells(Object.fromEntries(response.data.map((cell) => [keyOf(cell.class_id, cell.fee_head_id, cell.residency_type), poishaToTaka(cell.amount)])));
-        setShowResidential(response.data.some((cell) => cell.residency_type !== null));
         setDirty(new Set());
     }, [sessionId]);
 
     useEffect(() => {
         void load();
     }, [load]);
-
-    const columns = useMemo(() => heads.flatMap((head) => [{ head, residency: null as string | null }, ...(showResidential ? [{ head, residency: 'residential' }] : [])]), [heads, showResidential]);
 
     const change = (key: string, value: string) => {
         setCells((current) => ({ ...current, [key]: value }));
@@ -92,58 +91,83 @@ export function StructurePage() {
         await load();
     };
 
-    return (
-        <div className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-                <h1 className="text-2xl font-semibold tracking-tight">{k('title')}</h1>
-                <div className="flex flex-wrap items-center gap-2">
-                    <NativeSelect className="w-auto" aria-label={t('students::admin.fields.session_id')} value={sessionId} onChange={(event) => setSessionId(event.target.value)} options={academic.sessions.map((session) => ({ value: session.id, label: session.name }))} />
-                    <label className="flex items-center gap-2 text-sm">
-                        <input type="checkbox" checked={showResidential} onChange={(event) => setShowResidential(event.target.checked)} />
-                        {k('residential')}
-                    </label>
-                    <NativeSelect className="w-auto" placeholder={k('copy_from')} value={copyFrom} onChange={(event) => setCopyFrom(event.target.value)} options={academic.sessions.filter((session) => String(session.id) !== sessionId).map((session) => ({ value: session.id, label: session.name }))} />
-                    <Button variant="outline" disabled={!copyFrom} onClick={() => void copy()}>
-                        <CopyIcon /> {k('copy')}
-                    </Button>
-                    <Button disabled={dirty.size === 0} onClick={() => void save()}>
-                        {t('core::admin.common.save')}
-                    </Button>
-                </div>
-            </div>
-            <p className="text-sm text-muted-foreground">{k('hint')}</p>
+    const residencyKey = residential ? 'residential' : null;
+    const monthlyTotal = (classId: number) => heads.filter((head) => head.type === 'monthly').reduce((sum, head) => sum + (Number(cells[keyOf(classId, head.id, residencyKey)]) || 0), 0);
+    const editable = can('fees.manage_structure');
 
-            <div className="overflow-auto rounded-xl border bg-card">
-                <table className="min-w-full border-collapse text-sm">
+    return (
+        <div className="grid gap-3.5">
+            <PageTitle>{k('title')}</PageTitle>
+            <div className="flex flex-wrap items-end gap-2.5">
+                <div className="grid flex-[0_1_150px] gap-1">
+                    <Label htmlFor="structure-session">{t('students::admin.fields.session_id')}</Label>
+                    <NativeSelect id="structure-session" value={sessionId} onChange={(event) => setSessionId(event.target.value)} options={academic.sessions.map((session) => ({ value: session.id, label: session.name }))} />
+                </div>
+                <div className="grid gap-1 text-sm font-semibold">
+                    {k('residency')}
+                    <Segmented label={k('residency')} value={residential ? 'residential' : 'default'} onChange={(value) => setResidential(value === 'residential')} options={[{ value: 'default', label: k('residency_default') }, { value: 'residential', label: k('residency_residential') }]} />
+                </div>
+                <span className="flex-1" />
+                {editable && (
+                    <>
+                        <NativeSelect className="w-auto" aria-label={k('copy_from')} placeholder={k('copy_from')} value={copyFrom} onChange={(event) => setCopyFrom(event.target.value)} options={academic.sessions.filter((session) => String(session.id) !== sessionId).map((session) => ({ value: session.id, label: session.name }))} />
+                        <Button variant="outline" disabled={!copyFrom} onClick={() => void copy()}>
+                            ⟲ {k('copy')}
+                        </Button>
+                        <Button disabled={dirty.size === 0} onClick={() => void save()}>
+                            {t('core::admin.common.save')}
+                        </Button>
+                    </>
+                )}
+            </div>
+
+            <TableCard>
+                <DesignTable minWidth={1040} className="text-sm">
                     <thead>
-                        <tr className="border-b bg-muted/50">
-                            <th className="sticky left-0 z-10 bg-muted p-2 text-left">{t('students::admin.fields.class_id')}</th>
-                            {columns.map(({ head, residency }) => (
-                                <th key={`${head.id}-${residency}`} className="border-l p-2 text-center">
+                        <tr className="bg-surface-2">
+                            <Th className="sticky left-0 bg-surface-2 pl-3.5">{t('students::admin.fields.class_id')}</Th>
+                            {heads.map((head) => (
+                                <Th key={head.id} align="right">
                                     {head.name_bn}
-                                    {residency && <div className="text-xs font-normal text-muted-foreground">{k('residential_only')}</div>}
-                                </th>
+                                    <br />
+                                    <span className="text-[11px] font-semibold text-muted-foreground">{t(`fees::admin.types.${head.type}`)}</span>
+                                </Th>
                             ))}
+                            <Th align="right" className="pr-3.5 text-green-700">
+                                {k('monthly_total')}
+                            </Th>
                         </tr>
                     </thead>
                     <tbody>
                         {academic.classes.map((schoolClass) => (
-                            <tr key={schoolClass.id} className="border-b last:border-0">
-                                <td className="sticky left-0 bg-card p-2 font-medium">{schoolClass.name}</td>
-                                {columns.map(({ head, residency }) => {
-                                    const key = keyOf(schoolClass.id, head.id, residency);
+                            <tr key={schoolClass.id} className="border-t border-line">
+                                <td className="sticky left-0 bg-surface px-2.5 py-[9px] pl-3.5 font-bold whitespace-nowrap">{schoolClass.name}</td>
+                                {heads.map((head) => {
+                                    const key = keyOf(schoolClass.id, head.id, residencyKey);
+                                    const changed = dirty.has(key);
+                                    const filled = Number(cells[key]) > 0;
 
                                     return (
-                                        <td key={key} className="border-l p-0">
-                                            <Input className={`h-10 w-28 rounded-none border-0 text-right ${dirty.has(key) ? 'bg-amber-50' : ''}`} inputMode="decimal" value={cells[key] ?? ''} onChange={(event) => change(key, event.target.value)} aria-label={`${schoolClass.name} ${head.name_bn}`} />
+                                        <td key={key} className="p-1">
+                                            <input
+                                                inputMode="decimal"
+                                                disabled={!editable}
+                                                value={bnDigits(cells[key] ?? '')}
+                                                onChange={(event) => change(key, toAsciiDigits(event.target.value))}
+                                                aria-label={`${schoolClass.name} ${head.name_bn}`}
+                                                className="h-10 w-full min-w-[84px] rounded-[10px] border px-2 text-right text-sm text-foreground outline-none focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-yellow-400"
+                                                style={{ borderColor: changed ? 'var(--warn)' : 'var(--line)', background: changed ? 'var(--yellow-50)' : filled ? 'var(--surface)' : 'var(--surface-2)' }}
+                                            />
                                         </td>
                                     );
                                 })}
+                                <td className="px-2.5 py-[9px] pr-3.5 text-right font-bold whitespace-nowrap text-green-700">{formatMoney(Math.round(monthlyTotal(schoolClass.id) * 100))}</td>
                             </tr>
                         ))}
                     </tbody>
-                </table>
-            </div>
+                </DesignTable>
+            </TableCard>
+            <span className="text-[13px] text-muted-foreground">{k('hint')}</span>
         </div>
     );
 }

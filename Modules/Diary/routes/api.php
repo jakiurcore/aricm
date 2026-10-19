@@ -11,6 +11,9 @@ $router->middleware(['auth', EnsureAdminAccess::class])->prefix('diary')->name('
     $router->get('compliance/teachers', [MonitorController::class, 'teachers'])->name('compliance.teachers');
     $router->get('entries', [MonitorController::class, 'entries'])->name('entries.index');
     $router->get('entries/{entry}/revisions', [MonitorController::class, 'revisions'])->whereNumber('entry')->name('entries.revisions');
+    $router->get('entries/{entry}', [MonitorController::class, 'show'])->whereNumber('entry')->name('entries.show');
+    $router->put('entries/{entry}', [MonitorController::class, 'update'])->whereNumber('entry')->name('entries.update');
+    $router->post('remind', [MonitorController::class, 'remind'])->name('remind');
     $router->delete('entries/{entry}', [MonitorController::class, 'destroy'])->whereNumber('entry')->name('entries.destroy');
     $router->get('settings', [MonitorController::class, 'settings'])->name('settings.show');
     $router->put('settings', [MonitorController::class, 'updateSettings'])->name('settings.update');

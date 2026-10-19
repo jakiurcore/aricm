@@ -13,6 +13,9 @@ use Modules\Teachers\Contracts\ProvidesTeacherMenu;
  */
 class TeacherMenu
 {
+    /** Routes the panel's fixed navigation already links to. */
+    public const array OWN_ROUTES = ['teacher.home', 'teacher.diary', 'teacher.diary.write', 'teacher.remarks', 'teacher.class-day', 'teacher.profile'];
+
     /**
      * @return list<MenuItem>
      */
@@ -41,5 +44,16 @@ class TeacherMenu
         $bottom = array_slice(array_values(array_filter($items, fn (MenuItem $item): bool => $item->inBottomNav)), 0, $limit);
 
         return ['bottom' => $bottom, 'more' => array_values(array_filter($items, fn (MenuItem $item): bool => ! in_array($item, $bottom, true)))];
+    }
+
+    /**
+     * Items from other modules that the panel's own navigation does not already cover (marks entry, for one).
+     *
+     * @param  list<MenuItem>  $items
+     * @return list<MenuItem>
+     */
+    public function extras(array $items): array
+    {
+        return array_values(array_filter($items, fn (MenuItem $item): bool => ! in_array($item->route, self::OWN_ROUTES, true)));
     }
 }

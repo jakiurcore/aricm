@@ -22,6 +22,7 @@ class GenerateMonthlyRequest extends FormRequest
             'class_ids' => ['nullable', 'array'],
             'class_ids.*' => ['integer', Rule::exists('classes', 'id')],
             'confirm' => ['boolean'],
+            'due_date' => ['nullable', 'date'],
         ];
     }
 }

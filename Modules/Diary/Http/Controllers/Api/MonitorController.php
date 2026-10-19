@@ -5,10 +5,13 @@ namespace Modules\Diary\Http\Controllers\Api;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Validation\Rule;
 use Modules\Diary\Models\DiaryEntry;
+use Modules\Diary\Services\DailyDiarySummary;
 use Modules\Diary\Services\DiaryCompliance;
 use Modules\Diary\Services\DiaryService;
 use Modules\Diary\Services\DiarySettings;
+use Modules\Students\Models\Student;
 
 class MonitorController
 {
@@ -56,6 +59,52 @@ class MonitorController
     }
 
     /**
+     * One entry in full, for the monitor's dialog: what was written, by whom, and how many guardians have seen it.
+     */
+    public function show(Request $request, DiaryEntry $entry): JsonResponse
+    {
+        abort_unless($request->user()->can('diary.monitor'), 403);
+
+        return response()->json(['data' => $this->detail($entry)]);
+    }
+
+    public function update(Request $request, DiaryEntry $entry, DiaryService $diary): JsonResponse
+    {
+        abort_unless($request->user()->can('diary.manage'), 403);
+
+        $data = $request->validate(['lesson' => ['nullable', 'string', 'max:5000'], 'next_lesson' => ['nullable', 'string', 'max:5000'], 'homework' => ['nullable', 'string', 'max:5000'], 'note' => ['nullable', 'string', 'max:5000']]);
+
+        return response()->json(['data' => $this->detail($diary->adminUpdate($request->user(), $entry, $data))]);
+    }
+
+    /**
+     * Nudge every teacher who still owes an entry for the day by SMS.
+     */
+    public function remind(Request $request, DailyDiarySummary $summary): JsonResponse
+    {
+        abort_unless($request->user()->can('diary.manage'), 403);
+
+        $data = $request->validate(['date' => ['nullable', 'date_format:Y-m-d']]);
+
+        return response()->json(['data' => ['sent' => $summary->remindTeachers(Carbon::parse($data['date'] ?? now()))]]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function detail(DiaryEntry $entry): array
+    {
+        $entry->load(['teacher', 'subject', 'schoolClass', 'section'])->loadCount(['acknowledgements as seen_count' => fn ($query) => $query->whereNotNull('seen_at'), 'acknowledgements as acknowledged_count' => fn ($query) => $query->whereNotNull('acknowledged_at')]);
+
+        return [
+            'id' => $entry->id, 'date' => $entry->entry_date->toDateString(), 'status' => $entry->status->value, 'teacher' => $entry->teacher->displayName(), 'class' => $entry->schoolClass->displayName(), 'section' => $entry->section->displayName(),
+            'subject' => $entry->subjectName(), 'lesson' => $entry->lesson, 'next_lesson' => $entry->next_lesson, 'homework' => $entry->homework, 'note' => $entry->note, 'homework_due_date' => $entry->homework_due_date?->toDateString(),
+            'published_at' => $entry->published_at?->toIso8601String(), 'edited' => $entry->last_edited_at !== null, 'seen' => $entry->seen_count, 'acknowledged' => $entry->acknowledged_count,
+            'total' => Student::query()->where('class_id', $entry->class_id)->where('section_id', $entry->section_id)->where('status', 'active')->count(),
+        ];
+    }
+
+    /**
      * The revision trail of one entry (every create and edit, including edits after publishing).
      */
     public function revisions(Request $request, DiaryEntry $entry): JsonResponse
@@ -92,6 +141,7 @@ class MonitorController
         $settings->update($request->validate([
             'enabled' => ['required', 'boolean'], 'edit_window_hours' => ['required', 'integer', 'min:0', 'max:720'], 'backdate_days' => ['required', 'integer', 'min:0', 'max:30'],
             'max_attachments' => ['required', 'integer', 'min:0', 'max:20'], 'sms_enabled' => ['required', 'boolean'], 'sms_teacher_reminder' => ['required', 'boolean'],
+            'edit_window' => ['sometimes', Rule::in(['hours', 'same', '2h', 'next9', 'none'])], 'student_sees_future' => ['sometimes', 'boolean'], 'max_attachment_mb' => ['sometimes', 'integer', 'min:1', 'max:20'],
         ]));
 
         activity('diary')->causedBy($request->user())->log('settings updated');

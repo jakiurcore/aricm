@@ -27,3 +27,9 @@ Settings (key/value), locale handling, Bangla helpers, shared Blade layouts, sha
 - `Services\QrCodeService` makes SVG data URIs (no GD needed). `Support\SignedHash` (`{id}-{hmac}`) is the token used in `/verify/{type}/{hash}`; `Support\Branding::forPdf()` gives the letterhead data; `components/pdf/letterhead` is the shared header.
 - Controllers use `Http\Controllers\Concerns\ServesPdf`. Documents: ID cards (Students), admit cards (Exams), marksheet/tabulation/merit (Results), receipts (Fees).
 - Without GD, `ImageUploader` stores uploads untouched and mPDF skips images it cannot read (`showImageErrors` off); production hosts have GD.
+
+## PDF layout lessons (design port)
+- Fixed-page documents (ID card, admit card, marksheet, A5 fee documents) are built from `<x-core::pdf.at x y w h>` boxes: every element is a top-level absolutely positioned div in page millimetres taken from the Claude Design file (never nest absolute boxes). Variable-length parts (tables, notes) flow inside one `at` box.
+- mPDF has no CSS rotate, no rounded auto-width boxes, no clip-to-circle and no gradient angle. Substitutes: `Branding::discMask()` (SVG corners over a logo), `<x-core::pdf.pill>` (cap + cell + cap), `PrintDocumentFactory::stamp()` (rotated SVG stamp), `background-gradient: linear c1 c2 x1 y1 x2 y2` where **y=1 is the top**.
+- Absolutely positioned `<img>` drifts: put images inside an `at` box. Opacity works on images (watermarks), `restrictColorSpace` hides images without GD (thermal logo uses the pre-greyed `logo-gray.jpeg`).
+- Hind Siliguri stands in for Noto Serif/Sans Bengali (mPDF cannot parse Noto); its digit ১ is drawn differently from Noto's.

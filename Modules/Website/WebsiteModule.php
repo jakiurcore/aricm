@@ -57,9 +57,11 @@ class WebsiteModule implements Module, ProvidesConfig, ProvidesHomepageSections,
         return [
             new HomepageSection('website::sections.hero', [], 0),
             new HomepageSection('website::sections.program', [], 20),
+            new HomepageSection('website::sections.phonetics', [], 25),
             new HomepageSection('website::sections.divisions', [], 30),
+            new HomepageSection('website::sections.why', [], 35),
             new HomepageSection('website::sections.principal', ['content' => $content], 40),
-            new HomepageSection('website::sections.stats', ['stats' => $content->stats()], 80),
+            new HomepageSection('website::sections.stats', ['stats' => $content->stats()], 55),
             new HomepageSection('website::sections.contact', ['map' => $content->map(), 'phones' => $identity['phones'], 'address' => $identity['address'], 'email' => $identity['email']], 90),
         ];
     }

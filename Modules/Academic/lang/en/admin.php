@@ -2,6 +2,14 @@
 
 return [
     'divisions' => ['kids' => 'Kids division', 'junior' => 'Junior division'],
+    'setup' => 'Academic setup',
+    'tabs' => ['sessions' => 'Sessions', 'classes' => 'Classes', 'sections' => 'Sections', 'subjects' => 'Subjects', 'mapping' => 'Class–subject', 'calendar' => 'Holidays'],
+    'rows' => [
+        'current' => 'Current',
+        'closed' => 'Closed',
+        'sections_n' => ':count sections',
+        'subjects_n' => ':count subjects',
+    ],
     'menu_group' => 'Academic',
     'sessions' => [
         'menu' => 'Sessions', 'title' => 'Academic sessions', 'new' => 'New session', 'edit' => 'Edit session',
@@ -14,7 +22,7 @@ return [
         'sections' => 'Sections', 'manage_sections' => 'Manage sections', 'subjects' => 'Subjects',
     ],
     'sections' => [
-        'title' => 'Sections', 'new' => 'Add section', 'name_bn' => 'Section name (Bangla)', 'name_en' => 'Section name (English)', 'empty' => 'This class has no sections',
+        'edit' => 'Edit section', 'class' => 'Class', 'title' => 'Sections', 'new' => 'Add section', 'name_bn' => 'Section name (Bangla)', 'name_en' => 'Section name (English)', 'empty' => 'This class has no sections',
     ],
     'subjects' => [
         'menu' => 'Subjects', 'title' => 'Subjects', 'new' => 'New subject', 'edit' => 'Edit subject',
@@ -25,6 +33,7 @@ return [
         'taught' => 'Taught', 'optional' => 'Optional', 'saved' => 'Subject list saved',
     ],
     'calendar' => [
+        'calendar_title' => 'Holiday calendar', 'date' => 'Date', 'holiday_name' => 'Holiday name', 'add_short' => 'Add',
         'menu' => 'Holidays & calendar', 'title' => 'Holidays & academic calendar', 'weekly' => 'Weekly holidays', 'weekly_hint' => '“Tomorrow’s lesson” always means the next school day: weekly and listed holidays are skipped.',
         'holidays' => 'Holiday list', 'year' => 'Year', 'holiday_title' => 'Holiday name (e.g. Eid ul-Fitr)', 'add' => 'Add',
         'days' => ['saturday' => 'Saturday', 'sunday' => 'Sunday', 'monday' => 'Monday', 'tuesday' => 'Tuesday', 'wednesday' => 'Wednesday', 'thursday' => 'Thursday', 'friday' => 'Friday'],

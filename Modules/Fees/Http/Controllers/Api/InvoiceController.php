@@ -31,7 +31,7 @@ class InvoiceController
             ->when($request->string('type')->toString(), fn ($query, string $type) => $query->where('type', $type))
             ->when($request->string('month')->toString(), fn ($query, string $month) => $query->whereDate('billing_month', Carbon::createFromFormat('Y-m', $month)->startOfMonth()->toDateString()))
             ->when($request->string('search')->toString(), fn ($query, string $search) => $query->where(fn ($inner) => $inner->where('invoice_no', 'like', "%{$search}%")->orWhereHas('student', fn ($student) => $student->where('name_bn', 'like', "%{$search}%")->orWhere('student_id', 'like', "%{$search}%"))))
-            ->orderByDesc('id')->paginate(20);
+            ->orderByDesc('id')->paginate($request->integer('per_page') > 0 ? min($request->integer('per_page'), 100) : 20);
 
         return InvoiceResource::collection($invoices);
     }
@@ -48,7 +48,7 @@ class InvoiceController
      */
     public function generateMonthly(GenerateMonthlyRequest $request, InvoiceGenerator $generator): JsonResponse
     {
-        $summary = $generator->generateMonthly(Carbon::createFromFormat('Y-m', $request->string('month')->toString())->startOfMonth(), $request->input('class_ids') ?: null, ! $request->boolean('confirm'));
+        $summary = $generator->generateMonthly(Carbon::createFromFormat('Y-m', $request->string('month')->toString())->startOfMonth(), $request->input('class_ids') ?: null, ! $request->boolean('confirm'), $request->filled('due_date') ? Carbon::parse($request->string('due_date')->toString()) : null);
 
         return response()->json(['data' => $summary->toArray()]);
     }

@@ -1,28 +1,51 @@
 @extends('student-portal::layouts.portal')
 
-@section('title', __('student-portal::messages.profile'))
+@section('title', __('student-portal::messages.nav.profile'))
 
 @section('content')
-    <div class="space-y-4">
-        <div class="flex items-center justify-between"><h1 class="font-head text-2xl text-heading">{{ __('student-portal::messages.profile') }}</h1><a href="{{ route('portal.idcard') }}" target="_blank" class="rounded-md bg-brand px-4 py-2 font-semibold text-white no-underline">🪪 {{ __('student-portal::messages.id_card') }}</a></div>
-        <div class="rounded-2xl border border-line bg-surface p-5 shadow-sm">
-            <div class="mb-4 flex items-center gap-4">
-                <div class="grid size-20 place-items-center overflow-hidden rounded-full border border-line bg-surface-2 text-3xl">@if ($student->photo_url)<img src="{{ $student->photo_url }}" alt="" class="size-full object-cover">@else{{ mb_substr($student->name_bn, 0, 1) }}@endif</div>
-                <div><p class="font-head text-2xl text-heading">{{ $student->name_bn }}</p><p class="text-ink-muted">{{ $student->name_en }}</p><p class="text-sm">{{ $student->student_id }}</p></div>
+    @php
+        $dash = '—';
+        $groups = [
+            ['title' => __('student-portal::messages.personal'), 'rows' => [
+                ['name', $student->displayName()],
+                ['id', $student->student_id],
+                ['class', $student->schoolClass?->displayName()],
+                ['section', $student->section?->displayName()],
+                ['roll', $student->roll ? bn_digits($student->roll) : null],
+                ['session', $student->session ? bn_digits($student->session->name) : null],
+                ['dob', $student->date_of_birth ? bn_date($student->date_of_birth) : null],
+                ['blood', $student->blood_group],
+                ['division', $student->schoolClass?->division?->label()],
+            ]],
+            ['title' => __('student-portal::messages.guardian'), 'rows' => [
+                ['father', $student->father_name],
+                ['mother', $student->mother_name],
+                ['relation', $student->guardian_relation],
+                ['mobile', $student->guardian_phone ? bn_digits($student->guardian_phone) : null],
+                ['address', $student->present_address],
+            ]],
+        ];
+    @endphp
+
+    <div data-screen-label="Portal profile" style="display: grid; gap: 16px;">
+        <div class="pp-card" style="padding: 20px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+            <div style="width: 96px; height: 116px; border-radius: 16px; overflow: hidden; background: var(--surface-2); flex: none; color: var(--ds-muted);">@include('student-portal::partials.photo', ['student' => $student, 'radius' => 16])</div>
+            <div style="display: grid; line-height: 1.5;">
+                <strong class="pp-head" style="color: var(--heading); font-size: 22px;">{{ $student->displayName() }}</strong>
+                <span style="color: var(--ds-muted);">ID: {{ $student->student_id }}</span>
+                <span class="pp-info" style="font-size: 13px; padding: 2px 10px; border-radius: 999px; justify-self: start; font-weight: 600; margin-top: 4px;">🔒 {{ __('student-portal::messages.read_only') }}</span>
             </div>
-            <dl class="grid gap-x-8 gap-y-2 text-sm sm:grid-cols-2">
-                @foreach ([
-                    ['class', ($student->schoolClass?->displayName() ?? '—').($student->section ? ' / '.$student->section->displayName() : '')], ['roll', $student->roll ? bn_digits($student->roll) : '—'], ['session', $student->session?->name],
-                    ['father', $student->father_name], ['mother', $student->mother_name], ['guardian', trim(($student->guardian_name ?? '').' '.($student->guardian_relation ? '('.$student->guardian_relation.')' : ''))],
-                    ['guardian_phone', $student->guardian_phone ? bn_digits($student->guardian_phone) : '—'], ['dob', bn_date($student->date_of_birth)], ['gender', $student->gender->label()],
-                    ['blood', $student->blood_group], ['religion', $student->religion], ['admission', bn_date($student->admission_date)], ['residency', $student->residency_type->label()],
-                    ['present_address', $student->present_address], ['permanent_address', $student->permanent_address],
-                ] as [$key, $value])
-                    <div class="flex justify-between gap-4 border-b border-line py-1.5"><dt class="text-ink-muted">{{ __("student-portal::messages.fields.{$key}") }}</dt><dd class="text-right font-medium">{{ $value ?: '—' }}</dd></div>
-                @endforeach
-            </dl>
-            <p class="mt-4 text-xs text-ink-muted">{{ __('student-portal::messages.read_only') }}</p>
         </div>
-        <a href="{{ route('student.password.edit') }}" class="inline-block rounded-md border border-line-strong px-4 py-2 font-semibold no-underline">🔑 {{ __('student-portal::messages.change_password') }}</a>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 16px;">
+            @foreach ($groups as $group)
+                <div class="pp-card" style="overflow: hidden;">
+                    <h3 class="pp-section-head">{{ $group['title'] }}</h3>
+                    @foreach ($group['rows'] as [$key, $value])
+                        <div style="display: grid; grid-template-columns: minmax(110px, 40%) 1fr; gap: 10px; padding: 10px 18px; border-top: 1px solid var(--line);"><span style="color: var(--ds-muted);">{{ __('student-portal::messages.fields.'.$key) }}</span><span style="font-weight: 600;">{{ filled($value) ? $value : $dash }}</span></div>
+                    @endforeach
+                </div>
+            @endforeach
+        </div>
+        <a href="{{ route('student.password.edit') }}" class="pp-btn" style="justify-self: start;">🔑 {{ __('student-portal::messages.change_password') }}</a>
     </div>
 @endsection

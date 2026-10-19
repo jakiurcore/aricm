@@ -19,12 +19,12 @@ class ExamController
         Gate::authorize('viewAny', Exam::class);
 
         $exams = Exam::query()
-            ->with(['session', 'classes'])
+            ->with(['session', 'classes', 'subjects:id,exam_id,subject_id'])
             ->when($request->integer('session_id'), fn ($query, int $id) => $query->where('session_id', $id))
             ->when($request->string('status')->toString(), fn ($query, string $status) => $query->where('status', $status))
             ->when($request->string('search')->toString(), fn ($query, string $search) => $query->where(fn ($inner) => $inner->where('name_bn', 'like', "%{$search}%")->orWhere('name_en', 'like', "%{$search}%")))
             ->orderByDesc('start_date')->orderByDesc('id')
-            ->paginate(15);
+            ->paginate($request->integer('per_page') > 0 ? min($request->integer('per_page'), 60) : 15);
 
         return ExamResource::collection($exams);
     }
@@ -33,7 +33,7 @@ class ExamController
     {
         Gate::authorize('view', $exam);
 
-        return new ExamResource($exam->load(['session', 'classes']));
+        return new ExamResource($exam->load(['session', 'classes', 'subjects:id,exam_id,subject_id']));
     }
 
     public function store(ExamRequest $request, ExamConfigurator $configurator): JsonResponse

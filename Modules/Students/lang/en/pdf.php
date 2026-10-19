@@ -8,9 +8,10 @@ return [
     'guardian_phone' => 'Guardian phone',
     'address' => 'Address',
     'institute_contact' => 'Institute contact',
-    'return_note' => 'If found, please return to the institute',
+    'return_note' => 'If found, please return',
     'principal' => 'Principal',
     'valid_until' => 'Valid until :date',
+    'photo' => 'Photo',
     'verify' => [
         'title' => 'Student ID card',
         'name' => 'Name',

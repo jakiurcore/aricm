@@ -1,15 +1,23 @@
-@if ($photos->isNotEmpty())
-    <section class="mx-auto max-w-page px-4 py-10">
-        <div class="mb-4 flex items-end justify-between">
-            <h2 class="font-head text-2xl text-heading">{{ __('gallery::messages.title') }}</h2>
-            <a href="{{ route('gallery.public.index') }}" class="text-sm font-semibold">{{ __('gallery::messages.view_all') }} →</a>
+@php
+    $heights = [220, 300, 180, 260, 200, 320, 240, 190];
+    $fallback = ['ledge', 'twoRead', 'boys', 'abacus', 'girl', 'robe', 'hijabRead', 'floorRead'];
+    $items = $photos->isNotEmpty()
+        ? $photos->take(8)->map(fn ($photo) => ['src' => $photo->thumbnailUrl(), 'alt' => (string) $photo->caption(), 'url' => route('gallery.public.show', $photo->album_id)])->values()
+        : collect($fallback)->map(fn ($name) => ['src' => asset("images/site/{$name}.jpg"), 'alt' => '', 'url' => route('gallery.public.index')]);
+@endphp
+<div class="pub-wrap" style="margin-top: 64px;">
+    <section style="display: grid; gap: 20px;">
+        <div style="display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px;">
+            <div style="display: grid; gap: 4px;">
+                <span class="pub-kicker">{{ __('gallery::messages.kicker') }}</span>
+                <h2 class="pub-h2">{{ __('gallery::messages.home_title') }}</h2>
+            </div>
+            <a href="{{ route('gallery.public.index') }}" class="pub-btn-outline">{{ __('gallery::messages.view_all') }} →</a>
         </div>
-        <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
-            @foreach ($photos as $photo)
-                <a href="{{ route('gallery.public.show', $photo->album_id) }}" class="block aspect-square overflow-hidden rounded-lg border border-line bg-surface-2">
-                    <img src="{{ $photo->thumbnailUrl() }}" alt="{{ $photo->caption() }}" loading="lazy" class="size-full object-cover transition hover:scale-105">
-                </a>
+        <div class="pub-masonry">
+            @foreach ($items as $index => $item)
+                <a href="{{ $item['url'] }}" class="pub-photo" style="display: block; height: {{ $heights[$index % count($heights)] }}px;"><img src="{{ $item['src'] }}" alt="{{ $item['alt'] }}" loading="lazy"></a>
             @endforeach
         </div>
     </section>
-@endif
+</div>

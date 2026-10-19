@@ -1,44 +1,50 @@
-@props(['exams', 'classMap', 'compact' => false])
+@props(['exams', 'classMap'])
 
-<form method="POST" action="{{ route('results.public.search') }}" class="grid gap-4 {{ $compact ? 'sm:grid-cols-2 lg:grid-cols-5' : 'sm:grid-cols-2' }}"
-      x-data="{ exam: '{{ old('exam_id') }}', classes: @js($classMap), classId: '{{ old('class_id') }}' }">
+<form method="POST" action="{{ route('results.public.search') }}" class="pub-card" style="padding: 20px; box-shadow: var(--shadow-sm); display: grid; gap: 12px;"
+      x-data="{
+          exam: '{{ old('exam_id', request('exam_id')) }}',
+          classes: @js($classMap),
+          classId: '{{ old('class_id') }}',
+          fit() {
+              const options = this.classes[this.exam] || [];
+              if (! options.some((item) => String(item.id) === String(this.classId))) { this.classId = options.length ? String(options[0].id) : ''; }
+          },
+          init() {
+              if (! this.exam || ! this.classes[this.exam]) { this.exam = String(Object.keys(this.classes)[0] ?? ''); }
+              this.$nextTick(() => this.fit());
+              this.$watch('exam', () => this.$nextTick(() => this.fit()));
+          },
+      }">
     @csrf
 
-    <div>
-        <label for="exam_id" class="mb-1 block text-sm font-medium">{{ __('results::messages.public.exam') }}</label>
-        <select id="exam_id" name="exam_id" x-model="exam" required class="w-full rounded-md border border-line-strong bg-surface px-3">
-            <option value="">—</option>
+    <label class="pub-field" for="exam_id">{{ __('results::messages.public.exam') }}
+        <select id="exam_id" name="exam_id" x-model="exam" required class="pub-input">
             @foreach ($exams as $exam)
                 <option value="{{ $exam->id }}">{{ $exam->displayName() }}</option>
             @endforeach
         </select>
-        @error('exam_id')<p class="mt-1 text-sm text-danger">{{ $message }}</p>@enderror
-    </div>
+        @error('exam_id')<span class="pub-err">{{ $message }}</span>@enderror
+    </label>
 
-    <div>
-        <label for="class_id" class="mb-1 block text-sm font-medium">{{ __('results::messages.public.class') }}</label>
-        <select id="class_id" name="class_id" x-model="classId" required class="w-full rounded-md border border-line-strong bg-surface px-3">
-            <option value="">—</option>
+    <label class="pub-field" for="class_id">{{ __('results::messages.public.class') }}
+        <select id="class_id" name="class_id" x-model="classId" required class="pub-input">
             <template x-for="schoolClass in (classes[exam] || [])" :key="schoolClass.id">
-                <option :value="schoolClass.id" x-text="schoolClass.name"></option>
+                <option :value="schoolClass.id" x-text="schoolClass.name" :selected="String(schoolClass.id) === String(classId)"></option>
             </template>
         </select>
-        @error('class_id')<p class="mt-1 text-sm text-danger">{{ $message }}</p>@enderror
-    </div>
+        @error('class_id')<span class="pub-err">{{ $message }}</span>@enderror
+    </label>
 
-    <div>
-        <label for="identifier" class="mb-1 block text-sm font-medium">{{ __('results::messages.public.identifier') }}</label>
-        <input id="identifier" name="identifier" value="{{ old('identifier') }}" required autocomplete="off" class="w-full rounded-md border border-line-strong bg-surface px-3">
-        @error('identifier')<p class="mt-1 text-sm text-danger">{{ $message }}</p>@enderror
-    </div>
+    <label class="pub-field" for="identifier">{{ __('results::messages.public.identifier') }}
+        <input id="identifier" name="identifier" inputmode="numeric" value="{{ old('identifier', request('identifier')) }}" placeholder="{{ __('results::messages.public.identifier_placeholder') }}" required autocomplete="off" class="pub-input">
+        @error('identifier')<span class="pub-err">{{ $message }}</span>@enderror
+    </label>
 
-    <div>
-        <label for="date_of_birth" class="mb-1 block text-sm font-medium">{{ __('results::messages.public.dob') }}</label>
-        <input id="date_of_birth" name="date_of_birth" type="date" value="{{ old('date_of_birth') }}" required class="w-full rounded-md border border-line-strong bg-surface px-3">
-        @error('date_of_birth')<p class="mt-1 text-sm text-danger">{{ $message }}</p>@enderror
-    </div>
+    <label class="pub-field" for="date_of_birth">{{ __('results::messages.public.dob') }}
+        <input id="date_of_birth" name="date_of_birth" type="date" value="{{ old('date_of_birth') }}" required class="pub-input">
+        @error('date_of_birth')<span class="pub-err">{{ $message }}</span>@enderror
+    </label>
 
-    <div class="{{ $compact ? '' : 'sm:col-span-2' }} flex items-end">
-        <button type="submit" class="min-h-11 w-full rounded-md bg-brand px-6 font-semibold text-white">{{ __('results::messages.public.submit') }}</button>
-    </div>
+    <button type="submit" style="height: 52px; border: 0; border-radius: 999px; background: var(--green-700); color: #fff; font-weight: 700; font-size: 17px; cursor: pointer;">{{ __('results::messages.public.submit') }}</button>
+    <span style="font-size: 13px; color: var(--muted);">{{ __('results::messages.public.hint') }}</span>
 </form>

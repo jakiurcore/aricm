@@ -3,7 +3,7 @@
 return [
     'menu_group' => 'Users',
     'users' => [
-        'menu' => 'Users',
+        'menu' => 'Users & roles',
         'title' => 'Users',
         'new' => 'New user',
         'edit' => 'Edit user',
@@ -35,6 +35,18 @@ return [
             'accountant' => 'Accountant',
         ],
         'groups' => [
+            'academic' => 'Academic',
+            'admission' => 'Admission',
+            'diary' => 'Diary',
+            'exams' => 'Exams',
+            'fees' => 'Fees',
+            'gallery' => 'Gallery',
+            'marks' => 'Marks',
+            'notices' => 'Notices',
+            'results' => 'Results',
+            'students' => 'Students',
+            'teacher_assignments' => 'Teacher assignments',
+            'teachers' => 'Teachers',
             'admin' => 'Admin panel',
             'users' => 'Users',
             'roles' => 'Roles',

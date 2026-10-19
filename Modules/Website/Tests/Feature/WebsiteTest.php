@@ -13,8 +13,8 @@ it('serves the home page composed from every module in order', function () {
     $response = $this->get('/')->assertOk();
 
     $response->assertSee('ভর্তি চলছে!')                          // Admission banner
-        ->assertSee('মেন্টাল অ্যাবাকাস ও মেন্টাল ম্যাথ প্রোগ্রাম')    // Website: program with four benefits
-        ->assertSee('কিডস বিভাগ')->assertSee('জুনিয়র বিভাগ')->assertSee('৫–১১ বছর')->assertSee('১২–১৫ বছর')
+        ->assertSee('অ্যাবাকাস ও ব্রেইন জিম প্রোগ্রাম')    // Website: program with four benefits
+        ->assertSee('কিডস বিভাগ')->assertSee('জুনিয়র বিভাগ')->assertSee('৫–১১')->assertSee('১২–১৫')->assertSee('ইংলিশ ফোনেটিকস প্রোগ্রাম')->assertSee('দ্বীনি ও আধুনিক শিক্ষার সমন্বয়')
         ->assertSee('অধ্যক্ষের বাণী')->assertSee('হোমের নোটিশ')       // Notices latest + ticker
         ->assertSee('শিশুর মেধা বিকাশে আমাদের প্রতিশ্রুতি')            // tagline
         ->assertSee('tel:01714844346', false);
@@ -45,7 +45,7 @@ it('serves the inner pages', function (string $route, string $text) {
     $this->get(route($route))->assertOk()->assertSee($text);
 })->with([
     ['website.about', 'আমাদের সম্পর্কে'],
-    ['website.academics', 'একাডেমিক'],
+    ['website.academics', 'শিক্ষা কার্যক্রম'],
     ['website.contact', 'যোগাযোগ'],
     ['website.routine', 'পরীক্ষার রুটিন'],
 ]);
@@ -96,7 +96,7 @@ it('serves robots.txt that keeps private areas out and points to the sitemap', f
 it('switches language and renders the English home', function () {
     $this->from('/')->get(route('core.locale', 'en'))->assertRedirect('/');
 
-    $this->get('/')->assertSee('Mental Abacus & Mental Math Program')->assertSee('Message from the principal');
+    $this->get('/')->assertSee('Abacus &amp; Brain Gym Program', false)->assertSee('Principal’s message');
 });
 
 it('takes the visitor from the home page to an admission inquiry', function () {

@@ -13,7 +13,7 @@
         <thead>
             <tr style="background-color: #0B6B3A; color: #ffffff;">
                 @foreach ($table->columns as $column)
-                    <th style="padding: 1.5mm; text-align: {{ in_array($column['type'], ['money', 'int']) ? 'right' : 'left' }};">{{ $column['label'] }}</th>
+                    <th style="color: #ffffff; padding: 1.5mm; text-align: {{ in_array($column['type'], ['money', 'int']) ? 'right' : 'left' }};">{{ $column['label'] }}</th>
                 @endforeach
             </tr>
         </thead>

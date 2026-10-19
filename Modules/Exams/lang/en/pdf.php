@@ -1,14 +1,16 @@
 <?php
 
 return [
-    'admit_card' => 'Admit card',
+    'admit_card' => 'Admit Card',
     'name' => 'Name',
     'student_id' => 'ID',
     'class' => 'Class',
+    'section' => 'Section',
     'roll' => 'Roll',
     'father' => 'Father',
     'session' => 'Session',
-    'rules' => 'Instructions for examinees',
+    'photo' => 'Photo',
+    'rules' => 'Exam rules',
     'date' => 'Date',
     'day' => 'Day',
     'subject' => 'Subject',
@@ -16,7 +18,8 @@ return [
     'class_teacher' => 'Class teacher',
     'controller' => 'Exam controller',
     'principal' => 'Principal',
-    'default_rules' => 'No one may sit the exam without the admit card.
-Be present 15 minutes before the exam begins.
-Mobile phones and unauthorised items are not allowed in the hall.',
+    'default_rules' => 'Arrive 15 minutes before the exam starts
+No entry without this admit card
+Mobile phones and notes are strictly prohibited
+Wear the prescribed uniform',
 ];

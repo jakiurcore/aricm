@@ -32,7 +32,7 @@ class PublicResultController
             return view('results::public.search', [...$this->formData(), 'blocked' => $decision->reason]);
         }
 
-        return view('results::public.show', ['result' => $result]);
+        return view('results::public.show', [...$this->formData(), 'result' => $result]);
     }
 
     /**

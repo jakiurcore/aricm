@@ -2,8 +2,13 @@
 
 namespace Modules\Teachers\Services;
 
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Modules\Accounts\Models\User;
+use Modules\Core\Services\ImageUploader;
+use Modules\Core\Services\Sms\SmsManager;
 use Modules\Teachers\Models\Teacher;
 
 /**
@@ -11,8 +16,10 @@ use Modules\Teachers\Models\Teacher;
  */
 class TeacherRegistrar
 {
+    public function __construct(protected ImageUploader $images, protected SmsManager $sms) {}
+
     /**
-     * @param  array{name_bn: string, name_en?: string|null, designation?: string|null, phone?: string|null, is_active?: bool}  $data
+     * @param  array{name_bn: string, name_en?: string|null, designation?: string|null, phone?: string|null, email?: string|null, joined_on?: string|null, status?: string, is_active?: bool}  $data
      * @param  array{email: string, password: string}|null  $login
      */
     public function register(array $data, ?array $login = null): Teacher
@@ -43,5 +50,35 @@ class TeacherRegistrar
     public function syncLogin(Teacher $teacher): void
     {
         $teacher->user?->update(['name' => $teacher->name_bn, 'phone' => $teacher->phone, 'is_active' => $teacher->is_active]);
+    }
+
+    /**
+     * A throwaway password for a login the admin creates or resets without choosing one: easy to read out over the phone.
+     */
+    public function temporaryPassword(): string
+    {
+        return Str::password(8, symbols: false);
+    }
+
+    /**
+     * Tell the teacher their sign-in over SMS. Returns whether the gateway accepted it; no phone number means nothing is sent.
+     */
+    public function sendCredentials(Teacher $teacher, string $email, string $password): bool
+    {
+        if (! $teacher->phone) {
+            return false;
+        }
+
+        return $this->sms->send($teacher->phone, __('teachers::messages.credentials_sms', ['email' => $email, 'password' => $password]));
+    }
+
+    public function storePhoto(Teacher $teacher, UploadedFile $photo): void
+    {
+        $old = $teacher->photo;
+        $teacher->update(['photo' => $this->images->store($photo, 'teachers', 600)]);
+
+        if ($old) {
+            Storage::disk('public')->delete($old);
+        }
     }
 }

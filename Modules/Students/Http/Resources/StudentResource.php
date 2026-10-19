@@ -34,6 +34,7 @@ class StudentResource extends JsonResource
             'guardian_phone' => $this->guardian_phone,
             'guardian_relation' => $this->guardian_relation,
             'date_of_birth' => $this->date_of_birth?->toDateString(),
+            'birth_registration_no' => $this->birth_registration_no,
             'gender' => $this->gender->value,
             'blood_group' => $this->blood_group,
             'religion' => $this->religion,
@@ -44,6 +45,8 @@ class StudentResource extends JsonResource
             'residency_type' => $this->residency_type->value,
             'photo_url' => $this->photo_url,
             'must_change_password' => $this->must_change_password,
+            'latest_gpa' => $this->when(array_key_exists('latest_gpa', $this->getAttributes()), fn () => $this->getAttribute('latest_gpa')),
+            'fee_badge' => $this->when(array_key_exists('fee_badge', $this->getAttributes()), fn () => $this->getAttribute('fee_badge')),
         ];
     }
 }

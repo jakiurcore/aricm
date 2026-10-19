@@ -13,6 +13,7 @@ return [
     'note' => 'Note',
     'status' => 'Status',
     'date' => 'Date',
+    'all' => 'All',
     'statuses' => [
         'new' => 'New',
         'contacted' => 'Contacted',
@@ -20,6 +21,7 @@ return [
         'rejected' => 'Rejected',
     ],
     'settings' => [
+        'groups' => ['banner' => 'Homepage banner', 'program' => 'Program & classes', 'content' => 'Admission information'],
         'title' => 'Admission settings',
         'banner_enabled' => 'Show the banner',
         'banner_title_bn' => 'Banner title (Bangla)',

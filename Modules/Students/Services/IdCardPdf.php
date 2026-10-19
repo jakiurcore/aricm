@@ -6,6 +6,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Modules\Core\Services\PdfService;
 use Modules\Core\Services\QrCodeService;
+use Modules\Core\Support\Bangla;
 use Modules\Core\Support\Branding;
 use Modules\Core\Support\SignedHash;
 use Modules\Students\Models\Student;
@@ -45,6 +46,8 @@ class IdCardPdf
             'sheets' => $sheets,
             'brand' => Branding::forPdf(),
             'marks' => $this->cropMarks(),
+            'placeholder' => Branding::photoPlaceholder(),
+            'discMask' => Branding::discMask('#0A6636', '#0A5E32'),
         ])->render();
 
         return $this->pdf->render($html, ['showImageErrors' => false]);
@@ -69,7 +72,7 @@ class IdCardPdf
                 'student' => $student,
                 'photo' => $student->photo && Storage::disk('public')->exists($student->photo) ? Storage::disk('public')->path($student->photo) : null,
                 'qr' => $this->qr->forVerification('student-id', SignedHash::make('student-id', $student->id), 120),
-                'validUntil' => bn_date($student->session?->end_date ?? now()->endOfYear(), true),
+                'validUntil' => Bangla::monthYear($student->session?->end_date ?? now()->endOfYear()),
             ];
         }
 

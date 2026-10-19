@@ -8,6 +8,7 @@ use Modules\Fees\Http\Controllers\Api\ExamFeeController;
 use Modules\Fees\Http\Controllers\Api\FeeHeadController;
 use Modules\Fees\Http\Controllers\Api\FeeStructureController;
 use Modules\Fees\Http\Controllers\Api\InvoiceController;
+use Modules\Fees\Http\Controllers\Api\OverviewController;
 use Modules\Fees\Http\Controllers\Api\PaymentController;
 use Modules\Fees\Http\Controllers\Api\ReportController;
 use Modules\Fees\Http\Controllers\Api\SettingsController;
@@ -15,6 +16,7 @@ use Modules\Fees\Http\Controllers\Api\SettingsController;
 /** @var Router $router */
 $router->middleware(['auth', EnsureAdminAccess::class])->prefix('fees')->name('fees.api.')->group(function (Router $router): void {
     $router->get('dashboard', [SettingsController::class, 'dashboard'])->name('dashboard');
+    $router->get('overview', OverviewController::class)->name('overview');
     $router->get('settings', [SettingsController::class, 'show'])->name('settings.show');
     $router->put('settings', [SettingsController::class, 'update'])->name('settings.update');
 
@@ -38,6 +40,7 @@ $router->middleware(['auth', EnsureAdminAccess::class])->prefix('fees')->name('f
 
     $router->get('collection/search', [CollectionController::class, 'search'])->name('collection.search');
     $router->get('collection/students/{student}', [CollectionController::class, 'student'])->name('collection.student');
+    $router->get('collection/students/{student}/due-notice', [CollectionController::class, 'dueNotice'])->name('collection.due-notice');
     $router->post('collection/pay', [CollectionController::class, 'pay'])->name('collection.pay');
 
     $router->get('payments', [PaymentController::class, 'index'])->name('payments.index');
