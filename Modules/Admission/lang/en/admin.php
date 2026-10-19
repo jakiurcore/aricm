@@ -1,0 +1,37 @@
+<?php
+
+return [
+    'content_group' => 'Content',
+    'menu' => 'Admission inquiries',
+    'settings_menu' => 'Admission settings',
+    'title' => 'Admission inquiries',
+    'student' => 'Student',
+    'guardian' => 'Guardian',
+    'phone' => 'Phone',
+    'class' => 'Class',
+    'message' => 'Message',
+    'note' => 'Note',
+    'status' => 'Status',
+    'date' => 'Date',
+    'statuses' => [
+        'new' => 'New',
+        'contacted' => 'Contacted',
+        'admitted' => 'Admitted',
+        'rejected' => 'Rejected',
+    ],
+    'settings' => [
+        'title' => 'Admission settings',
+        'banner_enabled' => 'Show the banner',
+        'banner_title_bn' => 'Banner title (Bangla)',
+        'banner_title_en' => 'Banner title (English)',
+        'admission_start' => 'Admission start date',
+        'class_start' => 'Class start date',
+        'free_class_note_bn' => 'Free class note (Bangla)',
+        'free_class_note_en' => 'Free class note (English)',
+        'classes' => 'Classes offered (one per line)',
+        'program_bn' => 'Program (Bangla)',
+        'program_en' => 'Program (English)',
+        'content_bn' => 'Admission information (Bangla)',
+        'content_en' => 'Admission information (English)',
+    ],
+];

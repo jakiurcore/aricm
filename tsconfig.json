@@ -35,6 +35,15 @@
           "@fees/*": [
             "./Modules/Fees/resources/*"
           ],
+          "@notices/*": [
+            "./Modules/Notices/resources/*"
+          ],
+          "@gallery/*": [
+            "./Modules/Gallery/resources/*"
+          ],
+          "@admission/*": [
+            "./Modules/Admission/resources/*"
+          ],
           "@admin/*": [
             "./vendor/protibimbok/laramod-admin/resources/*"
           ]

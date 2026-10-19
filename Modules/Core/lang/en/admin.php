@@ -24,6 +24,7 @@ return [
         'page_of' => 'Page :page of :pages',
         'total' => 'Total :count',
     ],
+    'content_group' => 'Content',
     'dashboard' => [
         'menu_group' => 'Overview',
         'menu' => 'Dashboard',
