@@ -2,6 +2,8 @@
 
 namespace Modules\Exams\Support;
 
+use Illuminate\Support\Facades\Route;
+
 /**
  * The answer of an eligibility provider (admit card now, results later via their own contract).
  */
@@ -28,6 +30,6 @@ final readonly class Eligibility
      */
     public function toArray(): array
     {
-        return ['allowed' => $this->allowed, 'reason' => $this->reason, 'action_url' => $this->actionRoute ? route($this->actionRoute) : null];
+        return ['allowed' => $this->allowed, 'reason' => $this->reason, 'action_url' => $this->actionRoute && Route::has($this->actionRoute) ? route($this->actionRoute) : null];
     }
 }

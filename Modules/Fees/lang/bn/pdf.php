@@ -1,0 +1,31 @@
+<?php
+
+return [
+    'receipt' => 'মানি রসিদ',
+    'receipt_no' => 'রসিদ নং',
+    'date' => 'তারিখ',
+    'student' => 'শিক্ষার্থী',
+    'student_id' => 'আইডি',
+    'class' => 'শ্রেণি',
+    'roll' => 'রোল',
+    'invoice' => 'বিল নং',
+    'description' => 'বিবরণ',
+    'amount' => 'টাকা',
+    'total' => 'মোট',
+    'in_words' => 'কথায়',
+    'method' => 'পদ্ধতি',
+    'received_by' => 'গ্রহণকারী',
+    'payer' => 'প্রদানকারী',
+    'accountant' => 'হিসাবরক্ষক',
+    'verify_hint' => 'QR স্ক্যান করে যাচাই করুন',
+    'advance_credit' => 'অগ্রিম জমা',
+    'verify' => [
+        'title' => 'মানি রসিদ',
+        'receipt' => 'রসিদ নং',
+        'student' => 'শিক্ষার্থী',
+        'student_id' => 'আইডি',
+        'amount' => 'টাকা',
+        'method' => 'পদ্ধতি',
+        'date' => 'তারিখ',
+    ],
+];

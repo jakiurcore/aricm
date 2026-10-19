@@ -2,6 +2,8 @@
 
 namespace Modules\Students\Support;
 
+use Illuminate\Support\Facades\Route;
+
 final readonly class StudentSummaryItem
 {
     /**
@@ -23,6 +25,6 @@ final readonly class StudentSummaryItem
      */
     public function toArray(): array
     {
-        return ['label' => $this->label, 'value' => $this->value, 'tone' => $this->tone, 'route' => $this->route ? route($this->route) : null];
+        return ['label' => $this->label, 'value' => $this->value, 'tone' => $this->tone, 'route' => $this->route && Route::has($this->route) ? route($this->route) : null];
     }
 }

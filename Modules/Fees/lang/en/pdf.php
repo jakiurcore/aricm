@@ -1,0 +1,31 @@
+<?php
+
+return [
+    'receipt' => 'Money receipt',
+    'receipt_no' => 'Receipt no.',
+    'date' => 'Date',
+    'student' => 'Student',
+    'student_id' => 'ID',
+    'class' => 'Class',
+    'roll' => 'Roll',
+    'invoice' => 'Invoice',
+    'description' => 'Description',
+    'amount' => 'Amount',
+    'total' => 'Total',
+    'in_words' => 'In words',
+    'method' => 'Method',
+    'received_by' => 'Received by',
+    'payer' => 'Payer',
+    'accountant' => 'Accountant',
+    'verify_hint' => 'Scan the QR to verify',
+    'advance_credit' => 'Advance credit',
+    'verify' => [
+        'title' => 'Money receipt',
+        'receipt' => 'Receipt no.',
+        'student' => 'Student',
+        'student_id' => 'ID',
+        'amount' => 'Amount',
+        'method' => 'Method',
+        'date' => 'Date',
+    ],
+];

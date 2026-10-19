@@ -4,17 +4,15 @@ import { registerModule } from '@admin/js';
 
 import { Toaster } from './components/Toaster';
 import { t } from './i18n';
+import { can } from './permissions';
 import { SettingsPage } from './pages/SettingsPage';
 
 registerModule({
     id: 'core',
-    menuFilter: (menu) => [
-        ...menu,
-        {
-            label: t('core::admin.settings.menu_group'),
-            items: [{ label: t('core::admin.settings.menu'), icon: SettingsIcon, path: '/settings' }],
-        },
-    ],
+    menuFilter: (menu) =>
+        can('settings.manage')
+            ? [...menu, { label: t('core::admin.settings.menu_group'), items: [{ label: t('core::admin.settings.menu'), icon: SettingsIcon, path: '/settings' }] }]
+            : menu,
     routes: [{ path: 'settings', element: <SettingsPage /> }],
     // Kept mounted for every admin page so any module can call toast().
     fills: <Toaster richColors position="top-center" />,

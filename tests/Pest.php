@@ -2,6 +2,8 @@
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Modules\Academic\Models\AcademicSession;
 use Modules\Academic\Models\SchoolClass;
 use Modules\Academic\Models\Section;
@@ -11,6 +13,14 @@ use Modules\Accounts\Models\User;
 use Modules\Exams\Models\Exam;
 use Modules\Exams\Models\ExamRoutine;
 use Modules\Exams\Models\ExamSubject;
+use Modules\Fees\Enums\PaymentMethod;
+use Modules\Fees\Models\FeeHead;
+use Modules\Fees\Models\FeeInvoice;
+use Modules\Fees\Models\FeeStructure;
+use Modules\Fees\Models\Payment;
+use Modules\Fees\Services\InvoiceGenerator;
+use Modules\Fees\Services\PaymentService;
+use Modules\Fees\Support\Money;
 use Modules\Results\Database\Seeders\GradingScaleSeeder;
 use Modules\Results\Services\MarksService;
 use Modules\Students\Models\Student;
@@ -177,4 +187,52 @@ function enterMarks(Exam $exam, int $classId, Student $student, array $marks): v
     }
 
     app(MarksService::class)->save($exam, $classId, $entries, null);
+}
+
+/**
+ * A monthly tuition head (৳1000) and meal head (৳300) with fee structures for the placement's class.
+ *
+ * @param  array{session: AcademicSession, class: SchoolClass, section: Section}  $p
+ * @return array{tuition: FeeHead, meal: FeeHead}
+ */
+function feeSetup(array $p, int $tuition = 1000, int $meal = 300): array
+{
+    $heads = [
+        'tuition' => FeeHead::factory()->monthly()->create(['name_bn' => 'মাসিক বেতন', 'sort_order' => 1]),
+        'meal' => FeeHead::factory()->monthly()->create(['name_bn' => 'খাবার ফি', 'sort_order' => 2]),
+    ];
+
+    foreach ([['tuition', $tuition], ['meal', $meal]] as [$key, $amount]) {
+        FeeStructure::create(['session_id' => $p['session']->id, 'class_id' => $p['class']->id, 'fee_head_id' => $heads[$key]->id, 'amount' => Money::taka($amount)]);
+    }
+
+    return $heads;
+}
+
+function taka(int|float|string $amount): Money
+{
+    return Money::taka($amount);
+}
+
+/**
+ * Monthly invoices for a student for the given months (each ৳1300 with feeSetup defaults), oldest first.
+ *
+ * @param  list<string>  $months  'YYYY-MM-01'
+ * @return Collection<int, FeeInvoice>
+ */
+function invoicesFor(Student $student, array $months): Collection
+{
+    foreach ($months as $month) {
+        app(InvoiceGenerator::class)->generateMonthly(Carbon::parse($month), [$student->class_id]);
+    }
+
+    return FeeInvoice::query()->where('student_id', $student->id)->orderBy('billing_month')->get();
+}
+
+/**
+ * A guardian's manual (mobile wallet or bank) payment for the given invoices, left pending.
+ */
+function submit(Student $student, array $invoiceIds, string $txn = 'ABC12345XY', PaymentMethod $method = PaymentMethod::Bkash, ?string $sender = '01711111111', $screenshot = null): Payment
+{
+    return app(PaymentService::class)->submitManual($student, $invoiceIds, $method, $txn, $sender, $screenshot);
 }

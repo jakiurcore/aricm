@@ -26,4 +26,5 @@ return [
         'roll_taken' => 'Roll :roll is already taken.',
     ],
     'id_card_needs_filter' => 'Choose a class or students for the ID cards.',
+    'search_too_short' => 'Type at least 2 characters.',
 ];
