@@ -5,11 +5,12 @@ use Modules\Academic\AcademicModule;
 use Modules\Accounts\AccountsModule;
 use Modules\Core\CoreModule;
 use Modules\Exams\ExamsModule;
+use Modules\Results\ResultsModule;
 use Modules\Students\StudentsModule;
 
 /*
 | The single source of truth for which modules exist. The order is the wiring order.
-| Dependency direction (enforced by the architecture test): Core ← Accounts ← Academic ← Students ← Exams ← Results ← Fees.
+| Dependency direction (enforced by the architecture test): see tests/Feature/ArchitectureTest.php.
 */
 return [
     CoreModule::class,
@@ -17,5 +18,6 @@ return [
     AcademicModule::class,
     StudentsModule::class,
     ExamsModule::class,
+    ResultsModule::class,
     AdminModule::class,
 ];

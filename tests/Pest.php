@@ -11,6 +11,10 @@ use Modules\Accounts\Models\User;
 use Modules\Exams\Models\Exam;
 use Modules\Exams\Models\ExamRoutine;
 use Modules\Exams\Models\ExamSubject;
+use Modules\Results\Database\Seeders\GradingScaleSeeder;
+use Modules\Results\Services\MarksService;
+use Modules\Students\Models\Student;
+use Modules\Students\Services\StudentRegistrar;
 use Tests\TestCase;
 
 /*
@@ -119,4 +123,58 @@ function examFor(array $placement, bool $released = true, bool $withRoutine = tr
     }
 
     return $exam;
+}
+
+/**
+ * Register a student in the placement's class and section.
+ *
+ * @param  array{session: AcademicSession, class: SchoolClass, section: Section}  $p
+ * @param  array<string, mixed>  $overrides
+ */
+function enrolled(array $p, array $overrides = []): Student
+{
+    return app(StudentRegistrar::class)->register([
+        'session_id' => $p['session']->id, 'class_id' => $p['class']->id, 'section_id' => $p['section']->id,
+        'name_bn' => 'রহিম', 'father_name' => 'করিম', 'date_of_birth' => '2015-03-07', 'gender' => 'male',
+        'admission_date' => '2026-01-10', 'residency_type' => 'non_residential', ...$overrides,
+    ]);
+}
+
+/**
+ * An exam with two subjects (100 marks, pass 33) for the placement's class, plus the default grading scale.
+ * Returns the exam and its two exam subjects.
+ *
+ * @param  array{session: AcademicSession, class: SchoolClass, section: Section}  $p
+ * @return array{exam: Exam, first: ExamSubject, second: ExamSubject}
+ */
+function gradedExam(array $p): array
+{
+    (new GradingScaleSeeder)->run();
+
+    $exam = Exam::factory()->create(['session_id' => $p['session']->id]);
+    $exam->classes()->attach($p['class']->id);
+
+    $make = function (int $order) use ($exam, $p): ExamSubject {
+        $subject = Subject::factory()->create();
+        $p['class']->subjects()->attach($subject->id, ['sort_order' => $order]);
+
+        return ExamSubject::create(['exam_id' => $exam->id, 'class_id' => $p['class']->id, 'subject_id' => $subject->id, 'full_marks' => 100, 'pass_marks' => 33, 'sort_order' => $order]);
+    };
+
+    return ['exam' => $exam, 'first' => $make(1), 'second' => $make(2)];
+}
+
+/**
+ * Enter marks for a student: [exam subject id => obtained, or 'absent'].
+ *
+ * @param  array<int, float|int|string>  $marks
+ */
+function enterMarks(Exam $exam, int $classId, Student $student, array $marks): void
+{
+    $entries = [];
+    foreach ($marks as $subjectId => $value) {
+        $entries[] = ['student_id' => $student->id, 'exam_subject_id' => $subjectId, 'obtained' => $value === 'absent' ? null : $value, 'is_absent' => $value === 'absent'];
+    }
+
+    app(MarksService::class)->save($exam, $classId, $entries, null);
 }

@@ -7,16 +7,6 @@ use Modules\Exams\Models\Exam;
 use Modules\Exams\Services\AdmitCardService;
 use Modules\Exams\Support\Eligibility;
 use Modules\Students\Models\Student;
-use Modules\Students\Services\StudentRegistrar;
-
-function enrolled(array $p, array $overrides = []): Student
-{
-    return app(StudentRegistrar::class)->register([
-        'session_id' => $p['session']->id, 'class_id' => $p['class']->id, 'section_id' => $p['section']->id,
-        'name_bn' => 'রহিম', 'father_name' => 'করিম', 'date_of_birth' => '2015-03-07', 'gender' => 'male',
-        'admission_date' => '2026-01-10', 'residency_type' => 'non_residential', ...$overrides,
-    ]);
-}
 
 function blockingProvider(bool $allow): Module
 {

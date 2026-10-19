@@ -33,6 +33,9 @@ class Exam extends Model
             'end_date' => 'date',
             'status' => ExamStatus::class,
             'admit_card_released' => 'boolean',
+            // Added by the Results module's migration; cast here so every reader of an exam gets real booleans.
+            'result_published' => 'boolean',
+            'result_published_at' => 'datetime',
         ];
     }
 
