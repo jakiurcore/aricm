@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use Modules\Academic\Database\Seeders\DemoAcademicSeeder;
 use Modules\Accounts\Models\User;
 use Modules\Exams\Database\Seeders\DemoExamSeeder;
+use Modules\Fees\Database\Seeders\DemoFeesSeeder;
 use Modules\Results\Database\Seeders\DemoResultSeeder;
 use Modules\Students\Database\Seeders\DemoStudentSeeder;
 
@@ -25,5 +26,12 @@ class DemoSeeder extends Seeder
         $this->call(DemoStudentSeeder::class);
         $this->call(DemoExamSeeder::class);
         $this->call(DemoResultSeeder::class);
+
+        User::query()->updateOrCreate(
+            ['email' => 'accountant@example.com'],
+            ['name' => 'হিসাবরক্ষক', 'password' => 'password', 'is_active' => true],
+        )->assignRole('accountant');
+
+        $this->call(DemoFeesSeeder::class);
     }
 }

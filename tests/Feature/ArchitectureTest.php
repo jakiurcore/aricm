@@ -4,7 +4,7 @@
 | Module dependency direction. An upstream module must never import a downstream module's classes; when it needs
 | something from downstream it defines a contract and asks the registry with Modules::providing(...).
 |
-|   Core ← Accounts ← Academic ← Teachers / Students ← Exams ← Fees / Results
+|   Core ← Accounts ← Academic ← Teachers / Students ← Exams ← Results ← Fees
 |   Diary: Students + Teachers.   Notices, Gallery, Admission: Core only.
 |   Website, StudentPortal, TeacherPanel are consumers and may depend on anything.
 */
@@ -16,7 +16,8 @@ const MODULE_DEPENDENCIES = [
     'Teachers' => ['Core', 'Accounts', 'Academic'],
     'Students' => ['Core', 'Accounts', 'Academic'],
     'Exams' => ['Core', 'Accounts', 'Academic', 'Students'],
-    'Fees' => ['Core', 'Accounts', 'Academic', 'Students', 'Exams'],
+    // Fees implements Results' ProvidesResultEligibility, so it sits after Results.
+    'Fees' => ['Core', 'Accounts', 'Academic', 'Students', 'Exams', 'Results'],
     'Results' => ['Core', 'Accounts', 'Academic', 'Students', 'Exams', 'Teachers'],
     'Diary' => ['Core', 'Accounts', 'Academic', 'Students', 'Teachers'],
     'Notices' => ['Core'],

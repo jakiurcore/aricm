@@ -28,4 +28,16 @@ return [
         'admit_card_rules_en' => null,
         'result_requires_fee_paid' => false,
     ],
+
+    /*
+    | SMS. Off by default: "log" only writes to the log. Switch SMS_DRIVER to "bulk" once the provider is configured.
+    */
+    'sms' => [
+        'driver' => env('SMS_DRIVER', 'log'),
+        'bulk' => [
+            'url' => env('SMS_BULK_URL'),
+            'api_key' => env('SMS_BULK_API_KEY'),
+            'sender_id' => env('SMS_BULK_SENDER_ID'),
+        ],
+    ],
 ];

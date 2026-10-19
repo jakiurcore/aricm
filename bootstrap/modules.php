@@ -5,6 +5,7 @@ use Modules\Academic\AcademicModule;
 use Modules\Accounts\AccountsModule;
 use Modules\Core\CoreModule;
 use Modules\Exams\ExamsModule;
+use Modules\Fees\FeesModule;
 use Modules\Results\ResultsModule;
 use Modules\Students\StudentsModule;
 
@@ -19,5 +20,6 @@ return [
     StudentsModule::class,
     ExamsModule::class,
     ResultsModule::class,
+    FeesModule::class,
     AdminModule::class,
 ];

@@ -28,6 +28,23 @@ class StudentController
         return StudentResource::collection($students);
     }
 
+    /**
+     * Type-ahead for pickers on other screens (concessions, one-off invoices): a handful of matches, nothing sensitive.
+     */
+    public function lookup(Request $request, StudentDirectory $directory): JsonResponse
+    {
+        Gate::authorize('viewAny', Student::class);
+
+        $term = trim($request->string('q')->toString());
+        abort_if(mb_strlen($term) < 2, 422, __('students::messages.search_too_short'));
+
+        $students = $directory->query(['search' => $term, 'status' => 'active'])->with('schoolClass')->orderBy('name_bn')->limit(10)->get();
+
+        return response()->json(['data' => $students->map(fn (Student $student): array => [
+            'id' => $student->id, 'student_id' => $student->student_id, 'name' => $student->name_bn, 'class' => $student->schoolClass?->displayName(), 'roll' => $student->roll,
+        ])->values()]);
+    }
+
     public function show(Student $student, StudentSummaryCollector $summary): JsonResponse
     {
         Gate::authorize('view', $student);

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 use Modules\Academic\Models\AcademicSession;
 use Modules\Academic\Models\SchoolClass;
@@ -29,7 +30,7 @@ use Spatie\Activitylog\Support\LogOptions;
 class Student extends Authenticatable
 {
     /** @use HasFactory<StudentFactory> */
-    use HasFactory, LogsActivity, SoftDeletes;
+    use HasFactory, LogsActivity, Notifiable, SoftDeletes;
 
     protected $guarded = ['id'];
 
@@ -68,6 +69,14 @@ class Student extends Authenticatable
     public function enrollments(): HasMany
     {
         return $this->hasMany(StudentEnrollment::class)->orderByDesc('session_id');
+    }
+
+    /**
+     * SMS notifications go to the guardian's phone.
+     */
+    public function routeNotificationForSms(): ?string
+    {
+        return $this->guardian_phone;
     }
 
     protected function photoUrl(): Attribute

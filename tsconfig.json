@@ -32,6 +32,9 @@
           "@results/*": [
             "./Modules/Results/resources/*"
           ],
+          "@fees/*": [
+            "./Modules/Fees/resources/*"
+          ],
           "@admin/*": [
             "./vendor/protibimbok/laramod-admin/resources/*"
           ]

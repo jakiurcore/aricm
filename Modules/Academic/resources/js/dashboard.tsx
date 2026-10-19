@@ -2,6 +2,7 @@ import { BookOpenIcon, CalendarRangeIcon, LayersIcon, ListChecksIcon } from 'luc
 
 import { registerModule } from '@admin/js';
 import { t } from '@core/js/i18n';
+import { can } from '@core/js/permissions';
 
 import { ClassesPage } from './pages/ClassesPage';
 import { MappingPage } from './pages/MappingPage';
@@ -10,7 +11,7 @@ import { SubjectsPage } from './pages/SubjectsPage';
 
 registerModule({
     id: 'academic',
-    menuFilter: (menu) => [
+    menuFilter: (menu) => !can('academic.view') ? menu : [
         ...menu,
         {
             label: t('academic::admin.menu_group'),
