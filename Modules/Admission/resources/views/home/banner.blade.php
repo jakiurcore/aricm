@@ -1,5 +1,3 @@
-@props(['settings'])
-
 @if ($settings->bannerEnabled())
     <section class="bg-gradient-to-br from-green-700 to-green-900 text-white">
         <div class="mx-auto flex max-w-page flex-wrap items-center justify-between gap-4 px-4 py-6">

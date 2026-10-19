@@ -1,0 +1,72 @@
+<?php
+
+return [
+    'hero' => [
+        'badge' => 'Admission open',
+        'lead' => ':name — a modern school of values that nurtures every child’s talent.',
+        'apply' => 'Apply for admission',
+        'results' => 'View results',
+    ],
+    'program' => [
+        'title' => 'Mental Abacus & Mental Math Program',
+        'lead' => 'Learning to count with the rhythm of the fingertips develops both halves of a child’s brain.',
+        'benefit_1_title' => 'Fast, accurate calculation',
+        'benefit_1_body' => 'Remarkable speed and accuracy in adding, subtracting, multiplying and dividing in the head.',
+        'benefit_2_title' => 'Focus and memory',
+        'benefit_2_body' => 'Longer attention span and a stronger memory.',
+        'benefit_3_title' => 'Confidence and problem solving',
+        'benefit_3_body' => 'Learns to take on hard questions step by step, without fear.',
+        'benefit_4_title' => 'No more maths anxiety',
+        'benefit_4_body' => 'Maths becomes a joyful game, lifting results across every subject.',
+    ],
+    'divisions' => [
+        'title' => 'Our divisions',
+        'kids' => 'Kids division',
+        'kids_age' => 'Ages 5–11',
+        'kids_body' => 'Quran, Bangla, English and maths foundations through play, plus Mental Abacus.',
+        'junior' => 'Junior division',
+        'junior_age' => 'Ages 12–15',
+        'junior_body' => 'Arabic, Islamic studies and modern subjects with cadet discipline and Mental Math.',
+    ],
+    'principal' => [
+        'title' => 'Message from the principal',
+        'default_message' => 'We believe every child holds endless potential. Combining morals, faith and modern education, we are committed to raising them into enlightened people.',
+    ],
+    'stats' => [
+        'students' => 'Students',
+        'classes' => 'Classes',
+        'years' => 'Years of service',
+        'divisions' => 'Divisions',
+    ],
+    'contact' => [
+        'title' => 'Contact',
+        'map' => 'Map',
+    ],
+    'about' => [
+        'title' => 'About us',
+        'intro' => ':name is at :address. Established in :year. We nurture children’s talent by combining the light of the Quran with modern science.',
+        'mission_title' => 'Mission',
+        'mission_body' => 'To develop every child’s talent to the fullest.',
+        'vision_title' => 'Vision',
+        'vision_body' => 'To raise an ethical, skilled and confident generation.',
+        'values_title' => 'Values',
+        'values_body' => 'Honesty, discipline, respect and hard work.',
+    ],
+    'academics' => [
+        'title' => 'Academics',
+        'lead' => 'Two divisions covering Play to Class Eight and Hifz. Every class studies Quran, Arabic, Bangla, English, Maths, Mental Math and General Knowledge.',
+    ],
+    'routine' => [
+        'title' => 'Exam routine',
+        'none' => 'No routine has been published yet.',
+        'exam' => 'Exam',
+        'class' => 'Class',
+        'show' => 'Show',
+        'date' => 'Date',
+        'day' => 'Day',
+        'subject' => 'Subject',
+        'time' => 'Time',
+        'room' => 'Room',
+        'empty' => 'The routine for this class has not been made yet.',
+    ],
+];

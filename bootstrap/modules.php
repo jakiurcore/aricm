@@ -11,6 +11,7 @@ use Modules\Gallery\GalleryModule;
 use Modules\Notices\NoticesModule;
 use Modules\Results\ResultsModule;
 use Modules\Students\StudentsModule;
+use Modules\Website\WebsiteModule;
 
 /*
 | The single source of truth for which modules exist. The order is the wiring order.
@@ -27,5 +28,6 @@ return [
     NoticesModule::class,
     GalleryModule::class,
     AdmissionModule::class,
+    WebsiteModule::class,
     AdminModule::class,
 ];
