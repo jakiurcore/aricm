@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Modules\Academic\Database\Seeders\DemoAcademicSeeder;
 use Modules\Accounts\Models\User;
+use Modules\Exams\Database\Seeders\DemoExamSeeder;
 use Modules\Students\Database\Seeders\DemoStudentSeeder;
 
 class DemoSeeder extends Seeder
@@ -21,5 +22,6 @@ class DemoSeeder extends Seeder
 
         $this->call(DemoAcademicSeeder::class);
         $this->call(DemoStudentSeeder::class);
+        $this->call(DemoExamSeeder::class);
     }
 }

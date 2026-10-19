@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 
 import { HeaderActions } from '@admin/js';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -22,7 +23,7 @@ import { NativeSelect, type Option } from './NativeSelect';
 export interface FieldDef {
     name: string;
     label: string;
-    type: 'text' | 'textarea' | 'number' | 'date' | 'time' | 'email' | 'password' | 'select' | 'switch' | 'file';
+    type: 'text' | 'textarea' | 'number' | 'date' | 'time' | 'email' | 'password' | 'select' | 'switch' | 'file' | 'checkboxes';
     options?: Option[];
     placeholder?: string;
     hint?: string;
@@ -198,6 +199,23 @@ export function ResourcePage<T extends { id: number }>(props: ResourcePageProps<
                     />
                 );
                 break;
+            case 'checkboxes': {
+                const current: Array<string | number> = form.watch(field.name) ?? [];
+                control = (
+                    <div className="grid gap-2 sm:grid-cols-3">
+                        {(field.options ?? []).map((option) => (
+                            <label key={option.value} className="flex items-center gap-2 text-sm">
+                                <Checkbox
+                                    checked={current.includes(option.value)}
+                                    onCheckedChange={(checked) => form.setValue(field.name, checked ? [...current, option.value] : current.filter((value) => value !== option.value), { shouldDirty: true })}
+                                />
+                                {option.label}
+                            </label>
+                        ))}
+                    </div>
+                );
+                break;
+            }
             case 'file':
                 control = <Input type="file" accept={field.accept} multiple={field.multiple} {...common} onChange={(event) => form.setValue(field.name, field.multiple ? event.target.files : event.target.files?.[0])} />;
                 break;
