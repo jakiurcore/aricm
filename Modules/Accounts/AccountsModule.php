@@ -67,7 +67,10 @@ class AccountsModule implements Module, ProvidesApiRoutes, ProvidesConfig, Provi
 
     public function config(): array
     {
-        return ['modules.accounts' => 'config/accounts.php'];
+        return [
+            'modules.accounts' => 'config/accounts.php',
+            'auth.guards.student' => 'config/student_guard.php',
+        ];
     }
 
     public function viteEntries(): array

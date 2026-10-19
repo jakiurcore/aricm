@@ -10,11 +10,14 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "intervention/image": "^4.4",
         "laravel/framework": "^13.17",
         "laravel/tinker": "^3.0",
+        "mpdf/mpdf": "^8.3",
         "openspout/openspout": "^5.12",
         "protibimbok/laramod": "^0.1.1",
         "protibimbok/laramod-admin": "dev-master",
+        "simplesoftwareio/simple-qrcode": "^4.2",
         "spatie/laravel-activitylog": "^5.1",
         "spatie/laravel-permission": "^8.3"
     },

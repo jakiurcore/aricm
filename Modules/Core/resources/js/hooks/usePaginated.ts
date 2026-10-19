@@ -5,7 +5,7 @@ import type { PageMeta } from '../components/DataTable';
 
 interface PageResponse<T> {
     data: T[];
-    meta: PageMeta;
+    meta?: PageMeta;
 }
 
 /** Fetches a Laravel resource collection page by page, re-fetching whenever the page or filters change. */

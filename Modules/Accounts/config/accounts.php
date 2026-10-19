@@ -10,5 +10,6 @@ return [
     'home' => [
         'admin' => '/admin',
         'teacher' => '/teacher',
+        'student' => '/portal',
     ],
 ];

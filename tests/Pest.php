@@ -1,6 +1,10 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Modules\Academic\Models\AcademicSession;
+use Modules\Academic\Models\SchoolClass;
+use Modules\Academic\Models\Section;
 use Modules\Accounts\Database\Seeders\RolesAndPermissionsSeeder;
 use Modules\Accounts\Models\User;
 use Tests\TestCase;
@@ -68,4 +72,26 @@ function userWithRole(string $role): User
     app(RolesAndPermissionsSeeder::class)->run();
 
     return User::factory()->create()->assignRole($role);
+}
+
+/**
+ * A current session plus a class (with one section) for tests that need a student placement.
+ *
+ * @return array{session: AcademicSession, class: SchoolClass, section: Section}
+ */
+function placement(): array
+{
+    $session = AcademicSession::factory()->current()->create();
+    $class = SchoolClass::factory()->create();
+    $section = Section::factory()->create(['class_id' => $class->id]);
+
+    return compact('session', 'class', 'section');
+}
+
+/**
+ * A valid one-pixel PNG, so image validation passes without GD.
+ */
+function tinyPng(string $name = 'photo.png'): UploadedFile
+{
+    return UploadedFile::fake()->createWithContent($name, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='));
 }
