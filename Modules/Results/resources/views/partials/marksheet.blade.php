@@ -1,5 +1,3 @@
-@props(['result'])
-
 @php
     $student = $result->student;
     $subjects = collect($result->subject_results);

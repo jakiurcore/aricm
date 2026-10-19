@@ -1,5 +1,3 @@
-@props(['photos'])
-
 @if ($photos->isNotEmpty())
     <section class="mx-auto max-w-page px-4 py-10">
         <div class="mb-4 flex items-end justify-between">

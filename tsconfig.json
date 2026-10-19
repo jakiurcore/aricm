@@ -44,6 +44,9 @@
           "@admission/*": [
             "./Modules/Admission/resources/*"
           ],
+          "@website/*": [
+            "./Modules/Website/resources/*"
+          ],
           "@admin/*": [
             "./vendor/protibimbok/laramod-admin/resources/*"
           ]
