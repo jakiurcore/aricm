@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="assets/logo.jpeg">
+  <link rel="stylesheet" href="madrasa-theme.css">
+  <script src="madrasa-data.js"></script>
+  <script src="./image-slot.js"></script>
+</helmet>
+
+<div data-theme="{{ theme }}" data-lang="{{ lang }}" style="min-height: 100vh; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.7;">
+
+  <div style="display: flex; align-items: center; height: 40px; background: var(--green-900); color: #fff; overflow: hidden;">
+    <span style="flex: none; height: 100%; display: flex; align-items: center; padding: 0 14px; background: var(--red-600); color: #fff; font-weight: 700; font-size: 14px;">{{ t.newTag }}</span>
+    <div style="flex: 1; min-width: 0; overflow: hidden; font-size: 15px;">{{ ticker }}</div>
+  </div>
+
+  <header style="position: sticky; top: 0; z-index: 40; background: var(--surface); border-bottom: 1px solid var(--line); box-shadow: var(--shadow-sm);">
+    <div style="max-width: 1240px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 12px;">
+      <a href="#home" onClick="{{ goHome }}" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); min-width: 0; flex: 1;">
+        <img src="assets/logo.jpeg" alt="" style="flex: none; width: 52px; height: 52px; border-radius: 50%; background: #fff; object-fit: contain; border: 1px solid var(--line);">
+        <span style="min-width: 0; display: grid; line-height: 1.35;">
+          <span style="font-family: var(--font-head); font-size: 17px; color: var(--heading); font-weight: 600; text-wrap: balance;">{{ inst.name }}</span>
+          <span style="font-size: 13px; color: var(--muted);">{{ inst.est }}</span>
+        </span>
+      </a>
+      <div style="display: flex; align-items: center; gap: 8px; flex: none;">
+        <div role="group" aria-label="Language" style="display: flex; padding: 3px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line);">
+          <button onClick="{{ setBn }}" style="min-width: 44px; height: 36px; border: 0; border-radius: 999px; cursor: pointer; font-weight: 700; font-size: 14px; background: {{ langBn.bg }}; color: {{ langBn.fg }};">বাং</button>
+          <button onClick="{{ setEn }}" style="min-width: 44px; height: 36px; border: 0; border-radius: 999px; cursor: pointer; font-weight: 700; font-size: 14px; font-family: Poppins, sans-serif; background: {{ langEn.bg }}; color: {{ langEn.fg }};">EN</button>
+        </div>
+        <button onClick="{{ toggleTheme }}" aria-label="Theme" style="width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; font-size: 18px;">{{ themeIcon }}</button>
+        <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+          <div style="display: flex; gap: 8px;">
+            <button onClick="{{ goAdmission }}" style="height: 44px; padding: 0 18px; border: 0; border-radius: 999px; background: var(--red-600); color: #fff; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(214,32,42,.25);"><span style="width: 8px; height: 8px; border-radius: 50%; background: var(--yellow-400);"></span>{{ t.admitPill }}</button>
+            <a href="Student Portal.dc.html" style="height: 44px; padding: 0 18px; border-radius: 999px; border: 2px solid var(--navy-800); color: var(--navy-800); font-weight: 700; display: flex; align-items: center; text-decoration: none;">{{ t.login }}</a>
+          </div>
+        </sc-if>
+        <sc-if value="{{ narrow }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ openDrawer }}" aria-label="Menu" style="width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--line); background: var(--green-700); color: #fff; font-size: 20px; cursor: pointer;">☰</button>
+        </sc-if>
+      </div>
+    </div>
+    <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+      <nav style="border-top: 1px solid var(--line);">
+        <div style="max-width: 1240px; margin: 0 auto; padding: 0 8px; display: flex; flex-wrap: wrap; gap: 2px;">
+          <sc-for list="{{ nav }}" as="n" hint-placeholder-count="9">
+            <a href="#{{ n.id }}" onClick="{{ n.go }}" style="padding: 10px 14px; text-decoration: none; font-weight: 600; font-size: 15px; color: {{ n.fg }}; box-shadow: inset 0 -3px 0 {{ n.bar }};">{{ n.label }}</a>
+          </sc-for>
+        </div>
+      </nav>
+    </sc-if>
+  </header>
+
+  <sc-if value="{{ drawer }}" hint-placeholder-val="{{ false }}">
+    <div style="position: fixed; inset: 0; z-index: 60; background: var(--green-700); color: #fff; display: flex; flex-direction: column; overflow-y: auto; animation: arm-fade .2s ease;">
+      <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,.2);">
+        <img src="assets/logo.jpeg" alt="" style="width: 44px; height: 44px; border-radius: 50%; background: #fff;">
+        <span style="flex: 1; font-family: var(--font-head); font-size: 17px;">{{ inst.short }}</span>
+        <button onClick="{{ closeDrawer }}" aria-label="Close" style="width: 44px; height: 44px; border-radius: 12px; border: 1px solid rgba(255,255,255,.4); background: transparent; color: #fff; font-size: 20px; cursor: pointer;">✕</button>
+      </div>
+      <nav style="display: grid; padding: 8px 8px;">
+        <sc-for list="{{ nav }}" as="n" hint-placeholder-count="9">
+          <a href="#{{ n.id }}" onClick="{{ n.go }}" style="color: #fff; text-decoration: none; padding: 12px 16px; border-radius: 12px; font-size: 20px; font-weight: 600; background: {{ n.dbg }};">{{ n.label }}</a>
+        </sc-for>
+      </nav>
+      <div style="display: grid; gap: 10px; padding: 16px 16px 32px; margin-top: auto;">
+        <button onClick="{{ goAdmission }}" style="height: 52px; border: 0; border-radius: 999px; background: var(--red-600); color: #fff; font-weight: 700; font-size: 17px; cursor: pointer;">{{ t.admitPill }}</button>
+        <a href="Student Portal.dc.html" style="height: 52px; border-radius: 999px; background: #fff; color: var(--green-700); font-weight: 700; font-size: 17px; display: grid; place-items: center; text-decoration: none;">{{ t.login }}</a>
+        <div style="display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; padding-top: 8px;">
+          <sc-for list="{{ phones }}" as="p" hint-placeholder-count="2">
+            <a href="{{ p.href }}" style="color: var(--yellow-400); font-weight: 600;">☎ {{ p.label }}</a>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <main>
+    <!-- HOME -->
+    <sc-if value="{{ pg.home }}" hint-placeholder-val="{{ true }}">
+      <section data-screen-label="Home" style="background-color: var(--green-50); background-image: url('data:image/svg+xml;utf8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22%3E%3Cg fill=%22none%22 stroke=%22%230B6B3A%22 stroke-opacity=%22.10%22 stroke-width=%221.2%22%3E%3Crect x=%2220%22 y=%2220%22 width=%2224%22 height=%2224%22/%3E%3Crect x=%2220%22 y=%2220%22 width=%2224%22 height=%2224%22 transform=%22rotate(45 32 32)%22/%3E%3C/g%3E%3C/svg%3E'), linear-gradient(170deg, var(--green-50), var(--bg));">
+        <div style="max-width: 1240px; margin: 0 auto; padding: 36px 16px 56px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: 40px; align-items: center;">
+          <div style="display: grid; gap: 18px; justify-items: start;">
+            <span style="font-family: var(--font-ar); font-size: 26px; line-height: 1.4; color: var(--green-700);" dir="rtl">{{ inst.arabic }}</span>
+            <h1 style="margin: 0; font-family: var(--font-head); font-weight: 600; color: var(--heading); font-size: clamp(34px, 6vw, 56px); line-height: 1.25; text-wrap: balance;">{{ t.tag0 }}</h1>
+            <p style="margin: 0; font-size: 20px; font-weight: 600; color: var(--green-700);">{{ t.tag1 }}</p>
+            <p style="margin: 0; font-size: 17px; color: var(--muted); max-width: 40ch; text-wrap: pretty;">{{ t.heroBody }}</p>
+            <button onClick="{{ goAbacus }}" style="display: flex; align-items: center; gap: 12px; padding: 10px 16px 10px 10px; border-radius: 18px; border: 2px solid var(--yellow-400); background: var(--surface); box-shadow: var(--shadow-md); cursor: pointer; text-align: left; max-width: 460px; color: var(--ink);">
+              <span style="flex: none; width: 48px; height: 48px; border-radius: 14px; background: var(--yellow-400); display: grid; place-items: center; font-size: 24px;">🧮</span>
+              <span style="display: grid; line-height: 1.45; min-width: 0;">
+                <span style="font-size: 12px; font-weight: 700; color: var(--red-600);">{{ t.heroAbacusTag }}</span>
+                <strong style="font-family: var(--font-head); font-size: 18px; color: var(--heading);">{{ t.progTitle }}</strong>
+                <span style="font-size: 14px; color: var(--muted);">{{ t.heroAbacusSub }}</span>
+              </span>
+              <span style="flex: none; margin-left: auto; font-size: 20px; color: var(--green-700);">→</span>
+            </button>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+              <button onClick="{{ goAdmission }}" style="height: 52px; padding: 0 26px; border: 0; border-radius: 999px; background: var(--red-600); color: #fff; font-weight: 700; font-size: 17px; cursor: pointer; box-shadow: 0 8px 20px rgba(214,32,42,.25);">{{ t.ctaApply }}</button>
+              <a href="tel:01714844346" style="height: 52px; padding: 0 22px; border-radius: 999px; border: 2px solid var(--navy-800); color: var(--navy-800); font-weight: 700; font-size: 17px; display: flex; align-items: center; text-decoration: none; background: var(--surface);">☎ {{ t.ctaCall }}</a>
+            </div>
+            <span style="font-size: 16px; font-weight: 600; color: var(--ink);">{{ t.tag2 }}</span>
+          </div>
+          <div style="position: relative; padding: 18px 0 22px;">
+            <div style="aspect-ratio: 5 / 4; border-radius: 28px; overflow: hidden; box-shadow: var(--shadow-lg); background: var(--surface); border: 6px solid var(--surface);">
+              <image-slot id="web-hero" shape="rounded" radius="22" placeholder="ছাত্র-ছাত্রীদের ছবি" src="https://images.unsplash.com/photo-1637034120715-cdd8f1c9347d?auto=format&fit=crop&w=1400&q=70" credit="Photo by Wanman uthmaniyyah on Unsplash" credit-href="https://unsplash.com/@wanman"></image-slot>
+            </div>
+            <span style="position: absolute; top: 0; right: 12px; padding: 6px 14px; border-radius: 999px; background: var(--yellow-400); color: #1a1a1a; font-weight: 700; font-size: 14px; box-shadow: var(--shadow-md); pointer-events: none;">★ {{ t.badgeEst }}</span>
+            <span style="position: absolute; bottom: 0; left: 8px; padding: 8px 14px; border-radius: 16px; background: var(--surface); color: var(--green-700); font-weight: 700; font-size: 14px; box-shadow: var(--shadow-md); border: 1px solid var(--line); pointer-events: none;">📖 {{ t.badgeHifz }}</span>
+            <span style="position: absolute; bottom: 44px; right: -4px; padding: 8px 14px; border-radius: 16px; background: var(--navy-800); color: #fff; font-weight: 700; font-size: 14px; box-shadow: var(--shadow-md); pointer-events: none;">{{ t.badgeCadet }}</span>
+          </div>
+        </div>
+      </section>
+
+      <div style="max-width: 1240px; margin: 0 auto; padding: 0 16px; display: grid; gap: 64px;">
+        <sc-if value="{{ showBanner }}" hint-placeholder-val="{{ true }}">
+          <section style="margin-top: -24px; position: relative; border-radius: 24px; overflow: hidden; background: var(--red-600); color: #fff; box-shadow: var(--shadow-lg); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));">
+            <div style="padding: 24px; display: grid; gap: 8px; align-content: center;">
+              <span style="justify-self: start; padding: 2px 12px; border-radius: 999px; background: var(--yellow-400); color: #1a1a1a; font-weight: 700; font-size: 13px;">{{ t.bannerYear }}</span>
+              <h2 style="margin: 0; font-family: var(--font-head); font-size: clamp(32px, 5vw, 44px); line-height: 1.2;">{{ t.bannerTitle }}</h2>
+              <p style="margin: 0; justify-self: start; padding: 4px 14px; border-radius: 12px; background: var(--yellow-400); color: #1a1a1a; font-family: var(--font-head); font-size: 20px; font-weight: 700; line-height: 1.5;">{{ t.bannerFree }}</p>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: rgba(255,255,255,.25);">
+              <div style="padding: 20px; background: var(--red-700); display: grid; align-content: center;">
+                <span style="font-size: 14px; opacity: .9;">{{ t.bannerStartL }}</span>
+                <span style="font-family: var(--font-head); font-size: 24px; line-height: 1.35;">{{ t.bannerStart }}</span>
+              </div>
+              <div style="padding: 20px; background: var(--red-700); display: grid; align-content: center;">
+                <span style="font-size: 14px; opacity: .9;">{{ t.bannerClassL }}</span>
+                <span style="font-family: var(--font-head); font-size: 24px; line-height: 1.35;">{{ t.bannerClass }}</span>
+              </div>
+            </div>
+            <div style="padding: 24px; display: grid; gap: 10px; align-content: center; background: #fff;">
+              <button onClick="{{ goAdmission }}" style="height: 52px; border: 0; border-radius: 999px; background: var(--green-700); color: #fff; font-weight: 700; font-size: 17px; cursor: pointer;">{{ t.applyOnline }}</button>
+              <a href="tel:01714844346" style="text-align: center; font-weight: 600; color: #0B6B3A;">☎ {{ phone0 }}</a>
+            </div>
+          </section>
+        </sc-if>
+
+        <section id="abacus" style="display: grid; gap: 24px; padding-top: 16px; scroll-margin-top: 140px;">
+          <div style="display: grid; gap: 4px; max-width: 760px;">
+            <span style="color: var(--green-700); font-weight: 700; font-size: 14px;">{{ t.progKicker }}</span>
+            <h2 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: clamp(28px, 4vw, 38px); line-height: 1.3; text-wrap: balance;">{{ t.progTitle }}</h2>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 16px;">
+            <sc-for list="{{ benefits }}" as="b" hint-placeholder-count="4">
+              <div style="padding: 22px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); display: grid; gap: 14px; align-content: start;">
+                <span style="width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; font-size: 24px; background: {{ b.bg }};">{{ b.icon }}</span>
+                <span style="font-size: 18px; font-weight: 700; line-height: 1.5; color: var(--ink);">{{ b.t }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <section style="display: grid; gap: 24px; padding: clamp(20px, 3vw, 32px); border-radius: 28px; background: var(--navy-50);">
+          <div style="display: grid; gap: 4px; max-width: 760px;">
+            <span style="color: var(--navy-800); font-weight: 700; font-size: 14px;">{{ t.progKicker }}</span>
+            <h2 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: clamp(28px, 4vw, 38px); line-height: 1.3; text-wrap: balance;">{{ t.phonTitle }}</h2>
+            <p style="margin: 0; color: var(--muted); font-size: 17px; text-wrap: pretty;">{{ t.phonSub }}</p>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 16px;">
+            <sc-for list="{{ phonBenefits }}" as="b" hint-placeholder-count="4">
+              <div style="padding: 22px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); display: grid; gap: 14px; align-content: start;">
+                <span style="width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; font-size: 22px; font-family: Poppins, sans-serif; font-weight: 700; color: var(--navy-800); background: {{ b.bg }};">{{ b.icon }}</span>
+                <span style="font-size: 18px; font-weight: 700; line-height: 1.5; color: var(--ink);">{{ b.t }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <section style="display: grid; gap: 24px;">
+          <div style="display: grid; gap: 4px;">
+            <span style="color: var(--green-700); font-weight: 700; font-size: 14px;">{{ t.divKicker }}</span>
+            <h2 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: clamp(28px, 4vw, 38px); line-height: 1.3;">{{ t.divTitle }}</h2>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 16px;">
+            <sc-for list="{{ divisions }}" as="d" hint-placeholder-count="2">
+              <div style="border-radius: 20px; overflow: hidden; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); display: grid; grid-template-columns: 116px 1fr;">
+                <div style="background: {{ d.bg }}; color: #fff; display: grid; place-items: center; text-align: center; padding: 12px; line-height: 1.5;">
+                  <span style="display: grid;"><span style="font-family: var(--font-head); font-size: 28px;">{{ d.age }}</span><span style="font-size: 14px; font-weight: 600;">{{ t.yrs }}</span></span>
+                </div>
+                <div style="padding: 20px; display: grid; gap: 4px; align-content: center;">
+                  <h3 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: 24px;">{{ d.name }}</h3>
+                  <p style="margin: 0; color: var(--muted);">{{ d.desc }}</p>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <section style="display: grid; gap: 24px;">
+          <div style="display: grid; gap: 4px;">
+            <span style="color: var(--green-700); font-weight: 700; font-size: 14px;">{{ t.whyKicker }}</span>
+            <h2 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: clamp(28px, 4vw, 38px); line-height: 1.3;">{{ t.whyTitle }}</h2>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 12px;">
+            <sc-for list="{{ why }}" as="w" hint-placeholder-count="6">
+              <div style="padding: 18px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); display: grid; grid-template-columns: 44px 1fr; gap: 14px; align-items: start;">
+                <span style="width: 44px; height: 44px; border-radius: 12px; background: var(--green-50); color: var(--green-700); display: grid; place-items: center; font-size: 20px;">{{ w.icon }}</span>
+                <span style="display: grid; gap: 2px;"><span style="font-size: 17px; font-weight: 700;">{{ w.t }}</span><span style="color: var(--muted); font-size: 15px;">{{ w.d }}</span></span>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <section style="border-radius: 28px; background: var(--navy-50); padding: clamp(20px, 4vw, 40px); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 32px; align-items: center;">
+          <div style="width: 100%; max-width: 320px; aspect-ratio: 4 / 5; border-radius: 24px; overflow: hidden; border: 6px solid var(--surface); box-shadow: var(--shadow-md); background: var(--surface);">
+            <image-slot id="web-principal" shape="rounded" radius="18" placeholder="অধ্যক্ষের ছবি" src="https://images.unsplash.com/photo-1761475048666-ec46f9a5fd55?auto=format&fit=crop&w=900&q=70" credit="Photo by أخٌ في الله on Unsplash" credit-href="https://unsplash.com/@mhrezaa"></image-slot>
+          </div>
+          <div style="display: grid; gap: 14px; min-width: 0; grid-column: span 2;">
+            <span style="color: var(--navy-800); font-weight: 700; font-size: 14px;">{{ t.prinKicker }}</span>
+            <blockquote style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: clamp(21px, 2.8vw, 28px); line-height: 1.65; text-wrap: pretty;">“{{ t.prinQuote }}”</blockquote>
+            <span style="display: grid; line-height: 1.4;"><span style="font-weight: 700; font-size: 18px;">{{ t.prinName }}</span><span style="color: var(--muted);">{{ t.prinRole }}</span></span>
+          </div>
+        </section>
+
+        <section style="display: grid; gap: 20px;">
+          <div style="display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px;">
+            <div style="display: grid; gap: 4px;">
+              <span style="color: var(--green-700); font-weight: 700; font-size: 14px;">{{ t.noticeKicker }}</span>
+              <h2 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: clamp(28px, 4vw, 38px); line-height: 1.3;">{{ t.noticeTitle }}</h2>
+            </div>
+            <button onClick="{{ goNotices }}" style="height: 44px; padding: 0 18px; border-radius: 999px; border: 2px solid var(--navy-800); background: transparent; color: var(--navy-800); font-weight: 700; cursor: pointer;">{{ t.allNotices }} →</button>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 12px;">
+            <sc-for list="{{ homeNotices }}" as="nt" hint-placeholder-count="5">
+              <a href="#notice" onClick="{{ nt.open }}" style="text-decoration: none; color: var(--ink); display: grid; grid-template-columns: 64px 1fr; gap: 14px; align-items: center; padding: 14px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm);" style-hover="box-shadow: var(--shadow-md); border-color: var(--green-500);">
+                <span style="display: grid; text-align: center; line-height: 1.45; padding: 8px 0; border-radius: 12px; background: var(--green-50); color: var(--green-700);">
+                  <span style="font-family: var(--font-head); font-size: 24px; font-weight: 600;">{{ nt.d }}</span>
+                  <span style="font-size: 12px; font-weight: 700;">{{ nt.m }}</span>
+                </span>
+                <span style="display: grid; gap: 4px; min-width: 0;">
+                  <span style="font-size: 16px; font-weight: 600; line-height: 1.5; text-wrap: pretty;">{{ nt.title }}</span>
+                  <span style="display: flex; flex-wrap: wrap; gap: 6px; font-size: 12px; font-weight: 700;">
+                    <span style="padding: 1px 8px; border-radius: 999px; background: var(--navy-50); color: var(--navy-800);">{{ nt.cat }}</span>
+                    <sc-if value="{{ nt.pinned }}" hint-placeholder-val="{{ false }}"><span style="padding: 1px 8px; border-radius: 999px; background: var(--yellow-50); color: var(--warn);">📌 {{ t.pinned }}</span></sc-if>
+                    <sc-if value="{{ nt.pdf }}" hint-placeholder-val="{{ false }}"><span style="padding: 1px 8px; border-radius: 999px; background: var(--red-50); color: var(--danger);">PDF</span></sc-if>
+                  </span>
+                </span>
+              </a>
+            </sc-for>
+          </div>
+        </section>
+      </div>
+
+      <section style="margin-top: 64px; background: linear-gradient(135deg, var(--green-700), var(--green-900)); color: #fff;">
+        <div style="max-width: 1240px; margin: 0 auto; padding: 40px 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: 24px;">
+          <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
+            <div style="display: grid;">
+              <span style="font-family: var(--font-head); font-size: clamp(40px, 6vw, 54px); line-height: 1.45; color: var(--yellow-400);">{{ s.v }}</span>
+              <span style="font-size: 17px; font-weight: 500;">{{ s.l }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <div style="max-width: 1240px; margin: 0 auto; padding: 64px 16px 0; display: grid; gap: 64px;">
+        <section style="display: grid; gap: 20px;">
+          <div style="display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px;">
+            <div style="display: grid; gap: 4px;">
+              <span style="color: var(--green-700); font-weight: 700; font-size: 14px;">{{ t.galKicker }}</span>
+              <h2 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: clamp(28px, 4vw, 38px); line-height: 1.3;">{{ t.galTitle }}</h2>
+            </div>
+            <button onClick="{{ goGallery }}" style="height: 44px; padding: 0 18px; border-radius: 999px; border: 2px solid var(--navy-800); background: transparent; color: var(--navy-800); font-weight: 700; cursor: pointer;">{{ t.allAlbums }} →</button>
+          </div>
+          <div style="column-width: 220px; column-gap: 12px;">
+            <sc-for list="{{ galPreview }}" as="g" hint-placeholder-count="8">
+              <div style="break-inside: avoid; margin-bottom: 12px; height: {{ g.h }}px; border-radius: 16px; overflow: hidden; background: var(--surface-2);">
+                <image-slot id="{{ g.id }}" shape="rounded" radius="16" placeholder="{{ t.photoPh }}" src="{{ g.src }}" credit="{{ g.credit }}" credit-href="{{ g.href }}"></image-slot>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <section style="border-radius: 24px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-md); padding: clamp(20px, 3vw, 32px); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 24px; align-items: center;">
+          <div style="display: grid; gap: 6px;">
+            <span style="color: var(--green-700); font-weight: 700; font-size: 14px;">{{ t.resKicker }}</span>
+            <h2 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: clamp(26px, 3.5vw, 34px); line-height: 1.3;">{{ t.qrTitle }}</h2>
+            <span style="color: var(--muted);">{{ t.sampleHint }}</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr)); gap: 10px; align-items: end; grid-column: span 2;">
+            <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 600;">{{ t.exam }}
+              <select value="{{ rs.exam }}" onChange="{{ onRsExam }}" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface); font-weight: 500;">
+                <sc-for list="{{ examOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.v }}">{{ o.l }}</option></sc-for>
+              </select>
+            </label>
+            <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 600;">{{ t.roll }}
+              <input value="{{ rs.roll }}" onChange="{{ onRsRoll }}" inputmode="numeric" placeholder="{{ t.rollPh }}" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface);">
+            </label>
+            <button onClick="{{ quickSearch }}" style="height: 48px; border: 0; border-radius: 12px; background: var(--green-700); color: #fff; font-weight: 700; cursor: pointer;">{{ t.search }}</button>
+          </div>
+        </section>
+      </div>
+    </sc-if>
+
+    <!-- ABOUT -->
+    <sc-if value="{{ pg.about }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="About" style="max-width: 1040px; margin: 0 auto; padding: 40px 16px 0; display: grid; gap: 40px;">
+        <div style="display: grid; gap: 10px;">
+          <span style="color: var(--green-700); font-weight: 700;">{{ t.aboutKicker }}</span>
+          <h1 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: clamp(32px, 5vw, 48px); line-height: 1.25;">{{ inst.name }}</h1>
+          <p style="margin: 0; font-size: 18px; color: var(--muted); max-width: 70ch; text-wrap: pretty;">{{ t.aboutBody }}</p>
+        </div>
+        <div style="aspect-ratio: 21 / 9; border-radius: 24px; overflow: hidden; background: var(--surface-2);">
+          <image-slot id="web-campus" shape="rounded" radius="24" placeholder="ক্যাম্পাসের ছবি" src="https://images.unsplash.com/photo-1721416308449-3ffac3e71121?auto=format&fit=crop&w=1600&q=70" credit="Photo by Omar Elsharawy on Unsplash" credit-href="https://unsplash.com/@esh3rwy"></image-slot>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 16px;">
+          <sc-for list="{{ values }}" as="v" hint-placeholder-count="3">
+            <div style="padding: 22px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); display: grid; gap: 6px;">
+              <h3 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: 22px;">{{ v.t }}</h3>
+              <p style="margin: 0; color: var(--muted);">{{ v.d }}</p>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ACADEMICS -->
+    <sc-if value="{{ pg.academics }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Academics" style="max-width: 1040px; margin: 0 auto; padding: 40px 16px 0; display: grid; gap: 32px;">
+        <h1 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: clamp(32px, 5vw, 48px); line-height: 1.25;">{{ t.acTitle }}</h1>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px;">
+          <sc-for list="{{ programs }}" as="p" hint-placeholder-count="4">
+            <div style="padding: 22px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); display: grid; gap: 8px; align-content: start;">
+              <span style="width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; font-size: 22px; background: var(--green-50);">{{ p.icon }}</span>
+              <h3 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: 22px;">{{ p.t }}</h3>
+              <p style="margin: 0; color: var(--muted);">{{ p.d }}</p>
+            </div>
+          </sc-for>
+        </div>
+        <div style="border-radius: 20px; background: var(--surface); border: 1px solid var(--line); overflow: hidden;">
+          <h2 style="margin: 0; padding: 16px 20px; font-family: var(--font-head); color: var(--heading); font-size: 22px; border-bottom: 1px solid var(--line);">{{ t.schedTitle }}</h2>
+          <sc-for list="{{ schedule }}" as="s" hint-placeholder-count="6">
+            <div style="display: grid; grid-template-columns: minmax(110px, 160px) 1fr; gap: 12px; padding: 12px 20px; border-bottom: 1px solid var(--line);">
+              <span style="font-weight: 700; color: var(--green-700);">{{ s.time }}</span><span>{{ s.what }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ADMISSION -->
+    <sc-if value="{{ pg.admission }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Admission" style="max-width: 1140px; margin: 0 auto; padding: 40px 16px 0; display: grid; gap: 32px;">
+        <div style="display: grid; gap: 10px;">
+          <span style="justify-self: start; padding: 4px 14px; border-radius: 999px; background: var(--red-600); color: #fff; font-weight: 700; font-size: 14px;">{{ t.admitPill }}</span>
+          <h1 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: clamp(32px, 5vw, 48px); line-height: 1.25;">{{ t.adTitle }}</h1>
+          <p style="margin: 0; font-size: 18px; color: var(--muted); max-width: 66ch;">{{ t.adIntro }}</p>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 20px; align-items: start;">
+          <div style="display: grid; gap: 20px;">
+            <div style="padding: 22px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); display: grid; gap: 12px;">
+              <h2 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: 22px;">{{ t.docsTitle }}</h2>
+              <sc-for list="{{ docs }}" as="d" hint-placeholder-count="5">
+                <div style="display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: start;"><span style="width: 28px; height: 28px; border-radius: 50%; background: var(--green-50); color: var(--green-700); display: grid; place-items: center; font-weight: 700;">✓</span><span>{{ d }}</span></div>
+              </sc-for>
+            </div>
+            <div style="border-radius: 20px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); overflow: hidden;">
+              <h2 style="margin: 0; padding: 18px 22px 10px; font-family: var(--font-head); color: var(--heading); font-size: 22px;">{{ t.feesTitle }}</h2>
+              <div style="display: grid; grid-template-columns: 1.4fr 1fr 1fr; padding: 10px 22px; background: var(--surface-2); font-size: 14px; font-weight: 700; color: var(--muted);"><span>{{ t.feeItem }}</span><span>{{ t.kids }}</span><span>{{ t.junior }}</span></div>
+              <sc-for list="{{ feeRows }}" as="f" hint-placeholder-count="4">
+                <div style="display: grid; grid-template-columns: 1.4fr 1fr 1fr; padding: 12px 22px; border-top: 1px solid var(--line);"><span>{{ f.l }}</span><span style="font-weight: 600;">{{ f.a }}</span><span style="font-weight: 600;">{{ f.b }}</span></div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="padding: 22px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-md); display: grid; gap: 14px;">
+            <h2 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: 22px;">{{ t.inqTitle }}</h2>
+            <sc-if value="{{ inqDone }}" hint-placeholder-val="{{ false }}">
+              <div style="padding: 28px 16px; border-radius: 16px; background: var(--success-bg); color: var(--success); text-align: center; display: grid; gap: 6px;">
+                <span style="font-size: 36px;">✓</span><strong style="font-size: 18px;">{{ t.inqOkTitle }}</strong><span style="color: var(--ink);">{{ t.inqOkBody }}</span>
+                <button onClick="{{ resetInq }}" style="justify-self: center; margin-top: 6px; height: 44px; padding: 0 18px; border-radius: 999px; border: 2px solid var(--green-700); background: transparent; color: var(--green-700); font-weight: 700; cursor: pointer;">{{ t.inqAgain }}</button>
+              </div>
+            </sc-if>
+            <sc-if value="{{ inqForm }}" hint-placeholder-val="{{ true }}">
+              <div style="display: grid; gap: 12px;">
+                <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 600;">{{ t.fStudent }} *
+                  <input value="{{ inq.name }}" onChange="{{ onInqName }}" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid {{ inqErr.nameB }}; background: var(--surface);">
+                  <span style="color: var(--danger); font-size: 13px; font-weight: 500;">{{ inqErr.name }}</span>
+                </label>
+                <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 600;">{{ t.fGuardian }}
+                  <input value="{{ inq.guardian }}" onChange="{{ onInqGuardian }}" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface);">
+                </label>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr)); gap: 12px;">
+                  <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 600;">{{ t.fPhone }} *
+                    <input value="{{ inq.phone }}" onChange="{{ onInqPhone }}" inputmode="tel" placeholder="01XXXXXXXXX" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid {{ inqErr.phoneB }}; background: var(--surface);">
+                    <span style="color: var(--danger); font-size: 13px; font-weight: 500;">{{ inqErr.phone }}</span>
+                  </label>
+                  <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 600;">{{ t.fClass }}
+                    <select value="{{ inq.cls }}" onChange="{{ onInqCls }}" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface);">
+                      <sc-for list="{{ classOpts }}" as="o" hint-placeholder-count="6"><option value="{{ o.v }}">{{ o.l }}</option></sc-for>
+                    </select>
+                  </label>
+                </div>
+                <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 600;">{{ t.fMsg }}
+                  <textarea value="{{ inq.msg }}" onChange="{{ onInqMsg }}" rows="3" style="padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface); resize: vertical;"></textarea>
+                </label>
+                <button onClick="{{ submitInq }}" style="height: 52px; border: 0; border-radius: 999px; background: var(--red-600); color: #fff; font-weight: 700; font-size: 17px; cursor: pointer;">{{ inqBtn }}</button>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- NOTICES LIST -->
+    <sc-if value="{{ pg.notices }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Notices" style="max-width: 960px; margin: 0 auto; padding: 40px 16px 0; display: grid; gap: 20px;">
+        <h1 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: clamp(32px, 5vw, 44px); line-height: 1.25;">{{ t.npTitle }}</h1>
+        <input value="{{ q }}" onChange="{{ onQ }}" placeholder="🔍  {{ t.searchPh }}" style="height: 52px; padding: 0 16px; border-radius: 16px; border: 1px solid var(--line-strong); background: var(--surface); font-size: 16px;">
+        <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;">
+          <sc-for list="{{ cats }}" as="c" hint-placeholder-count="6">
+            <button onClick="{{ c.pick }}" style="flex: none; height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid {{ c.bd }}; background: {{ c.bg }}; color: {{ c.fg }}; font-weight: 600; cursor: pointer;">{{ c.l }}</button>
+          </sc-for>
+        </div>
+        <sc-if value="{{ ds.loading }}" hint-placeholder-val="{{ false }}">
+          <div style="display: grid; gap: 10px;">
+            <sc-for list="{{ skeleton }}" as="k" hint-placeholder-count="4"><div style="height: 84px; border-radius: 16px; background: linear-gradient(90deg, var(--surface-2) 0, var(--line) 50%, var(--surface-2) 100%); background-size: 800px 100%; animation: arm-shimmer 1.2s linear infinite;"></div></sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ ds.error }}" hint-placeholder-val="{{ false }}">
+          <div style="padding: 32px 20px; border-radius: 20px; background: var(--danger-bg); text-align: center; display: grid; gap: 8px; justify-items: center;"><span style="font-size: 32px;">⚠</span><strong style="color: var(--danger); font-size: 18px;">{{ t.errTitle }}</strong><span>{{ t.errBody }}</span><button onClick="{{ retry }}" style="height: 44px; padding: 0 18px; border-radius: 999px; border: 0; background: var(--danger); color: #fff; font-weight: 700; cursor: pointer;">{{ t.retry }}</button></div>
+        </sc-if>
+        <sc-if value="{{ noticeEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="padding: 40px 20px; border-radius: 20px; border: 2px dashed var(--line-strong); text-align: center; display: grid; gap: 6px;"><span style="font-size: 32px;">📭</span><strong style="font-size: 18px;">{{ t.nEmpty }}</strong><span style="color: var(--muted);">{{ t.nEmptyBody }}</span></div>
+        </sc-if>
+        <sc-if value="{{ ds.ready }}" hint-placeholder-val="{{ true }}">
+          <div style="display: grid; gap: 10px;">
+            <sc-for list="{{ noticeList }}" as="nt" hint-placeholder-count="6">
+              <a href="#notice" onClick="{{ nt.open }}" style="text-decoration: none; color: var(--ink); display: grid; grid-template-columns: 64px 1fr auto; gap: 14px; align-items: center; padding: 14px; border-radius: 16px; background: {{ nt.bg }}; border: 1px solid {{ nt.bd }};" style-hover="box-shadow: var(--shadow-md);">
+                <span style="display: grid; text-align: center; line-height: 1.45; padding: 8px 0; border-radius: 12px; background: var(--green-50); color: var(--green-700);"><span style="font-family: var(--font-head); font-size: 24px; font-weight: 600;">{{ nt.d }}</span><span style="font-size: 12px; font-weight: 700;">{{ nt.m }}</span></span>
+                <span style="display: grid; gap: 4px; min-width: 0;">
+                  <span style="font-weight: 600; line-height: 1.5;">{{ nt.title }}</span>
+                  <span style="display: flex; flex-wrap: wrap; gap: 6px; font-size: 12px; font-weight: 700;">
+                    <span style="padding: 1px 8px; border-radius: 999px; background: var(--navy-50); color: var(--navy-800);">{{ nt.cat }}</span>
+                    <sc-if value="{{ nt.pinned }}" hint-placeholder-val="{{ false }}"><span style="padding: 1px 8px; border-radius: 999px; background: var(--yellow-50); color: var(--warn);">📌 {{ t.pinned }}</span></sc-if>
+                  </span>
+                </span>
+                <sc-if value="{{ nt.pdf }}" hint-placeholder-val="{{ false }}"><span title="PDF" style="width: 40px; height: 40px; border-radius: 12px; background: var(--red-50); color: var(--danger); display: grid; place-items: center; font-size: 11px; font-weight: 800;">PDF</span></sc-if>
+              </a>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <!-- NOTICE DETAIL -->
+    <sc-if value="{{ pg.notice }}" hint-placeholder-val="{{ false }}">
+      <article data-screen-label="Notice detail" style="max-width: 760px; margin: 0 auto; padding: 32px 16px 0; display: grid; gap: 18px;">
+        <button onClick="{{ goNotices }}" style="justify-self: start; height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; cursor: pointer;">← {{ t.back }}</button>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 13px; font-weight: 700;">
+          <span style="padding: 2px 10px; border-radius: 999px; background: var(--navy-50); color: var(--navy-800);">{{ notice.cat }}</span>
+          <span style="padding: 2px 10px; border-radius: 999px; background: var(--surface-2); color: var(--muted);">{{ t.published }}: {{ notice.date }}</span>
+        </div>
+        <h1 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: clamp(26px, 4vw, 36px); line-height: 1.35; text-wrap: balance;">{{ notice.title }}</h1>
+        <div style="padding: 22px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); font-size: 17px;">
+          <p style="margin: 0;">{{ notice.body }}</p>
+          <p style="margin: 18px 0 0; font-weight: 600;">— {{ t.office }}</p>
+        </div>
+        <sc-if value="{{ notice.pdf }}" hint-placeholder-val="{{ true }}">
+          <div style="display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 16px; border: 1px solid var(--line); background: var(--surface);">
+            <span style="width: 48px; height: 48px; border-radius: 12px; background: var(--red-50); color: var(--danger); display: grid; place-items: center; font-size: 12px; font-weight: 800;">PDF</span>
+            <span style="flex: 1; min-width: 0; display: grid; line-height: 1.4;"><strong>{{ t.attachment }}</strong><span style="font-size: 14px; color: var(--muted);">notice-{{ notice.id }}.pdf · 248 KB</span></span>
+            <button onClick="{{ fakeDl }}" style="height: 44px; padding: 0 16px; border-radius: 999px; border: 0; background: var(--green-700); color: #fff; font-weight: 700; cursor: pointer;">{{ t.download }}</button>
+          </div>
+        </sc-if>
+      </article>
+    </sc-if>
+
+    <!-- ROUTINE -->
+    <sc-if value="{{ pg.routine }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Exam routine" style="max-width: 960px; margin: 0 auto; padding: 40px 16px 0; display: grid; gap: 20px;">
+        <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: end; justify-content: space-between;">
+          <div style="display: grid; gap: 4px;"><h1 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: clamp(32px, 5vw, 44px); line-height: 1.25;">{{ t.rtTitle }}</h1><span style="color: var(--muted);">{{ t.rtSub }}</span></div>
+          <button onClick="{{ fakeDl }}" style="height: 44px; padding: 0 18px; border-radius: 999px; border: 0; background: var(--red-600); color: #fff; font-weight: 700; cursor: pointer;">⬇ {{ t.dlPdf }}</button>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 12px; padding: 16px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line);">
+          <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 600;"><span>① {{ t.exam }}</span>
+            <select value="{{ rtExam }}" onChange="{{ onRtExam }}" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface);"><sc-for list="{{ allExamOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+          </label>
+          <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 600;"><span>② {{ t.class }}</span>
+            <select value="{{ rtClass }}" onChange="{{ onRtClass }}" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface);"><sc-for list="{{ classOpts }}" as="o" hint-placeholder-count="6"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+          </label>
+        </div>
+        <sc-if value="{{ ds.loading }}" hint-placeholder-val="{{ false }}">
+          <div style="display: grid; gap: 10px;"><sc-for list="{{ skeleton }}" as="k" hint-placeholder-count="4"><div style="height: 64px; border-radius: 14px; background: linear-gradient(90deg, var(--surface-2) 0, var(--line) 50%, var(--surface-2) 100%); background-size: 800px 100%; animation: arm-shimmer 1.2s linear infinite;"></div></sc-for></div>
+        </sc-if>
+        <sc-if value="{{ ds.error }}" hint-placeholder-val="{{ false }}">
+          <div style="padding: 32px 20px; border-radius: 20px; background: var(--danger-bg); text-align: center; display: grid; gap: 8px; justify-items: center;"><span style="font-size: 32px;">⚠</span><strong style="color: var(--danger); font-size: 18px;">{{ t.errTitle }}</strong><span>{{ t.errBody }}</span><button onClick="{{ retry }}" style="height: 44px; padding: 0 18px; border-radius: 999px; border: 0; background: var(--danger); color: #fff; font-weight: 700; cursor: pointer;">{{ t.retry }}</button></div>
+        </sc-if>
+        <sc-if value="{{ ds.empty }}" hint-placeholder-val="{{ false }}">
+          <div style="padding: 40px 20px; border-radius: 20px; border: 2px dashed var(--line-strong); text-align: center; display: grid; gap: 6px;"><span style="font-size: 32px;">🗓</span><strong style="font-size: 18px;">{{ t.rtEmpty }}</strong><span style="color: var(--muted);">{{ t.rtEmptyBody }}</span></div>
+        </sc-if>
+        <sc-if value="{{ rtTable }}" hint-placeholder-val="{{ true }}">
+          <div style="border-radius: 20px; overflow: hidden; border: 1px solid var(--line); background: var(--surface);">
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead><tr style="background: var(--green-700); color: #fff; text-align: left;"><th style="padding: 12px 16px;">{{ t.date }}</th><th style="padding: 12px 16px;">{{ t.day }}</th><th style="padding: 12px 16px;">{{ t.subject }}</th><th style="padding: 12px 16px;">{{ t.time }}</th></tr></thead>
+              <tbody><sc-for list="{{ routine }}" as="r" hint-placeholder-count="8"><tr style="border-top: 1px solid var(--line); background: {{ r.zebra }};"><td style="padding: 12px 16px; font-weight: 600;">{{ r.date }}</td><td style="padding: 12px 16px; color: var(--muted);">{{ r.day }}</td><td style="padding: 12px 16px; font-weight: 600;">{{ r.subj }}</td><td style="padding: 12px 16px;">{{ r.time }}</td></tr></sc-for></tbody>
+            </table>
+          </div>
+        </sc-if>
+        <sc-if value="{{ rtCards }}" hint-placeholder-val="{{ false }}">
+          <div style="display: grid; gap: 10px;">
+            <sc-for list="{{ routine }}" as="r" hint-placeholder-count="8">
+              <div style="display: grid; grid-template-columns: 64px 1fr; gap: 14px; align-items: center; padding: 12px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line);">
+                <span style="display: grid; text-align: center; line-height: 1.45; padding: 8px 0; border-radius: 12px; background: var(--green-700); color: #fff;"><span style="font-family: var(--font-head); font-size: 22px;">{{ r.dd }}</span><span style="font-size: 12px; font-weight: 700;">{{ r.mm }}</span></span>
+                <span style="display: grid; line-height: 1.45;"><strong style="font-size: 17px;">{{ r.subj }}</strong><span style="color: var(--muted); font-size: 14px;">{{ r.day }} · {{ r.time }}</span></span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <!-- RESULTS -->
+    <sc-if value="{{ pg.results }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Results" style="max-width: 1040px; margin: 0 auto; padding: 40px 16px 0; display: grid; gap: 20px;">
+        <div style="display: grid; gap: 4px;"><h1 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: clamp(32px, 5vw, 44px); line-height: 1.25;">{{ t.resTitle }}</h1><span style="color: var(--muted);">{{ t.resSub }}</span></div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 20px; align-items: start;">
+          <div style="padding: 20px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); display: grid; gap: 12px;">
+            <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 600;">{{ t.exam }}<select value="{{ rs.exam }}" onChange="{{ onRsExam }}" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface);"><sc-for list="{{ allExamOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select></label>
+            <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 600;">{{ t.class }}<select value="{{ rs.cls }}" onChange="{{ onRsCls }}" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface);"><sc-for list="{{ classOpts }}" as="o" hint-placeholder-count="6"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select></label>
+            <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 600;">{{ t.roll }}<input value="{{ rs.roll }}" onChange="{{ onRsRoll }}" inputmode="numeric" placeholder="{{ t.rollPh }}" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface);"></label>
+            <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 600;">{{ t.dob }}<input type="date" value="{{ rs.dob }}" onChange="{{ onRsDob }}" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface);"></label>
+            <button onClick="{{ searchResult }}" style="height: 52px; border: 0; border-radius: 999px; background: var(--green-700); color: #fff; font-weight: 700; font-size: 17px; cursor: pointer;">{{ t.search }}</button>
+            <span style="font-size: 13px; color: var(--muted);">{{ t.sampleHint }}</span>
+          </div>
+          <div style="display: grid;">
+            <sc-if value="{{ rsS.idle }}" hint-placeholder-val="{{ true }}">
+              <div style="padding: 40px 20px; border-radius: 20px; border: 2px dashed var(--line-strong); text-align: center; display: grid; gap: 6px;"><span style="font-size: 32px;">🔎</span><strong style="font-size: 18px;">{{ t.idleTitle }}</strong><span style="color: var(--muted);">{{ t.idleBody }}</span></div>
+            </sc-if>
+            <sc-if value="{{ rsS.loading }}" hint-placeholder-val="{{ false }}">
+              <div style="padding: 48px 20px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); display: grid; justify-items: center; gap: 12px;"><span style="width: 36px; height: 36px; border-radius: 50%; border: 4px solid var(--green-100); border-top-color: var(--green-700); animation: arm-spin .8s linear infinite;"></span><span style="color: var(--muted);">{{ t.loadingRes }}</span></div>
+            </sc-if>
+            <sc-if value="{{ rsS.notfound }}" hint-placeholder-val="{{ false }}">
+              <div style="padding: 36px 20px; border-radius: 20px; background: var(--danger-bg); text-align: center; display: grid; gap: 6px;"><span style="font-size: 32px;">✕</span><strong style="font-size: 18px; color: var(--danger);">{{ t.nfTitle }}</strong><span>{{ t.nfBody }}</span></div>
+            </sc-if>
+            <sc-if value="{{ rsS.unpub }}" hint-placeholder-val="{{ false }}">
+              <div style="padding: 36px 20px; border-radius: 20px; background: var(--warn-bg); text-align: center; display: grid; gap: 6px;"><span style="font-size: 32px;">⏳</span><strong style="font-size: 18px; color: var(--warn);">{{ t.upTitle }}</strong><span>{{ t.upBody }}</span></div>
+            </sc-if>
+            <sc-if value="{{ rsS.found }}" hint-placeholder-val="{{ false }}">
+              <div style="border-radius: 20px; overflow: hidden; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-md); animation: arm-fade .25s ease;">
+                <div style="padding: 16px 20px; background: var(--green-700); color: #fff; display: flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap;">
+                  <strong style="font-size: 17px;">{{ res.exam }}</strong>
+                  <span style="padding: 2px 12px; border-radius: 999px; background: var(--yellow-400); color: #1a1a1a; font-weight: 700; font-size: 14px;">✓ {{ t.passed }}</span>
+                </div>
+                <div style="padding: 20px; display: grid; gap: 16px;">
+                  <div style="display: flex; gap: 14px; align-items: center;">
+                    <div style="flex: none; width: 64px; height: 64px; border-radius: 16px; overflow: hidden; background: var(--surface-2);"><image-slot id="student-photo" shape="rounded" radius="16" placeholder="ছবি"></image-slot></div>
+                    <span style="display: grid; line-height: 1.45;"><strong style="font-size: 19px;">{{ res.name }}</strong><span style="color: var(--muted); font-size: 14px;">{{ res.meta }}</span></span>
+                  </div>
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 10px;">
+                    <div style="padding: 12px; border-radius: 14px; background: var(--green-50); display: grid;"><span style="font-size: 13px; font-weight: 600; color: var(--muted);">{{ t.gpa }}</span><span style="font-family: var(--font-head); font-size: 28px; color: var(--green-700); line-height: 1.3;">{{ res.gpa }}</span></div>
+                    <div style="padding: 12px; border-radius: 14px; background: var(--navy-50); display: grid;"><span style="font-size: 13px; font-weight: 600; color: var(--muted);">{{ t.grade }}</span><span style="font-family: Poppins, sans-serif; font-weight: 700; font-size: 26px; color: var(--navy-800); line-height: 1.35;">{{ res.grade }}</span></div>
+                    <div style="padding: 12px; border-radius: 14px; background: var(--yellow-50); display: grid;"><span style="font-size: 13px; font-weight: 600; color: var(--muted);">{{ t.position }}</span><span style="font-family: var(--font-head); font-size: 28px; line-height: 1.3;">{{ res.pos }}</span></div>
+                    <div style="padding: 12px; border-radius: 14px; background: var(--surface-2); display: grid;"><span style="font-size: 13px; font-weight: 600; color: var(--muted);">{{ t.totalMarks }}</span><span style="font-family: var(--font-head); font-size: 24px; line-height: 1.4;">{{ res.total }}</span></div>
+                  </div>
+                  <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                    <a href="Print Documents.dc.html#marksheet" style="height: 44px; padding: 0 18px; border-radius: 999px; background: var(--green-700); color: #fff; font-weight: 700; display: flex; align-items: center; text-decoration: none;">{{ t.viewMs }}</a>
+                    <button onClick="{{ fakeDl }}" style="height: 44px; padding: 0 18px; border-radius: 999px; border: 2px solid var(--navy-800); background: transparent; color: var(--navy-800); font-weight: 700; cursor: pointer;">⬇ {{ t.dlMs }}</button>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- GALLERY -->
+    <sc-if value="{{ pg.gallery }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Gallery" style="max-width: 1240px; margin: 0 auto; padding: 40px 16px 0; display: grid; gap: 20px;">
+        <h1 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: clamp(32px, 5vw, 44px); line-height: 1.25;">{{ t.albumsTitle }}</h1>
+        <sc-if value="{{ ds.loading }}" hint-placeholder-val="{{ false }}">
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 16px;"><sc-for list="{{ skeleton }}" as="k" hint-placeholder-count="4"><div style="aspect-ratio: 4 / 3; border-radius: 20px; background: linear-gradient(90deg, var(--surface-2) 0, var(--line) 50%, var(--surface-2) 100%); background-size: 800px 100%; animation: arm-shimmer 1.2s linear infinite;"></div></sc-for></div>
+        </sc-if>
+        <sc-if value="{{ ds.error }}" hint-placeholder-val="{{ false }}">
+          <div style="padding: 32px 20px; border-radius: 20px; background: var(--danger-bg); text-align: center; display: grid; gap: 8px; justify-items: center;"><span style="font-size: 32px;">⚠</span><strong style="color: var(--danger); font-size: 18px;">{{ t.errTitle }}</strong><span>{{ t.errBody }}</span><button onClick="{{ retry }}" style="height: 44px; padding: 0 18px; border-radius: 999px; border: 0; background: var(--danger); color: #fff; font-weight: 700; cursor: pointer;">{{ t.retry }}</button></div>
+        </sc-if>
+        <sc-if value="{{ ds.empty }}" hint-placeholder-val="{{ false }}">
+          <div style="padding: 40px 20px; border-radius: 20px; border: 2px dashed var(--line-strong); text-align: center; display: grid; gap: 6px;"><span style="font-size: 32px;">🖼</span><strong style="font-size: 18px;">{{ t.galEmpty }}</strong></div>
+        </sc-if>
+        <sc-if value="{{ ds.ready }}" hint-placeholder-val="{{ true }}">
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 16px;">
+            <sc-for list="{{ albums }}" as="a" hint-placeholder-count="6">
+              <div style="border-radius: 20px; overflow: hidden; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm);">
+                <div style="aspect-ratio: 4 / 3; background: var(--surface-2);"><image-slot id="{{ a.cover }}" shape="rect" placeholder="{{ t.coverPh }}" src="{{ a.src }}" credit="{{ a.credit }}" credit-href="{{ a.href }}"></image-slot></div>
+                <button onClick="{{ a.open }}" style="width: 100%; text-align: left; padding: 14px 16px; border: 0; background: transparent; cursor: pointer; display: grid; gap: 2px;"><strong style="font-size: 17px; color: var(--ink);">{{ a.title }}</strong><span style="font-size: 14px; color: var(--muted);">{{ a.meta }} →</span></button>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ pg.album }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Album" style="max-width: 1240px; margin: 0 auto; padding: 32px 16px 0; display: grid; gap: 18px;">
+        <button onClick="{{ goGallery }}" style="justify-self: start; height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; cursor: pointer;">← {{ t.backAlbums }}</button>
+        <div style="display: grid; gap: 2px;"><h1 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: clamp(28px, 4vw, 38px); line-height: 1.3;">{{ album.title }}</h1><span style="color: var(--muted);">{{ album.meta }}</span></div>
+        <div style="column-width: 220px; column-gap: 12px;">
+          <sc-for list="{{ albumPhotos }}" as="p" hint-placeholder-count="9">
+            <div style="position: relative; break-inside: avoid; margin-bottom: 12px; height: {{ p.h }}px; border-radius: 16px; overflow: hidden; background: var(--surface-2);">
+              <image-slot id="{{ p.id }}" shape="rounded" radius="16" placeholder="{{ t.photoPh }}" src="{{ p.src }}" credit="{{ p.credit }}" credit-href="{{ p.href }}"></image-slot>
+              <button onClick="{{ p.open }}" aria-label="{{ t.open }}" style="position: absolute; top: 8px; right: 8px; width: 40px; height: 40px; border-radius: 12px; border: 0; background: rgba(0,0,0,.55); color: #fff; font-size: 18px; cursor: pointer;">⤢</button>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- CONTACT (page + shared strip) -->
+    <sc-if value="{{ showContact }}" hint-placeholder-val="{{ true }}">
+      <div data-screen-label="Contact" style="max-width: 1240px; margin: 0 auto; padding: 64px 16px 0;">
+        <section style="border-radius: 24px; overflow: hidden; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-md); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));">
+          <div style="padding: clamp(20px, 3vw, 32px); display: grid; gap: 16px; align-content: start;">
+            <h2 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: clamp(26px, 3.5vw, 34px); line-height: 1.3;">{{ t.contactTitle }}</h2>
+            <div style="display: grid; gap: 2px;"><span style="font-size: 14px; font-weight: 700; color: var(--muted);">{{ t.addressL }}</span><span style="font-size: 17px;">{{ inst.address }}</span></div>
+            <div style="display: grid; gap: 8px;">
+              <span style="font-size: 14px; font-weight: 700; color: var(--muted);">{{ t.phoneL }}</span>
+              <sc-for list="{{ phones }}" as="p" hint-placeholder-count="2">
+                <a href="{{ p.href }}" style="display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 16px; border-radius: 14px; background: var(--green-50); color: var(--green-700); font-weight: 700; font-size: 18px; text-decoration: none;"><span style="width: 32px; height: 32px; border-radius: 50%; background: var(--green-700); color: #fff; display: grid; place-items: center; font-size: 15px;">☎</span>{{ p.label }}</a>
+              </sc-for>
+            </div>
+            <span style="color: var(--muted); font-size: 15px;">{{ t.officeHours }}</span>
+          </div>
+          <iframe src="{{ inst.map }}" title="Map" loading="lazy" style="width: 100%; min-height: 320px; height: 100%; border: 0; background: var(--surface-2);"></iframe>
+        </section>
+      </div>
+    </sc-if>
+  </main>
+
+  <footer style="margin-top: 64px; background: var(--green-900); color: #E6F2EA;">
+    <div style="max-width: 1240px; margin: 0 auto; padding: 40px 16px 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 28px;">
+      <div style="display: grid; gap: 10px; align-content: start;">
+        <img src="assets/logo.jpeg" alt="" style="width: 72px; height: 72px; border-radius: 50%; background: #fff;">
+        <strong style="font-family: var(--font-head); font-size: 18px; color: #fff;">{{ inst.name }}</strong>
+        <span style="font-size: 15px;">{{ inst.address }}</span>
+      </div>
+      <div style="display: grid; gap: 6px; align-content: start;">
+        <strong style="color: var(--yellow-400);">{{ t.quickLinks }}</strong>
+        <sc-for list="{{ footNav }}" as="n" hint-placeholder-count="5"><a href="#{{ n.id }}" onClick="{{ n.go }}" style="color: #E6F2EA; text-decoration: none; padding: 4px 0;">{{ n.label }}</a></sc-for>
+      </div>
+      <div style="display: grid; gap: 6px; align-content: start;">
+        <strong style="color: var(--yellow-400);">{{ t.portals }}</strong>
+        <a href="Student Portal.dc.html" style="color: #E6F2EA; text-decoration: none; padding: 4px 0;">{{ t.studentPortal }}</a>
+        <a href="Teacher Panel.dc.html" style="color: #E6F2EA; text-decoration: none; padding: 4px 0;">শিক্ষক প্যানেল</a>
+        <a href="Admin Panel.dc.html" style="color: #E6F2EA; text-decoration: none; padding: 4px 0;">{{ t.adminPanel }}</a>
+        <a href="Design Tokens.dc.html" style="color: #E6F2EA; text-decoration: none; padding: 4px 0;">Design system</a>
+      </div>
+      <div style="display: grid; gap: 8px; align-content: start;">
+        <strong style="color: var(--yellow-400);">{{ t.phoneL }}</strong>
+        <sc-for list="{{ phones }}" as="p" hint-placeholder-count="2"><a href="{{ p.href }}" style="color: #fff; font-weight: 600;">☎ {{ p.label }}</a></sc-for>
+        <div style="display: flex; gap: 8px; margin-top: 6px;">
+          <a href="#" aria-label="Facebook" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,.1); color: #fff; display: grid; place-items: center; text-decoration: none; font-weight: 700; font-family: Poppins;">f</a>
+          <a href="#" aria-label="YouTube" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,.1); color: #fff; display: grid; place-items: center; text-decoration: none;">▶</a>
+          <a href="#" aria-label="WhatsApp" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,.1); color: #fff; display: grid; place-items: center; text-decoration: none;">✆</a>
+        </div>
+      </div>
+    </div>
+    <div style="border-top: 1px solid rgba(255,255,255,.12); padding: 16px; text-align: center; font-size: 14px;">{{ t.copyright }}</div>
+  </footer>
+
+  <sc-if value="{{ lb.open }}" hint-placeholder-val="{{ false }}">
+    <div style="position: fixed; inset: 0; z-index: 70; background: rgba(5,12,8,.92); display: grid; grid-template-rows: auto 1fr auto; padding: 12px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; color: #fff; padding: 4px;"><span style="font-weight: 600;">{{ lb.label }}</span><button onClick="{{ lbClose }}" aria-label="Close" style="width: 44px; height: 44px; border-radius: 12px; border: 1px solid rgba(255,255,255,.35); background: transparent; color: #fff; font-size: 20px; cursor: pointer;">✕</button></div>
+      <div style="display: grid; place-items: center; min-height: 0; padding: 12px 0;"><div style="width: min(100%, 900px); aspect-ratio: 4 / 3; max-height: 100%; border-radius: 16px; overflow: hidden; background: #1b241f;"><image-slot id="{{ lb.id }}" shape="rounded" radius="16" fit="contain" placeholder="{{ t.photoPh }}" src="{{ lb.src }}" credit="{{ lb.credit }}" credit-href="{{ lb.href }}"></image-slot></div></div>
+      <div style="display: flex; justify-content: center; gap: 12px;"><button onClick="{{ lbPrev }}" style="height: 48px; padding: 0 22px; border-radius: 999px; border: 0; background: #fff; color: #0B6B3A; font-weight: 700; cursor: pointer;">← {{ t.prev }}</button><button onClick="{{ lbNext }}" style="height: 48px; padding: 0 22px; border-radius: 999px; border: 0; background: #fff; color: #0B6B3A; font-weight: 700; cursor: pointer;">{{ t.next }} →</button></div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ toastOn }}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 80; padding: 12px 20px; border-radius: 999px; background: var(--ink); color: var(--bg); font-weight: 600; box-shadow: var(--shadow-lg); animation: arm-fade .2s ease;">{{ toast }}</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;dataState&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;ready&quot;, &quot;loading&quot;, &quot;empty&quot;, &quot;error&quot;], &quot;default&quot;: &quot;ready&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;States&quot;}, &quot;showBanner&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Homepage&quot;}}">
+const S = {
+  bn: {
+    newTag: 'নতুন', admitPill: 'ভর্তি চলছে', login: 'লগইন',
+    tag0: 'শিশুর মেধা বিকাশে আমাদের প্রতিশ্রুতি…', tag1: 'ছোট থেকেই মেধার ভিত্তি গড়ি', tag2: 'আপনারা সবাই সাদর আমন্ত্রিত!',
+    heroBody: 'হিফজুল কুরআন, সাধারণ শিক্ষা ও ক্যাডেট শৃঙ্খলা — এক ছাদের নিচে।', ctaApply: 'ভর্তির আবেদন', ctaCall: 'কল করুন',
+    badgeEst: 'স্থাপিত ২০২৪', badgeHifz: 'হিফজ + সাধারণ শিক্ষা', badgeCadet: 'ক্যাডেট শৃঙ্খলা',
+    bannerYear: '২০২৬–২৭ শিক্ষাবর্ষ', bannerTitle: 'ভর্তি চলছে!', bannerFree: 'নভেম্বরের ১ তারিখে ফ্রি ক্লাস!', bannerStartL: 'ভর্তি শুরু', bannerStart: '২১ অক্টোবর ২০২৬', bannerClassL: 'ক্লাস শুরু', bannerClass: '১ নভেম্বর ২০২৬', applyOnline: 'অনলাইনে আবেদন করুন',
+    heroAbacusTag: 'নতুন · বিশেষ প্রোগ্রাম', heroAbacusSub: 'মেধা, মনোযোগ ও দ্রুত গণনার দক্ষতা বাড়ায়', progKicker: 'বিশেষ প্রোগ্রাম', progTitle: 'অ্যাবাকাস ও ব্রেইন জিম প্রোগ্রাম',
+    phonTitle: 'ইংলিশ ফোনেটিকস প্রোগ্রাম', phonSub: 'শব্দের ধ্বনি চিনে সঠিক উচ্চারণে ইংরেজি পড়া ও বলা — কিডস বিভাগ থেকেই।',
+    phonBenefits: ['সঠিক ইংরেজি উচ্চারণ', 'দ্রুত ও সাবলীল রিডিং', 'বানান ও শব্দভাণ্ডার বৃদ্ধি', 'আত্মবিশ্বাসী স্পোকেন ইংলিশ'],
+    benefits: ['মেধাশক্তি বৃদ্ধি', 'মনোযোগ ও একাগ্রতা বৃদ্ধি', 'দ্রুত গণনা ও সমস্যা সমাধানের দক্ষতা', 'আত্মবিশ্বাস ও সফলতালাভ বৃদ্ধি'],
+    divKicker: 'বয়সভিত্তিক বিভাগ', divTitle: 'আপনার সন্তানের জন্য সঠিক বিভাগ', yrs: 'বছর',
+    divisions: [['কিডস বিভাগ', '৫–১১', 'কুরআন তিলাওয়াত, বাংলা-আরবির ভিত্তি, অ্যাবাকাস ও ইংলিশ ফোনেটিকস।'], ['জুনিয়র বিভাগ', '১২–১৫', 'হিফজ ও সাধারণ শিক্ষার সমন্বয়, ক্যাডেট শৃঙ্খলা ও নেতৃত্ব।']],
+    whyKicker: 'কেন আমরা', whyTitle: 'দ্বীনি ও আধুনিক শিক্ষার সমন্বয়',
+    why: [['হিফজুল কুরআন', 'অভিজ্ঞ হাফেজ শিক্ষকের তত্ত্বাবধানে তাজবিদসহ হিফজ।'], ['সাধারণ শিক্ষা', 'জাতীয় শিক্ষাক্রম অনুযায়ী বাংলা, গণিত, বিজ্ঞান।'], ['ক্যাডেট শৃঙ্খলা', 'নিয়মিত পিটি, প্যারেড ও সময়ানুবর্তিতা।'], ['ইংরেজি ফোনেটিকস ও আরবি', 'ধ্বনিভিত্তিক ইংরেজি ও আরবিতে কথা বলা ও লেখা।'], ['অ্যাবাকাস', 'দ্রুত গণনা ও মনোযোগ বৃদ্ধির বিশেষ ক্লাস।'], ['নিরাপদ পরিবেশ', 'সিসিটিভি, স্বাস্থ্যকর খাবার ও আবাসিক সুবিধা।']],
+    prinKicker: 'অধ্যক্ষের বাণী', prinQuote: 'প্রতিটি শিশু আল্লাহর দেওয়া আমানত। কুরআনের আলো ও আধুনিক জ্ঞানের সমন্বয়ে আমরা তাদের আদর্শ মানুষ হিসেবে গড়ে তুলতে চাই।', prinName: 'অধ্যক্ষের নাম', prinRole: 'অধ্যক্ষ, আর রহমান ইন্টারন্যাশনাল ক্যাডেট মাদরাসা',
+    noticeKicker: 'নোটিশ বোর্ড', noticeTitle: 'সর্বশেষ নোটিশ', allNotices: 'সব নোটিশ', pinned: 'পিন করা',
+    stats: [['৩৫০+', 'শিক্ষার্থী'], ['২৪', 'শিক্ষক'], ['১১', 'শ্রেণি ও বিভাগ'], ['২', 'বছরের পথচলা']],
+    galKicker: 'গ্যালারি', galTitle: 'মাদরাসার দিনলিপি', allAlbums: 'সব অ্যালবাম', photoPh: 'ছবি যোগ করুন', coverPh: 'কভার ছবি',
+    resKicker: 'ফলাফল', qrTitle: 'দ্রুত ফলাফল খুঁজুন', sampleHint: 'নমুনা: অর্ধবার্ষিক পরীক্ষা, রোল ১২', exam: 'পরীক্ষা', class: 'শ্রেণি', roll: 'রোল / আইডি', rollPh: 'যেমন: ১২', dob: 'জন্ম তারিখ', search: 'ফলাফল দেখুন',
+    resTitle: 'ফলাফল', resSub: 'পরীক্ষা, শ্রেণি, রোল/আইডি ও জন্ম তারিখ দিয়ে ফলাফল দেখুন।',
+    idleTitle: 'তথ্য দিয়ে খুঁজুন', idleBody: 'বাম পাশের ফর্ম পূরণ করে “ফলাফল দেখুন” চাপুন।', loadingRes: 'ফলাফল খোঁজা হচ্ছে…',
+    nfTitle: 'ফলাফল পাওয়া যায়নি', nfBody: 'রোল/আইডি ও জন্ম তারিখ মিলিয়ে আবার চেষ্টা করুন।', upTitle: 'ফলাফল এখনো প্রকাশিত হয়নি', upBody: 'এই পরীক্ষার ফলাফল প্রকাশের পর এখানে দেখা যাবে। নোটিশ বোর্ডে চোখ রাখুন।',
+    gpa: 'জিপিএ', grade: 'গ্রেড', position: 'মেধাস্থান', totalMarks: 'মোট নম্বর', passed: 'উত্তীর্ণ', viewMs: 'মার্কশিট দেখুন', dlMs: 'ডাউনলোড',
+    contactTitle: 'যোগাযোগ করুন', addressL: 'ঠিকানা', phoneL: 'ফোন', officeHours: 'অফিস সময়: শনি–বৃহস্পতি, সকাল ৮টা – বিকাল ৪টা',
+    quickLinks: 'দ্রুত লিংক', portals: 'পোর্টাল', studentPortal: 'শিক্ষার্থী পোর্টাল', adminPanel: 'অ্যাডমিন প্যানেল', copyright: '© ২০২৬ আর রহমান ইন্টারন্যাশনাল ক্যাডেট মাদরাসা। সর্বস্বত্ব সংরক্ষিত।',
+    npTitle: 'নোটিশ বোর্ড', searchPh: 'নোটিশ খুঁজুন…', nEmpty: 'কোনো নোটিশ পাওয়া যায়নি', nEmptyBody: 'অন্য শব্দ বা ক্যাটাগরি দিয়ে খুঁজে দেখুন।', back: 'ফিরে যান', published: 'প্রকাশ', attachment: 'সংযুক্ত ফাইল', download: 'ডাউনলোড', office: 'অধ্যক্ষ, আর রহমান ইন্টারন্যাশনাল ক্যাডেট মাদরাসা',
+    errTitle: 'তথ্য লোড করা যায়নি', errBody: 'ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।', retry: 'আবার চেষ্টা করুন',
+    rtTitle: 'পরীক্ষার রুটিন', rtSub: 'পরীক্ষা ও শ্রেণি বাছাই করুন', date: 'তারিখ', day: 'বার', subject: 'বিষয়', time: 'সময়', dlPdf: 'PDF ডাউনলোড', rtEmpty: 'এই শ্রেণির রুটিন এখনো তৈরি হয়নি', rtEmptyBody: 'রুটিন প্রকাশ হলে নোটিশে জানানো হবে।',
+    albumsTitle: 'ফটো গ্যালারি', photos: 'টি ছবি', backAlbums: 'সব অ্যালবাম', open: 'বড় করে দেখুন', prev: 'আগের', next: 'পরের', galEmpty: 'এখনো কোনো অ্যালবাম নেই',
+    adTitle: 'ভর্তি তথ্য ২০২৬–২৭', adIntro: 'প্লে থেকে ৮ম শ্রেণি এবং হিফজ বিভাগে ভর্তি চলছে। ভর্তি শুরু ২১ অক্টোবর ২০২৬, ক্লাস শুরু ১ নভেম্বর ২০২৬।',
+    docsTitle: 'প্রয়োজনীয় কাগজপত্র', docs: ['জন্ম নিবন্ধনের সত্যায়িত কপি', 'শিক্ষার্থীর ৪ কপি পাসপোর্ট সাইজ ছবি', 'পিতা-মাতার জাতীয় পরিচয়পত্রের কপি', 'পূর্ববর্তী প্রতিষ্ঠানের ছাড়পত্র (প্রযোজ্য ক্ষেত্রে)', 'টিকা কার্ডের কপি'],
+    feesTitle: 'ফি কাঠামো', feeItem: 'খাত', kids: 'কিডস', junior: 'জুনিয়র', feeRows: ['ভর্তি ফি', 'মাসিক বেতন', 'সেশন ফি (বার্ষিক)', 'আবাসিক (মাসিক, ঐচ্ছিক)'],
+    inqTitle: 'অনলাইন ভর্তি অনুসন্ধান', fStudent: 'শিক্ষার্থীর নাম', fGuardian: 'অভিভাবকের নাম', fPhone: 'মোবাইল নম্বর', fClass: 'কাঙ্ক্ষিত শ্রেণি', fMsg: 'বার্তা', submit: 'পাঠান', sending: 'পাঠানো হচ্ছে…',
+    reqErr: 'এই ঘরটি পূরণ করুন', phoneErr: 'সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন', inqOkTitle: 'আপনার অনুসন্ধান পাঠানো হয়েছে', inqOkBody: 'আমরা ২৪ ঘণ্টার মধ্যে আপনাকে ফোন করব।', inqAgain: 'আরেকটি পাঠান',
+    aboutKicker: 'আমাদের সম্পর্কে', aboutBody: '২০২৪ সালে গাইবান্ধার লেংগা বাজারে প্রতিষ্ঠিত আর রহমান ইন্টারন্যাশনাল ক্যাডেট মাদরাসা কুরআনি শিক্ষা, সাধারণ শিক্ষা ও ক্যাডেট শৃঙ্খলার সমন্বয়ে শিশুদের মেধা ও চরিত্র গঠনে কাজ করছে।',
+    values: [['আমাদের লক্ষ্য', 'কুরআন ও সুন্নাহর আলোকে আধুনিক শিক্ষায় শিক্ষিত, শৃঙ্খলাবদ্ধ প্রজন্ম গড়া।'], ['আমাদের পদ্ধতি', 'ছোট ক্লাস, ব্যক্তিগত মনোযোগ, নিয়মিত মূল্যায়ন ও অভিভাবক যোগাযোগ।'], ['আমাদের পরিবেশ', 'নিরাপদ, পরিচ্ছন্ন ও শিশুবান্ধব ক্যাম্পাস।']],
+    acTitle: 'শিক্ষা কার্যক্রম', programs: [['📖', 'হিফজুল কুরআন', 'নাজেরা থেকে পূর্ণ হিফজ, তাজবিদ ও মাখরাজ।'], ['🏫', 'সাধারণ শিক্ষা', 'প্লে থেকে ৮ম শ্রেণি, জাতীয় শিক্ষাক্রম অনুসারে।'], ['🧮', 'অ্যাবাকাস', 'সপ্তাহে ৩ দিন বিশেষ প্রশিক্ষণ।'], ['🔤', 'ইংলিশ ফোনেটিকস', 'ধ্বনিভিত্তিক পদ্ধতিতে ইংরেজি পড়া ও উচ্চারণ।'], ['🎖', 'ক্যাডেট প্রশিক্ষণ', 'পিটি, প্যারেড, নেতৃত্ব ও আত্মরক্ষা।']],
+    schedTitle: 'দৈনিক সময়সূচি', schedule: [['ভোর ৫:০০', 'ফজর ও কুরআন তিলাওয়াত'], ['সকাল ৬:৩০', 'পিটি ও প্যারেড'], ['সকাল ৮:০০', 'সাধারণ শিক্ষার ক্লাস'], ['দুপুর ১:০০', 'যোহর, খাবার ও বিশ্রাম'], ['বিকাল ৩:০০', 'হিফজ / অ্যাবাকাস / ফোনেটিকস'], ['সন্ধ্যা ৬:৩০', 'তত্ত্বাবধানে পড়া']],
+    dlToast: 'PDF ডাউনলোড শুরু হয়েছে', light: 'লাইট', dark: 'ডার্ক',
+  },
+  en: {
+    newTag: 'NEW', admitPill: 'Admission Open', login: 'Login',
+    tag0: 'Our commitment to nurturing every child’s talent…', tag1: 'Building the foundation of talent from an early age', tag2: 'You are all warmly invited!',
+    heroBody: 'Hifz-ul-Quran, general education and cadet discipline — under one roof.', ctaApply: 'Apply for admission', ctaCall: 'Call us',
+    badgeEst: 'Est. 2024', badgeHifz: 'Hifz + General', badgeCadet: 'Cadet discipline',
+    bannerYear: 'Session 2026–27', bannerTitle: 'Admission Open!', bannerFree: 'Free class on 1 November!', bannerStartL: 'Admission starts', bannerStart: '21 October 2026', bannerClassL: 'Classes begin', bannerClass: '1 November 2026', applyOnline: 'Apply online',
+    heroAbacusTag: 'New · Featured program', heroAbacusSub: 'Builds brain power, focus and fast calculation', progKicker: 'Featured program', progTitle: 'Abacus & Brain Gym Program',
+    phonTitle: 'English Phonetics Program', phonSub: 'Recognising letter sounds to read and speak English with correct pronunciation — from the Kids division.',
+    phonBenefits: ['Correct English pronunciation', 'Fast, fluent reading', 'Better spelling and vocabulary', 'Confident spoken English'],
+    benefits: ['Boosts brain power', 'Improves focus and concentration', 'Fast calculation and problem-solving', 'Builds confidence and success'],
+    divKicker: 'Age-based divisions', divTitle: 'The right division for your child', yrs: 'years',
+    divisions: [['Kids Division', '5–11', 'Quran recitation, Bangla–Arabic foundations, abacus and English phonetics.'], ['Junior Division', '12–15', 'Hifz with general education, cadet discipline and leadership.']],
+    whyKicker: 'Why choose us', whyTitle: 'Islamic and modern education, together',
+    why: [['Hifz-ul-Quran', 'Memorisation with tajweed under experienced huffaz.'], ['General education', 'Bangla, maths and science per the national curriculum.'], ['Cadet discipline', 'Daily PT, parade and punctuality.'], ['English phonetics & Arabic', 'Phonics-based English plus Arabic speaking and writing.'], ['Abacus', 'Special classes for fast calculation and focus.'], ['Safe campus', 'CCTV, healthy meals and residential facilities.']],
+    prinKicker: 'Principal’s message', prinQuote: 'Every child is a trust from Allah. With the light of the Quran and modern knowledge, we aim to raise them as people of good character.', prinName: 'Principal’s name', prinRole: 'Principal, AR Rahman International Cadet Madrasa',
+    noticeKicker: 'Notice board', noticeTitle: 'Latest notices', allNotices: 'All notices', pinned: 'Pinned',
+    stats: [['350+', 'Students'], ['24', 'Teachers'], ['11', 'Classes & divisions'], ['2', 'Years of service']],
+    galKicker: 'Gallery', galTitle: 'Life at the madrasa', allAlbums: 'All albums', photoPh: 'Add photo', coverPh: 'Cover photo',
+    resKicker: 'Results', qrTitle: 'Quick result search', sampleHint: 'Sample: Half-Yearly Exam, roll 12', exam: 'Exam', class: 'Class', roll: 'Roll / ID', rollPh: 'e.g. 12', dob: 'Date of birth', search: 'View result',
+    resTitle: 'Results', resSub: 'Find a result with exam, class, roll/ID and date of birth.',
+    idleTitle: 'Search with your details', idleBody: 'Fill in the form and press “View result”.', loadingRes: 'Searching for result…',
+    nfTitle: 'Result not found', nfBody: 'Check the roll/ID and date of birth and try again.', upTitle: 'Result not yet published', upBody: 'Results for this exam will appear here once published. Watch the notice board.',
+    gpa: 'GPA', grade: 'Grade', position: 'Position', totalMarks: 'Total marks', passed: 'Passed', viewMs: 'View marksheet', dlMs: 'Download',
+    contactTitle: 'Get in touch', addressL: 'Address', phoneL: 'Phone', officeHours: 'Office hours: Sat–Thu, 8 AM – 4 PM',
+    quickLinks: 'Quick links', portals: 'Portals', studentPortal: 'Student portal', adminPanel: 'Admin panel', copyright: '© 2026 AR Rahman International Cadet Madrasa. All rights reserved.',
+    npTitle: 'Notice board', searchPh: 'Search notices…', nEmpty: 'No notices found', nEmptyBody: 'Try another word or category.', back: 'Back', published: 'Published', attachment: 'Attachment', download: 'Download', office: 'Principal, AR Rahman International Cadet Madrasa',
+    errTitle: 'Couldn’t load data', errBody: 'Check your internet connection and try again.', retry: 'Try again',
+    rtTitle: 'Exam routine', rtSub: 'Choose an exam and class', date: 'Date', day: 'Day', subject: 'Subject', time: 'Time', dlPdf: 'Download PDF', rtEmpty: 'Routine not prepared for this class yet', rtEmptyBody: 'We will announce it on the notice board.',
+    albumsTitle: 'Photo gallery', photos: 'photos', backAlbums: 'All albums', open: 'View larger', prev: 'Previous', next: 'Next', galEmpty: 'No albums yet',
+    adTitle: 'Admission 2026–27', adIntro: 'Admission is open for Play to Class 8 and the Hifz division. Admission starts 21 October 2026; classes begin 1 November 2026.',
+    docsTitle: 'Required documents', docs: ['Attested copy of birth registration', '4 passport-size photos of the student', 'Copies of parents’ national ID cards', 'Transfer certificate from previous school (if any)', 'Copy of vaccination card'],
+    feesTitle: 'Fee structure', feeItem: 'Item', kids: 'Kids', junior: 'Junior', feeRows: ['Admission fee', 'Monthly tuition', 'Session fee (yearly)', 'Residential (monthly, optional)'],
+    inqTitle: 'Online admission inquiry', fStudent: 'Student name', fGuardian: 'Guardian name', fPhone: 'Mobile number', fClass: 'Desired class', fMsg: 'Message', submit: 'Send', sending: 'Sending…',
+    reqErr: 'This field is required', phoneErr: 'Enter a valid 11-digit mobile number', inqOkTitle: 'Your inquiry has been sent', inqOkBody: 'We will call you within 24 hours.', inqAgain: 'Send another',
+    aboutKicker: 'About us', aboutBody: 'Founded in 2024 at Lengga Bazar, Gaibandha, AR Rahman International Cadet Madrasa combines Quranic education, general education and cadet discipline to build children’s talent and character.',
+    values: [['Our aim', 'Raise a disciplined generation educated in modern subjects in the light of the Quran and Sunnah.'], ['Our method', 'Small classes, personal attention, regular assessment and guardian contact.'], ['Our environment', 'A safe, clean and child-friendly campus.']],
+    acTitle: 'Academics', programs: [['📖', 'Hifz-ul-Quran', 'From Nazera to full Hifz, with tajweed and makhraj.'], ['🏫', 'General education', 'Play to Class 8, following the national curriculum.'], ['🧮', 'Abacus', 'Special training three days a week.'], ['🔤', 'English phonetics', 'Sound-based method for reading and pronunciation.'], ['🎖', 'Cadet training', 'PT, parade, leadership and self-defence.']],
+    schedTitle: 'Daily schedule', schedule: [['5:00 AM', 'Fajr and Quran recitation'], ['6:30 AM', 'PT and parade'], ['8:00 AM', 'General education classes'], ['1:00 PM', 'Zuhr, lunch and rest'], ['3:00 PM', 'Hifz / Abacus / Phonetics'], ['6:30 PM', 'Supervised study']],
+    dlToast: 'PDF download started', light: 'Light', dark: 'Dark',
+  },
+};
+const PAGES = ['home', 'about', 'academics', 'admission', 'notices', 'notice', 'routine', 'results', 'gallery', 'album', 'contact'];
+
+class Component extends DCLogic {
+  state = { ok: !!window.MD, lang: 'bn', theme: 'light', route: 'home', drawer: false, w: 1280, q: '', cat: 'all', noticeId: 'n1', rtExam: 'annual26', rtClass: 'c5',
+    rs: { exam: 'half26', cls: 'c5', roll: '', dob: '2015-03-14' }, rsState: 'idle', albumId: 'a1', lb: null, inq: { name: '', guardian: '', phone: '', cls: 'c1', msg: '' }, inqErr: {}, inqState: 'idle', toast: '', retried: false };
+
+  componentDidMount() {
+    this.onR = () => this.setState({ w: window.innerWidth });
+    window.addEventListener('resize', this.onR); this.onR();
+    const boot = () => {
+      if (!window.MD) return setTimeout(boot, 40);
+      const h = (location.hash || '').slice(1);
+      this.setState({ ok: true, lang: MD.getLang(), theme: MD.getTheme(), route: PAGES.includes(h) ? h : 'home' });
+    };
+    boot();
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this.onR); clearTimeout(this.tt); }
+
+  go(route, extra = {}) {
+    this.setState({ route, drawer: false, lb: null, ...extra });
+    try { history.replaceState(null, '', '#' + route); } catch (e) {}
+    window.scrollTo({ top: 0 });
+  }
+  flash(m) { this.setState({ toast: m }); clearTimeout(this.tt); this.tt = setTimeout(() => this.setState({ toast: '' }), 2400); }
+  runSearch() {
+    this.setState({ rsState: 'loading' });
+    setTimeout(() => {
+      const { exam, roll } = this.state.rs; const ex = MD.exams.find(e => e.id === exam);
+      const r = String(roll).replace(/[০-৯]/g, d => '০১২৩৪৫৬৭৮৯'.indexOf(d)).trim();
+      this.setState({ rsState: !ex.published ? 'unpub' : (r === '12' || r === '20240101') ? 'found' : 'notfound' });
+    }, 800);
+  }
+  submitInq() {
+    const { inq } = this.state; const s = S[this.state.lang]; const e = {};
+    if (!inq.name.trim()) e.name = s.reqErr;
+    const ph = inq.phone.replace(/[০-৯]/g, d => '০১২৩৪৫৬৭৮৯'.indexOf(d)).replace(/\D/g, '');
+    if (!/^01\d{9}$/.test(ph)) e.phone = s.phoneErr;
+    this.setState({ inqErr: e });
+    if (Object.keys(e).length) return;
+    this.setState({ inqState: 'sending' });
+    setTimeout(() => this.setState({ inqState: 'done' }), 900);
+  }
+
+  renderVals() {
+    if (!window.MD) return { t: {}, pg: {}, ds: {}, rsS: {}, lb: {} };
+    const st = this.state, lang = st.lang, s = S[lang], n = v => MD.num(v, lang), T = o => MD.t(o, lang);
+    const wide = st.w >= 1024, mobile = st.w < 768;
+    const dataState = this.props.dataState ?? 'ready';
+    const ds = { ready: dataState === 'ready', loading: dataState === 'loading', empty: dataState === 'empty', error: dataState === 'error' };
+    const pg = Object.fromEntries(PAGES.map(p => [p, st.route === p]));
+    const setI = k => e => this.setState({ inq: { ...this.state.inq, [k]: e.target.value } });
+    const setR = k => e => this.setState({ rs: { ...this.state.rs, [k]: e.target.value } });
+    const catL = id => T(MD.noticeCats.find(c => c.id === id));
+    const mapNotice = x => { const dm = MD.dayM(x.date, lang); return { ...x, title: T(x.title), cat: catL(x.cat), d: dm.d, m: dm.m, bg: x.pinned ? 'var(--yellow-50)' : 'var(--surface)', bd: x.pinned ? 'var(--yellow-400)' : 'var(--line)', open: e => { e.preventDefault(); this.go('notice', { noticeId: x.id }); } }; };
+
+    const tickerItems = MD.notices.filter(x => x.ticker).map(x => T(x.title));
+    const tickerRow = [...tickerItems, ...tickerItems].map((x, i) => React.createElement('span', { key: i, style: { padding: '0 28px', whiteSpace: 'nowrap' } }, '◆  ' + x));
+    const ticker = React.createElement('div', { style: { display: 'flex', width: 'max-content', animation: 'arm-tick 38s linear infinite' } }, tickerRow);
+
+    const q = st.q.trim().toLowerCase();
+    let list = MD.notices.filter(x => (st.cat === 'all' || x.cat === st.cat) && (!q || T(x.title).toLowerCase().includes(q)));
+    list = [...list.filter(x => x.pinned), ...list.filter(x => !x.pinned)];
+    const nd = MD.notices.find(x => x.id === st.noticeId) || MD.notices[0];
+
+    const routine = MD.routineFor(st.rtExam).map((r, i) => { const dm = MD.dayM(r.date, lang); return { date: MD.date(r.date, lang), dd: dm.d, mm: dm.m, day: MD.day(r.date, lang), subj: T(r.subj), time: n(r.time) + (lang === 'bn' ? '' : ''), zebra: i % 2 ? 'var(--surface-2)' : 'var(--surface)' }; });
+    const ms = MD.marksheet(st.rs.exam); const exR = MD.exams.find(e => e.id === st.rs.exam);
+    const alb = MD.albums.find(a => a.id === st.albumId) || MD.albums[0];
+    const heights = [220, 300, 180, 260, 200, 320, 240, 190, 280, 210, 260, 230];
+    const albPhoto = i => i === 0 ? MD.photos[MD.albumCover[alb.id]] : MD.photoPool[(i + MD.albums.indexOf(alb) * 3) % MD.photoPool.length];
+    const albumPhotos = Array.from({ length: alb.count }, (_, i) => ({ id: `web-${alb.id}-${i}`, h: heights[i % heights.length], ...albPhoto(i), open: () => this.setState({ lb: i }) }));
+    const lbOpen = st.lb !== null && st.route === 'album';
+
+    return {
+      lang, theme: st.theme, t: s, wide, narrow: !wide, drawer: st.drawer, pg, ds,
+      themeIcon: st.theme === 'dark' ? '☀' : '☾',
+      langBn: { bg: lang === 'bn' ? 'var(--green-700)' : 'transparent', fg: lang === 'bn' ? '#fff' : 'var(--muted)' },
+      langEn: { bg: lang === 'en' ? 'var(--green-700)' : 'transparent', fg: lang === 'en' ? '#fff' : 'var(--muted)' },
+      setBn: () => { MD.setLang('bn'); this.setState({ lang: 'bn' }); }, setEn: () => { MD.setLang('en'); this.setState({ lang: 'en' }); },
+      toggleTheme: () => { const v = st.theme === 'dark' ? 'light' : 'dark'; MD.setTheme(v); this.setState({ theme: v }); },
+      openDrawer: () => this.setState({ drawer: true }), closeDrawer: () => this.setState({ drawer: false }),
+      inst: { name: T(MD.inst.name), short: T(MD.inst.short), est: T(MD.inst.est), address: T(MD.inst.address), arabic: MD.inst.arabic, map: MD.inst.map },
+      phones: MD.inst.phones.map(p => ({ label: n(p), href: 'tel:' + p })), phone0: n(MD.inst.phones[0]),
+      ticker,
+      nav: MD.nav.map(x => { const a = st.route === x.id || (x.id === 'notices' && st.route === 'notice') || (x.id === 'gallery' && st.route === 'album'); return { id: x.id, label: x[lang], fg: a ? 'var(--green-700)' : 'var(--ink)', bar: a ? 'var(--green-700)' : 'transparent', dbg: a ? 'rgba(255,255,255,.14)' : 'transparent', go: e => { e.preventDefault(); this.go(x.id); } }; }),
+      footNav: MD.nav.slice(1, 7).map(x => ({ id: x.id, label: x[lang], go: e => { e.preventDefault(); this.go(x.id); } })),
+      goHome: e => { e.preventDefault(); this.go('home'); }, goAdmission: () => this.go('admission'), goNotices: () => this.go('notices'), goGallery: () => this.go('gallery'), goAbacus: () => { const el = document.getElementById('abacus'); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 130, behavior: 'smooth' }); },
+      showBanner: this.props.showBanner ?? true,
+      benefits: s.benefits.map((b, i) => ({ t: b, icon: ['🧠', '🎯', '⚡', '🏆'][i], bg: ['var(--green-50)', 'var(--navy-50)', 'var(--yellow-50)', 'var(--red-50)'][i] })),
+      phonBenefits: s.phonBenefits.map((b, i) => ({ t: b, icon: ['Aa', 'ab', 'abc', '💬'][i], bg: ['var(--navy-50)', 'var(--green-50)', 'var(--yellow-50)', 'var(--red-50)'][i] })),
+      divisions: s.divisions.map((d, i) => ({ name: d[0], age: d[1], desc: d[2], bg: i ? 'var(--navy-800)' : 'var(--green-500)' })),
+      why: s.why.map((w, i) => ({ t: w[0], d: w[1], icon: ['📖', '🏫', '🎖', '🔤', '🧮', '🛡'][i] })),
+      stats: s.stats.map(x => ({ v: x[0], l: x[1] })),
+      homeNotices: MD.notices.slice(0, 5).map(mapNotice),
+      galPreview: Array.from({ length: 8 }, (_, i) => ({ id: 'web-gal-' + i, h: heights[i], ...MD.photoPool[i] })),
+      values: s.values.map(v => ({ t: v[0], d: v[1] })), programs: s.programs.map(p => ({ icon: p[0], t: p[1], d: p[2] })), schedule: s.schedule.map(x => ({ time: x[0], what: x[1] })),
+      docs: s.docs, feeRows: s.feeRows.map((l, i) => ({ l, a: '৳ ' + n([1500, 1200, 2000, 3500][i]), b: '৳ ' + n([2000, 1600, 2500, 4000][i]) })),
+      classOpts: MD.classes.map(c => ({ v: c.id, l: c[lang] })),
+      examOpts: MD.exams.filter(e => e.status !== 'draft').map(e => ({ v: e.id, l: e[lang] })), allExamOpts: MD.exams.filter(e => e.status !== 'draft').map(e => ({ v: e.id, l: e[lang] })),
+      inq: st.inq, inqErr: { name: st.inqErr.name || '', phone: st.inqErr.phone || '', nameB: st.inqErr.name ? 'var(--danger)' : 'var(--line-strong)', phoneB: st.inqErr.phone ? 'var(--danger)' : 'var(--line-strong)' },
+      inqDone: st.inqState === 'done', inqForm: st.inqState !== 'done', inqBtn: st.inqState === 'sending' ? s.sending : s.submit,
+      onInqName: setI('name'), onInqGuardian: setI('guardian'), onInqPhone: setI('phone'), onInqCls: setI('cls'), onInqMsg: setI('msg'),
+      submitInq: () => this.submitInq(), resetInq: () => this.setState({ inqState: 'idle', inq: { name: '', guardian: '', phone: '', cls: 'c1', msg: '' } }),
+      q: st.q, onQ: e => this.setState({ q: e.target.value }),
+      cats: MD.noticeCats.map(c => ({ l: c[lang], pick: () => this.setState({ cat: c.id }), bg: st.cat === c.id ? 'var(--green-700)' : 'var(--surface)', fg: st.cat === c.id ? '#fff' : 'var(--ink)', bd: st.cat === c.id ? 'var(--green-700)' : 'var(--line-strong)' })),
+      noticeList: list.map(mapNotice), noticeEmpty: ds.empty || (ds.ready && list.length === 0),
+      skeleton: [1, 2, 3, 4], retry: () => this.flash(s.loadingRes),
+      notice: { id: nd.id, title: T(nd.title), cat: catL(nd.cat), date: MD.date(nd.date, lang), body: T(MD.noticeBody), pdf: nd.pdf },
+      fakeDl: () => this.flash(s.dlToast),
+      rtExam: st.rtExam, rtClass: st.rtClass, onRtExam: e => this.setState({ rtExam: e.target.value }), onRtClass: e => this.setState({ rtClass: e.target.value }),
+      routine, rtTable: ds.ready && !mobile, rtCards: ds.ready && mobile,
+      rs: st.rs, onRsExam: setR('exam'), onRsCls: setR('cls'), onRsRoll: setR('roll'), onRsDob: setR('dob'),
+      searchResult: () => this.runSearch(), quickSearch: () => { this.go('results'); this.runSearch(); },
+      rsS: { idle: st.rsState === 'idle', loading: st.rsState === 'loading', found: st.rsState === 'found', notfound: st.rsState === 'notfound', unpub: st.rsState === 'unpub' },
+      res: { exam: T(exR), name: T(MD.student.name), meta: `${T(MD.cls(MD.student.classId))} · ${s.roll.split(' ')[0]}: ${n(MD.student.roll)} · ID: ${n(MD.student.id)}`, gpa: n(ms.gpa), grade: ms.final, pos: n(ms.position) + (lang === 'bn' ? 'য়' : 'rd'), total: `${n(ms.total)}/${n(ms.full)}` },
+      albums: MD.albums.map(a => ({ ...MD.photos[MD.albumCover[a.id]], title: a[lang], cover: `web-${a.id}-0`, meta: `${n(a.count)} ${s.photos} · ${MD.date(a.date, lang)}`, open: () => this.go('album', { albumId: a.id }) })),
+      album: { title: alb[lang], meta: `${n(alb.count)} ${s.photos} · ${MD.date(alb.date, lang)}` }, albumPhotos,
+      lb: { open: lbOpen, ...(lbOpen ? albPhoto(st.lb) : {}), id: lbOpen ? `web-${alb.id}-${st.lb}` : '', label: lbOpen ? `${n(st.lb + 1)} / ${n(alb.count)}` : '' },
+      lbClose: () => this.setState({ lb: null }), lbPrev: () => this.setState({ lb: (st.lb - 1 + alb.count) % alb.count }), lbNext: () => this.setState({ lb: (st.lb + 1) % alb.count }),
+      showContact: st.route === 'home' || st.route === 'contact',
+      toast: st.toast, toastOn: !!st.toast,
+    };
+  }
+}
+</script>
+</body>
+</html>

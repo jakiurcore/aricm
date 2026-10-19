@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="assets/logo.jpeg">
+  <link rel="stylesheet" href="madrasa-theme.css">
+  <script src="madrasa-data.js"></script>
+  <script src="diary-data.js"></script>
+  <script src="fees-data.js"></script>
+  <script src="./image-slot.js"></script>
+</helmet>
+
+<div data-theme="{{ theme }}" data-lang="{{ lang }}" style="min-height: 100vh; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.7;">
+
+  <!-- AUTH -->
+  <sc-if value="{{ auth.any }}" hint-placeholder-val="{{ true }}">
+    <div data-screen-label="Portal login" style="min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; background-color: var(--green-50); background-image: url('data:image/svg+xml;utf8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22%3E%3Cg fill=%22none%22 stroke=%22%230B6B3A%22 stroke-opacity=%22.10%22 stroke-width=%221.2%22%3E%3Crect x=%2220%22 y=%2220%22 width=%2224%22 height=%2224%22/%3E%3Crect x=%2220%22 y=%2220%22 width=%2224%22 height=%2224%22 transform=%22rotate(45 32 32)%22/%3E%3C/g%3E%3C/svg%3E');">
+      <div style="width: 100%; max-width: 420px; display: grid; gap: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <a href="Madrasa Website.dc.html" style="font-weight: 600; text-decoration: none;">← {{ t.website }}</a>
+          <div style="display: flex; padding: 3px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line);">
+            <button onClick="{{ setBn }}" style="min-width: 44px; height: 36px; border: 0; border-radius: 999px; cursor: pointer; font-weight: 700; font-size: 14px; background: {{ langBn.bg }}; color: {{ langBn.fg }};">বাং</button>
+            <button onClick="{{ setEn }}" style="min-width: 44px; height: 36px; border: 0; border-radius: 999px; cursor: pointer; font-weight: 700; font-size: 14px; font-family: Poppins; background: {{ langEn.bg }}; color: {{ langEn.fg }};">EN</button>
+          </div>
+        </div>
+        <div style="padding: 28px 24px; border-radius: 24px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-lg); display: grid; gap: 16px;">
+          <div style="display: grid; justify-items: center; gap: 6px; text-align: center;">
+            <img src="assets/logo.jpeg" alt="" style="width: 84px; height: 84px; border-radius: 50%; background: #fff;">
+            <strong style="font-family: var(--font-head); color: var(--heading); font-size: 18px; line-height: 1.4;">{{ instName }}</strong>
+            <span style="padding: 2px 12px; border-radius: 999px; background: var(--green-50); color: var(--green-700); font-weight: 700; font-size: 14px;">{{ auth.title }}</span>
+          </div>
+
+          <sc-if value="{{ auth.login }}" hint-placeholder-val="{{ true }}">
+            <div style="display: grid; gap: 12px;">
+              <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 600;">{{ t.sid }}<input value="{{ f.id }}" onChange="{{ onId }}" inputmode="numeric" placeholder="20240101" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface);"></label>
+              <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 600;">{{ t.pw }}<input type="password" value="{{ f.pw }}" onChange="{{ onPw }}" placeholder="••••••" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface);"></label>
+              <sc-if value="{{ err.on }}" hint-placeholder-val="{{ false }}"><div role="alert" style="padding: 10px 14px; border-radius: 12px; background: var(--danger-bg); color: var(--danger); font-weight: 600; font-size: 14px;">{{ err.msg }}</div></sc-if>
+              <button onClick="{{ doLogin }}" style="height: 52px; border: 0; border-radius: 999px; background: var(--green-700); color: #fff; font-weight: 700; font-size: 17px; cursor: pointer;">{{ loginBtn }}</button>
+              <button onClick="{{ goForgot }}" style="height: 44px; border: 0; background: transparent; color: var(--navy-800); font-weight: 600; cursor: pointer;">{{ t.forgot }}</button>
+              <span style="font-size: 13px; color: var(--muted); text-align: center;">{{ t.demo }}</span>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ auth.forgot }}" hint-placeholder-val="{{ false }}">
+            <div style="display: grid; gap: 12px;">
+              <sc-if value="{{ forgotSent }}" hint-placeholder-val="{{ false }}">
+                <div style="padding: 16px; border-radius: 14px; background: var(--success-bg); color: var(--success); font-weight: 600; text-align: center;">✓ {{ t.otpSent }}</div>
+              </sc-if>
+              <span style="color: var(--muted); font-size: 15px;">{{ t.forgotBody }}</span>
+              <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 600;">{{ t.sid }}<input value="{{ f.id }}" onChange="{{ onId }}" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface);"></label>
+              <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 600;">{{ t.gphone }}<input inputmode="tel" placeholder="01XXXXXXXXX" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface);"></label>
+              <button onClick="{{ sendOtp }}" style="height: 52px; border: 0; border-radius: 999px; background: var(--green-700); color: #fff; font-weight: 700; font-size: 17px; cursor: pointer;">{{ t.sendOtp }}</button>
+              <button onClick="{{ goLogin }}" style="height: 44px; border: 0; background: transparent; color: var(--navy-800); font-weight: 600; cursor: pointer;">← {{ t.backLogin }}</button>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ auth.change }}" hint-placeholder-val="{{ false }}">
+            <div style="display: grid; gap: 12px;">
+              <div style="padding: 12px 14px; border-radius: 12px; background: var(--warn-bg); color: var(--warn); font-weight: 600; font-size: 14px;">{{ t.firstLogin }}</div>
+              <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 600;">{{ t.newPw }}<input type="password" value="{{ f.np }}" onChange="{{ onNp }}" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface);"></label>
+              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;"><sc-for list="{{ strength }}" as="s" hint-placeholder-count="4"><span style="height: 6px; border-radius: 999px; background: {{ s }};"></span></sc-for></div>
+              <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 600;">{{ t.confirmPw }}<input type="password" value="{{ f.cp }}" onChange="{{ onCp }}" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface);"></label>
+              <sc-if value="{{ err.on }}" hint-placeholder-val="{{ false }}"><div role="alert" style="padding: 10px 14px; border-radius: 12px; background: var(--danger-bg); color: var(--danger); font-weight: 600; font-size: 14px;">{{ err.msg }}</div></sc-if>
+              <button onClick="{{ doChange }}" style="height: 52px; border: 0; border-radius: 999px; background: var(--green-700); color: #fff; font-weight: 700; font-size: 17px; cursor: pointer;">{{ t.savePw }}</button>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- APP -->
+  <sc-if value="{{ inApp }}" hint-placeholder-val="{{ false }}">
+    <div style="display: grid; grid-template-columns: {{ cols }}; min-height: 100vh;">
+      <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+        <aside style="position: sticky; top: 0; height: 100vh; background: var(--green-900); color: #E6F2EA; display: flex; flex-direction: column; padding: 16px 12px; gap: 4px; overflow-y: auto;">
+          <div style="display: flex; gap: 10px; align-items: center; padding: 4px 8px 16px;">
+            <img src="assets/logo.jpeg" alt="" style="width: 44px; height: 44px; border-radius: 50%; background: #fff;">
+            <span style="font-family: var(--font-head); font-size: 15px; line-height: 1.35; color: #fff;">{{ instShort }}</span>
+          </div>
+          <sc-for list="{{ side }}" as="m" hint-placeholder-count="10">
+            <button onClick="{{ m.go }}" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border: 0; border-radius: 12px; cursor: pointer; text-align: left; font-weight: 600; background: {{ m.bg }}; color: {{ m.fg }};"><span style="width: 22px; text-align: center;">{{ m.icon }}</span><span style="flex: 1;">{{ m.label }}</span><sc-if value="{{ m.dot }}" hint-placeholder-val="{{ false }}"><span style="width: 10px; height: 10px; border-radius: 50%; background: var(--red-600);"></span></sc-if></button>
+          </sc-for>
+          <button onClick="{{ logout }}" style="margin-top: auto; display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border: 1px solid rgba(255,255,255,.2); border-radius: 12px; cursor: pointer; background: transparent; color: #fff; font-weight: 600;">⎋ {{ t.logout }}</button>
+        </aside>
+      </sc-if>
+
+      <div style="min-width: 0; display: flex; flex-direction: column;">
+        <header style="position: sticky; top: 0; z-index: 20; background: var(--surface); border-bottom: 1px solid var(--line); padding: 10px 16px; display: flex; align-items: center; gap: 12px;">
+          <sc-if value="{{ narrow }}" hint-placeholder-val="{{ false }}"><img src="assets/logo.jpeg" alt="" style="width: 40px; height: 40px; border-radius: 50%; background: #fff;"></sc-if>
+          <strong style="flex: 1; min-width: 0; font-family: var(--font-head); color: var(--heading); font-size: 20px;">{{ screenTitle }}</strong>
+          <div style="display: flex; padding: 3px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line);">
+            <button onClick="{{ setBn }}" style="min-width: 40px; height: 34px; border: 0; border-radius: 999px; cursor: pointer; font-weight: 700; font-size: 13px; background: {{ langBn.bg }}; color: {{ langBn.fg }};">বাং</button>
+            <button onClick="{{ setEn }}" style="min-width: 40px; height: 34px; border: 0; border-radius: 999px; cursor: pointer; font-weight: 700; font-size: 13px; font-family: Poppins; background: {{ langEn.bg }}; color: {{ langEn.fg }};">EN</button>
+          </div>
+          <button onClick="{{ toggleTheme }}" aria-label="Theme" style="width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); cursor: pointer;">{{ themeIcon }}</button>
+        </header>
+
+        <main style="flex: 1; padding: 20px 16px 110px; max-width: 1100px; width: 100%; margin: 0 auto; display: grid; gap: 16px; align-content: start;">
+
+          <sc-if value="{{ ds.loading }}" hint-placeholder-val="{{ false }}">
+            <div style="display: grid; gap: 12px;"><sc-for list="{{ skeleton }}" as="k" hint-placeholder-count="4"><div style="height: 96px; border-radius: 20px; background: linear-gradient(90deg, var(--surface-2) 0, var(--line) 50%, var(--surface-2) 100%); background-size: 800px 100%; animation: arm-shimmer 1.2s linear infinite;"></div></sc-for></div>
+          </sc-if>
+          <sc-if value="{{ ds.error }}" hint-placeholder-val="{{ false }}">
+            <div style="padding: 32px 20px; border-radius: 20px; background: var(--danger-bg); text-align: center; display: grid; gap: 8px; justify-items: center;"><span style="font-size: 32px;">⚠</span><strong style="color: var(--danger); font-size: 18px;">{{ t.errTitle }}</strong><span>{{ t.errBody }}</span><button onClick="{{ retry }}" style="height: 44px; padding: 0 18px; border-radius: 999px; border: 0; background: var(--danger); color: #fff; font-weight: 700; cursor: pointer;">{{ t.retry }}</button></div>
+          </sc-if>
+          <sc-if value="{{ ds.empty }}" hint-placeholder-val="{{ false }}">
+            <div style="padding: 40px 20px; border-radius: 20px; border: 2px dashed var(--line-strong); text-align: center; display: grid; gap: 6px;"><span style="font-size: 32px;">📭</span><strong style="font-size: 18px;">{{ t.emptyTitle }}</strong><span style="color: var(--muted);">{{ t.emptyBody }}</span></div>
+          </sc-if>
+
+          <sc-if value="{{ v.home }}" hint-placeholder-val="{{ true }}">
+            <div data-screen-label="Portal dashboard" style="display: grid; gap: 16px;">
+              <div style="border-radius: 24px; padding: 20px; background: linear-gradient(135deg, var(--green-700), var(--green-900)); color: #fff; display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+                <div style="width: 76px; height: 76px; border-radius: 20px; overflow: hidden; border: 3px solid #fff; background: rgba(255,255,255,.15); flex: none;"><image-slot id="student-photo" shape="rounded" radius="16" placeholder="ছবি"></image-slot></div>
+                <div style="flex: 1; min-width: 200px; display: grid; line-height: 1.45;">
+                  <span style="font-size: 15px; opacity: .9;">{{ t.salam }}</span>
+                  <strong style="font-family: var(--font-head); font-size: 24px;">{{ stu.name }}</strong>
+                  <span style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px;">
+                    <sc-for list="{{ stu.chips }}" as="c" hint-placeholder-count="4"><span style="padding: 2px 10px; border-radius: 999px; background: rgba(255,255,255,.16); font-size: 13px; font-weight: 600;">{{ c }}</span></sc-for>
+                  </span>
+                </div>
+              </div>
+              <sc-if value="{{ feDash.on }}" hint-placeholder-val="{{ true }}">
+                <div style="padding: 18px; border-radius: 20px; border: 2px solid var(--red-600); background: var(--red-50); display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">
+                  <span style="width: 52px; height: 52px; border-radius: 16px; background: var(--red-600); color: #fff; display: grid; place-items: center; font-size: 24px; font-weight: 700; flex: none;">৳</span>
+                  <span style="flex: 1; min-width: 180px; display: grid; line-height: 1.45;"><span style="font-size: 13px; font-weight: 700; color: var(--danger);">বকেয়া</span><strong style="font-family: var(--font-head); font-size: 26px; color: var(--danger);">{{ feDash.amt }}</strong><span style="font-size: 14px; color: var(--ink);">{{ feDash.meta }}</span></span>
+                  <button onClick="{{ feDash.pay }}" style="min-height: 48px; padding: 0 20px; border-radius: 999px; border: 0; background: var(--red-600); color: #fff; font-weight: 700; font-size: 16px; cursor: pointer;">পরিশোধ করুন →</button>
+                </div>
+              </sc-if>
+              <button onClick="{{ goDiary }}" style="text-align: left; padding: 18px; border-radius: 20px; border: 1px solid {{ dDash.bd }}; background: var(--surface); box-shadow: var(--shadow-sm); cursor: pointer; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; color: var(--ink);">
+                <span style="width: 52px; height: 52px; border-radius: 16px; background: var(--green-700); color: #fff; display: grid; place-items: center; font-size: 24px; flex: none;">📓</span>
+                <span style="flex: 1; min-width: 200px; display: grid; line-height: 1.5;">
+                  <span style="font-size: 13px; font-weight: 700; color: var(--green-700);">{{ t.todayDiary }} · {{ dDash.date }}</span>
+                  <strong style="font-size: 17px;">{{ dDash.summary }}</strong>
+                  <span style="font-size: 14px; color: var(--muted);">{{ dDash.prep }}</span>
+                </span>
+                <span style="padding: 4px 12px; border-radius: 999px; font-weight: 700; font-size: 14px; background: {{ dDash.ackBg }}; color: {{ dDash.ackFg }};">{{ dDash.ack }}</span>
+              </button>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 12px;">
+                <button onClick="{{ goRoutine }}" style="text-align: left; padding: 18px; border-radius: 20px; border: 1px solid var(--line); background: var(--surface); box-shadow: var(--shadow-sm); cursor: pointer; display: grid; gap: 6px;">
+                  <span style="font-size: 13px; font-weight: 700; color: var(--navy-800);">🗓 {{ t.upcoming }}</span>
+                  <strong style="font-size: 17px; color: var(--ink);">{{ dash.exam }}</strong>
+                  <span style="color: var(--muted); font-size: 14px;">{{ dash.examWhen }}</span>
+                </button>
+                <button onClick="{{ goNotices }}" style="text-align: left; padding: 18px; border-radius: 20px; border: 1px solid var(--line); background: var(--surface); box-shadow: var(--shadow-sm); cursor: pointer; display: grid; gap: 6px;">
+                  <span style="font-size: 13px; font-weight: 700; color: var(--green-700);">📢 {{ t.latestNotice }}</span>
+                  <strong style="font-size: 16px; color: var(--ink); line-height: 1.5;">{{ dash.notice }}</strong>
+                  <span style="color: var(--muted); font-size: 14px;">{{ dash.noticeDate }}</span>
+                </button>
+                <button onClick="{{ openLatest }}" style="text-align: left; padding: 18px; border-radius: 20px; border: 1px solid var(--line); background: var(--surface); box-shadow: var(--shadow-sm); cursor: pointer; display: grid; gap: 6px;">
+                  <span style="font-size: 13px; font-weight: 700; color: var(--green-700);">🏅 {{ t.latestResult }}</span>
+                  <strong style="font-size: 16px; color: var(--ink);">{{ dash.result }}</strong>
+                  <span style="font-size: 14px;"><strong style="color: var(--green-700);">GPA {{ dash.gpa }}</strong> · {{ dash.grade }}</span>
+                </button>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;">
+                <sc-for list="{{ quick }}" as="m" hint-placeholder-count="4">
+                  <button onClick="{{ m.go }}" style="min-height: 76px; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; display: grid; place-items: center; gap: 2px; font-weight: 600; color: var(--ink);"><span style="font-size: 22px;">{{ m.icon }}</span>{{ m.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ v.profile }}" hint-placeholder-val="{{ false }}">
+            <div data-screen-label="Portal profile" style="display: grid; gap: 16px;">
+              <div style="padding: 20px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+                <div style="width: 96px; height: 116px; border-radius: 16px; overflow: hidden; background: var(--surface-2); flex: none;"><image-slot id="student-photo" shape="rounded" radius="16" placeholder="ছবি"></image-slot></div>
+                <div style="display: grid; line-height: 1.5;"><strong style="font-family: var(--font-head); color: var(--heading); font-size: 22px;">{{ stu.name }}</strong><span style="color: var(--muted);">ID: {{ stu.id }}</span><span style="font-size: 13px; padding: 2px 10px; border-radius: 999px; background: var(--info-bg); color: var(--info); justify-self: start; font-weight: 600; margin-top: 4px;">🔒 {{ t.readOnly }}</span></div>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 16px;">
+                <sc-for list="{{ profileGroups }}" as="g" hint-placeholder-count="2">
+                  <div style="border-radius: 20px; background: var(--surface); border: 1px solid var(--line); overflow: hidden;">
+                    <h3 style="margin: 0; padding: 14px 18px; font-size: 17px; background: var(--surface-2);">{{ g.title }}</h3>
+                    <sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="5"><div style="display: grid; grid-template-columns: minmax(110px, 40%) 1fr; gap: 10px; padding: 10px 18px; border-top: 1px solid var(--line);"><span style="color: var(--muted);">{{ r.k }}</span><span style="font-weight: 600;">{{ r.v }}</span></div></sc-for>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ v.results }}" hint-placeholder-val="{{ false }}">
+            <div data-screen-label="Portal results" style="display: grid; gap: 12px;">
+              <sc-for list="{{ examResults }}" as="r" hint-placeholder-count="3">
+                <div style="padding: 16px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">
+                  <span style="width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; font-size: 22px; background: {{ r.bg }};">{{ r.icon }}</span>
+                  <span style="flex: 1; min-width: 180px; display: grid; line-height: 1.45;"><strong style="font-size: 17px;">{{ r.name }}</strong><span style="color: var(--muted); font-size: 14px;">{{ r.meta }}</span></span>
+                  <sc-if value="{{ r.pub }}" hint-placeholder-val="{{ true }}"><button onClick="{{ r.open }}" style="height: 44px; padding: 0 18px; border-radius: 999px; border: 0; background: var(--green-700); color: #fff; font-weight: 700; cursor: pointer;">{{ t.viewMs }}</button></sc-if>
+                  <sc-if value="{{ r.unpub }}" hint-placeholder-val="{{ false }}"><span style="padding: 4px 12px; border-radius: 999px; background: var(--warn-bg); color: var(--warn); font-weight: 700; font-size: 14px;">⏳ {{ t.notPub }}</span></sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ v.marksheet }}" hint-placeholder-val="{{ false }}">
+            <div data-screen-label="Portal marksheet" style="display: grid; gap: 14px;">
+              <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center;">
+                <button onClick="{{ goResults }}" style="height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; cursor: pointer;">← {{ t.back }}</button>
+                <a href="Print Documents.dc.html#marksheet" style="height: 44px; padding: 0 18px; border-radius: 999px; background: var(--red-600); color: #fff; font-weight: 700; display: flex; align-items: center; text-decoration: none;">⬇ {{ t.dlPdf }}</a>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px;">
+                <div style="padding: 14px; border-radius: 16px; background: var(--green-700); color: #fff; display: grid;"><span style="font-size: 13px; opacity: .9;">GPA</span><strong style="font-family: var(--font-head); font-size: 28px; line-height: 1.3;">{{ ms.gpa }}</strong></div>
+                <div style="padding: 14px; border-radius: 16px; background: var(--navy-50); display: grid;"><span style="font-size: 13px; color: var(--muted);">{{ t.grade }}</span><strong style="font-family: Poppins; font-size: 26px; color: var(--navy-800); line-height: 1.35;">{{ ms.final }}</strong></div>
+                <div style="padding: 14px; border-radius: 16px; background: var(--yellow-50); display: grid;"><span style="font-size: 13px; color: var(--muted);">{{ t.position }}</span><strong style="font-family: var(--font-head); font-size: 28px; line-height: 1.3;">{{ ms.pos }}</strong></div>
+                <div style="padding: 14px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); display: grid;"><span style="font-size: 13px; color: var(--muted);">{{ t.total }}</span><strong style="font-family: var(--font-head); font-size: 22px; line-height: 1.45;">{{ ms.total }}</strong></div>
+              </div>
+              <div style="border-radius: 20px; background: var(--surface); border: 1px solid var(--line); overflow-x: auto;">
+                <table style="width: 100%; min-width: 620px; border-collapse: collapse; font-size: 15px;">
+                  <thead><tr style="background: var(--surface-2); text-align: left;"><th style="padding: 12px 14px;">{{ t.subject }}</th><th style="padding: 12px 8px;">{{ t.full }}</th><th style="padding: 12px 8px;">{{ t.parts }}</th><th style="padding: 12px 8px;">{{ t.obtained }}</th><th style="padding: 12px 8px;">{{ t.grade }}</th><th style="padding: 12px 14px;">GP</th></tr></thead>
+                  <tbody><sc-for list="{{ ms.rows }}" as="r" hint-placeholder-count="8"><tr style="border-top: 1px solid var(--line);"><td style="padding: 11px 14px; font-weight: 600;">{{ r.subj }}</td><td style="padding: 11px 8px;">{{ r.full }}</td><td style="padding: 11px 8px; color: var(--muted); font-size: 14px;">{{ r.parts }}</td><td style="padding: 11px 8px; font-weight: 700;">{{ r.got }}</td><td style="padding: 11px 8px;"><span style="padding: 1px 10px; border-radius: 999px; background: var(--green-50); color: var(--green-700); font-weight: 700; font-family: Poppins; font-size: 14px;">{{ r.grade }}</span></td><td style="padding: 11px 14px;">{{ r.gp }}</td></tr></sc-for></tbody>
+                </table>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ v.routine }}" hint-placeholder-val="{{ false }}">
+            <div data-screen-label="Portal routine" style="display: grid; gap: 10px;">
+              <div style="padding: 14px 16px; border-radius: 16px; background: var(--navy-50); color: var(--navy-800); font-weight: 700;">{{ dash.exam }} · {{ stu.cls }}</div>
+              <sc-for list="{{ routine }}" as="r" hint-placeholder-count="8">
+                <div style="display: grid; grid-template-columns: 64px 1fr; gap: 14px; align-items: center; padding: 12px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line);">
+                  <span style="display: grid; text-align: center; line-height: 1.45; padding: 8px 0; border-radius: 12px; background: var(--green-700); color: #fff;"><span style="font-family: var(--font-head); font-size: 22px;">{{ r.dd }}</span><span style="font-size: 12px; font-weight: 700;">{{ r.mm }}</span></span>
+                  <span style="display: grid; line-height: 1.45;"><strong style="font-size: 17px;">{{ r.subj }}</strong><span style="color: var(--muted); font-size: 14px;">{{ r.day }} · {{ r.time }} · {{ t.room }} {{ r.room }}</span></span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ v.admit }}" hint-placeholder-val="{{ false }}">
+            <div data-screen-label="Portal admit card" style="display: grid; gap: 14px; max-width: 640px;">
+              <div style="padding: 22px; border-radius: 24px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-md); display: grid; gap: 14px;">
+                <div style="display: flex; gap: 12px; align-items: center;"><img src="assets/logo.jpeg" alt="" style="width: 48px; height: 48px; border-radius: 50%; background: #fff;"><span style="display: grid; line-height: 1.4;"><strong style="font-size: 18px;">{{ t.admit }}</strong><span style="color: var(--muted);">{{ dash.exam }}</span></span></div>
+                <sc-if value="{{ admit.ok }}" hint-placeholder-val="{{ true }}">
+                  <div style="display: grid; gap: 12px;">
+                    <div style="padding: 12px 14px; border-radius: 12px; background: var(--success-bg); color: var(--success); font-weight: 600;">✓ {{ t.admitReady }}</div>
+                    <a href="Print Documents.dc.html#admit" style="height: 52px; border-radius: 999px; background: var(--green-700); color: #fff; font-weight: 700; font-size: 17px; display: grid; place-items: center; text-decoration: none;">⬇ {{ t.dlAdmit }}</a>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ admit.blocked }}" hint-placeholder-val="{{ false }}">
+                  <div style="display: grid; gap: 12px;">
+                    <div style="padding: 12px 14px; border-radius: 12px; background: {{ admit.bg }}; color: {{ admit.fg }}; font-weight: 600;">{{ admit.msg }}</div>
+                    <button disabled style="height: 52px; border-radius: 999px; border: 0; background: var(--surface-2); color: var(--faint); font-weight: 700; font-size: 17px; cursor: not-allowed;">⬇ {{ t.dlAdmit }}</button>
+                    <sc-if value="{{ admit.unpaid }}" hint-placeholder-val="{{ false }}"><button onClick="{{ goFees }}" style="height: 44px; border-radius: 999px; border: 2px solid var(--red-600); background: transparent; color: var(--danger); font-weight: 700; cursor: pointer;">{{ t.seeFees }}</button></sc-if>
+                  </div>
+                </sc-if>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ v.idcard }}" hint-placeholder-val="{{ false }}">
+            <div data-screen-label="Portal ID card" style="display: grid; gap: 16px; justify-items: center;">
+              <div style="width: 260px; border-radius: 18px; overflow: hidden; background: #fff; color: #17212B; box-shadow: var(--shadow-lg); border: 1px solid var(--line);">
+                <div style="background: #0B6B3A; color: #fff; padding: 12px; display: grid; justify-items: center; text-align: center; gap: 4px;"><img src="assets/logo.jpeg" alt="" style="width: 44px; height: 44px; border-radius: 50%; background: #fff;"><strong style="font-size: 13px; line-height: 1.35; font-family: 'Noto Serif Bengali', serif;">আর রহমান ইন্টারন্যাশনাল ক্যাডেট মাদরাসা</strong></div>
+                <div style="padding: 14px; display: grid; justify-items: center; gap: 8px; text-align: center;">
+                  <div style="width: 92px; height: 110px; border-radius: 12px; overflow: hidden; border: 3px solid #FFD21F; background: #F3F4EE;"><image-slot id="student-photo" shape="rounded" radius="8" placeholder="ছবি"></image-slot></div>
+                  <strong style="font-size: 16px; line-height: 1.35;">{{ stu.name }}</strong>
+                  <span style="font-size: 13px; padding: 1px 10px; border-radius: 999px; background: #D6202A; color: #fff; font-weight: 700;">ID {{ stu.id }}</span>
+                  <span style="font-size: 13px; color: #566170;">{{ stu.cls }} · {{ t.roll }} {{ stu.roll }} · {{ stu.blood }}</span>
+                </div>
+              </div>
+              <a href="Print Documents.dc.html#idcard" style="height: 52px; padding: 0 26px; border-radius: 999px; background: var(--green-700); color: #fff; font-weight: 700; display: flex; align-items: center; text-decoration: none;">⬇ {{ t.dlId }}</a>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ v.fees }}" hint-placeholder-val="{{ false }}">
+            <div data-screen-label="Portal fees" style="display: grid; gap: 14px;">
+              <sc-if value="{{ fe.showTabs }}" hint-placeholder-val="{{ true }}">
+                <div role="tablist" style="display: flex; gap: 6px; overflow-x: auto; padding: 4px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line);">
+                  <sc-for list="{{ fe.tabs }}" as="tb" hint-placeholder-count="3"><button role="tab" onClick="{{ tb.go }}" style="flex: 1 0 auto; min-height: 44px; padding: 0 16px; border-radius: 999px; border: 0; background: {{ tb.bg }}; color: {{ tb.fg }}; font-weight: 700; font-size: 15px; cursor: pointer; white-space: nowrap; box-shadow: {{ tb.sh }};">{{ tb.label }}</button></sc-for>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ fe.ov }}" hint-placeholder-val="{{ true }}">
+                <div data-screen-label="Fee overview" style="display: grid; gap: 14px;">
+                  <div style="padding: 20px; border-radius: 24px; background: var(--surface); border: 2px solid {{ fe.sumBd }}; box-shadow: var(--shadow-md); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 16px; align-items: center;">
+                    <div style="display: grid; gap: 4px;">
+                      <span style="font-size: 15px; font-weight: 700; color: var(--muted);">মোট বকেয়া</span>
+                      <strong style="font-family: var(--font-head); font-size: 42px; line-height: 1.2; color: {{ fe.dueColor }};">{{ fe.totalDue }}</strong>
+                      <span style="font-size: 14px; color: var(--muted);">{{ fe.dueWords }}</span>
+                    </div>
+                    <div style="display: grid; gap: 8px;">
+                      <span style="display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 15px;"><span style="color: var(--muted);">{{ fe.thisMonthL }}</span><span style="padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; white-space: nowrap; background: {{ fe.thisMonth.bg }}; color: {{ fe.thisMonth.fg }};">{{ fe.thisMonth.label }}</span></span>
+                      <span style="display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 15px;"><span style="color: var(--muted);">শেষ পেমেন্ট</span><strong>{{ fe.lastPay }}</strong></span>
+                      <sc-if value="{{ fe.pendingOn }}" hint-placeholder-val="{{ false }}"><span style="padding: 8px 12px; border-radius: 12px; background: var(--warn-bg); color: var(--warn); font-weight: 700; font-size: 14px;">⏳ যাচাই চলছে: {{ fe.pendingAmt }}</span></sc-if>
+                    </div>
+                    <sc-if value="{{ fe.hasDue }}" hint-placeholder-val="{{ true }}">
+                      <button onClick="{{ fe.payNow }}" style="min-height: 52px; padding: 0 22px; border-radius: 999px; border: 0; background: var(--red-600); color: #fff; font-weight: 700; font-size: 17px; cursor: pointer; grid-column: 1 / -1; min-height: 56px;">এখনই পরিশোধ করুন →</button>
+                    </sc-if>
+                    <sc-if value="{{ fe.noDue }}" hint-placeholder-val="{{ false }}">
+                      <div style="grid-column: 1 / -1; padding: 16px; border-radius: 16px; background: var(--success-bg); color: var(--success); text-align: center; display: grid; gap: 2px;"><strong style="font-size: 20px;">কোনো বকেয়া নেই 🎉</strong><span style="color: var(--ink); font-size: 14px;">সব চালান পরিশোধিত। চাইলে আগামী মাসের বেতন অগ্রিম দিতে পারেন।</span><button onClick="{{ fe.payAdvance }}" style="min-height: 48px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); font-weight: 600; font-size: 15px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; justify-self: center; margin-top: 6px;">অগ্রিম পরিশোধ</button></div>
+                    </sc-if>
+                  </div>
+
+                  <div style="padding: 16px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 12px;">
+                    <div style="display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline;"><h3 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: 18px;">সেশন {{ fe.session }} — মাসিক বেতন</h3><span style="font-size: 14px; color: var(--muted);">মাসে {{ fe.monthly }} · প্রতি মাসের {{ fe.dueDay }} তারিখের মধ্যে</span></div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 6px;"><sc-for list="{{ fe.legend }}" as="lg" hint-placeholder-count="5"><span style="padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; white-space: nowrap; background: {{ lg.bg }}; color: {{ lg.fg }}; font-size: 12px;">{{ lg.label }}</span></sc-for></div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(98px, 1fr)); gap: 8px;">
+                      <sc-for list="{{ fe.months }}" as="m" hint-placeholder-count="12">
+                        <button onClick="{{ m.open }}" aria-label="{{ m.aria }}" style="min-height: 92px; padding: 10px 8px; border-radius: 16px; border: 2px solid {{ m.bd }}; background: {{ m.bg }}; color: var(--ink); cursor: pointer; display: grid; gap: 2px; align-content: center; justify-items: center; text-align: center; line-height: 1.35;">
+                          <strong style="font-size: 15px;">{{ m.name }}</strong>
+                          <span style="font-size: 13px; font-weight: 700; color: {{ m.fg }};">{{ m.glyph }} {{ m.label }}</span>
+                          <span style="font-size: 12px; color: var(--muted);">{{ m.amt }}</span>
+                        </button>
+                      </sc-for>
+                    </div>
+                  </div>
+
+                  <div style="border-radius: 20px; background: var(--surface); border: 1px solid var(--line); overflow: hidden;">
+                    <h3 style="margin: 0; padding: 14px 18px; font-size: 17px; background: var(--surface-2);">অন্যান্য ফি</h3>
+                    <sc-for list="{{ fe.others }}" as="o" hint-placeholder-count="4">
+                      <button onClick="{{ o.open }}" style="width: 100%; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding: 12px 18px; border: 0; border-top: 1px solid var(--line); background: transparent; cursor: pointer; text-align: left; color: var(--ink); min-height: 60px;">
+                        <span style="flex: 1; min-width: 180px; display: grid; line-height: 1.45;"><strong style="font-size: 16px;">{{ o.title }}</strong><span style="font-size: 13px; color: var(--muted);">{{ o.meta }}</span></span>
+                        <strong style="font-size: 16px;">{{ o.amt }}</strong>
+                        <span style="padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; white-space: nowrap; background: {{ o.bg }}; color: {{ o.fg }};">{{ o.glyph }} {{ o.label }}</span>
+                      </button>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ fe.inv.on }}" hint-placeholder-val="{{ false }}">
+                <div data-screen-label="Invoice detail" style="display: grid; gap: 12px; max-width: 720px; width: 100%; justify-self: center;">
+                  <button onClick="{{ fe.back }}" style="min-height: 48px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); font-weight: 600; font-size: 15px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; justify-self: start; min-height: 44px;">← বেতন ও ফি</button>
+                  <div style="border-radius: 24px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-md); overflow: hidden;">
+                    <div style="padding: 16px 18px; background: var(--green-50); display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                      <img src="assets/logo.jpeg" alt="" style="width: 48px; height: 48px; border-radius: 50%; background: #fff;">
+                      <span style="flex: 1; min-width: 160px; display: grid; line-height: 1.4;"><strong style="font-family: var(--font-head); color: var(--heading); font-size: 20px;">চালান</strong><span style="font-size: 14px; color: var(--muted); font-family: Poppins;">{{ fe.inv.id }}</span></span>
+                      <span style="padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; white-space: nowrap; background: {{ fe.inv.bg }}; color: {{ fe.inv.fg }}; font-size: 14px;">{{ fe.inv.glyph }} {{ fe.inv.label }}</span>
+                    </div>
+                    <div style="padding: 14px 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 8px 16px; border-bottom: 1px solid var(--line);">
+                      <sc-for list="{{ fe.inv.meta }}" as="r" hint-placeholder-count="4"><span style="display: grid; line-height: 1.45;"><span style="font-size: 13px; color: var(--muted);">{{ r.k }}</span><strong style="font-size: 15px;">{{ r.v }}</strong></span></sc-for>
+                    </div>
+                    <div style="padding: 6px 18px 14px;">
+                      <div style="display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; font-weight: 700; color: var(--muted); border-bottom: 1px solid var(--line);"><span>ফি খাত</span><span>টাকা</span></div>
+                      <sc-for list="{{ fe.inv.items }}" as="it" hint-placeholder-count="2"><div style="display: flex; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px dashed var(--line); font-size: 16px; color: {{ it.fg }};"><span>{{ it.k }}</span><span style="font-weight: 600; white-space: nowrap;">{{ it.v }}</span></div></sc-for>
+                      <sc-for list="{{ fe.inv.totals }}" as="tt" hint-placeholder-count="3"><div style="display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; font-size: {{ tt.size }}; font-weight: {{ tt.w }}; color: {{ tt.fg }};"><span>{{ tt.k }}</span><span style="white-space: nowrap;">{{ tt.v }}</span></div></sc-for>
+                      <sc-if value="{{ fe.inv.hasNote }}" hint-placeholder-val="{{ false }}"><div style="margin-top: 8px; padding: 10px 12px; border-radius: 12px; background: var(--info-bg); color: var(--info); font-size: 14px; font-weight: 600;">{{ fe.inv.note }}</div></sc-if>
+                    </div>
+                    <div style="padding: 14px 18px; border-top: 1px solid var(--line); display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end;">
+                      <a href="{{ fe.inv.pdf }}" target="_blank" style="min-height: 48px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); font-weight: 600; font-size: 15px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">⬇ PDF ডাউনলোড</a>
+                      <sc-if value="{{ fe.inv.canPay }}" hint-placeholder-val="{{ false }}"><button onClick="{{ fe.inv.pay }}" style="min-height: 52px; padding: 0 22px; border-radius: 999px; border: 0; background: var(--red-600); color: #fff; font-weight: 700; font-size: 17px; cursor: pointer; min-height: 48px; font-size: 16px;">{{ fe.inv.payL }}</button></sc-if>
+                    </div>
+                  </div>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ fe.pay.on }}" hint-placeholder-val="{{ false }}">
+                <div data-screen-label="Pay flow" style="display: grid; gap: 14px; max-width: 720px; width: 100%; justify-self: center;">
+                  <sc-if value="{{ fe.pay.showStepper }}" hint-placeholder-val="{{ true }}">
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
+                      <sc-for list="{{ fe.pay.steps }}" as="sp" hint-placeholder-count="3">
+                        <div style="display: grid; gap: 6px; justify-items: center; text-align: center;">
+                          <span style="height: 6px; width: 100%; border-radius: 999px; background: {{ sp.bar }};"></span>
+                          <span style="display: flex; gap: 6px; align-items: center; font-size: 13px; font-weight: 700; color: {{ sp.fg }};"><span style="width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: {{ sp.dotBg }}; color: {{ sp.dotFg }}; font-size: 12px;">{{ sp.n }}</span>{{ sp.label }}</span>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+
+                  <sc-if value="{{ fe.pay.s1 }}" hint-placeholder-val="{{ true }}">
+                    <div style="display: grid; gap: 12px;">
+                      <h3 style="margin: 0; font-size: 18px; font-family: var(--font-head); color: var(--heading);">কী পরিশোধ করবেন?</h3>
+                      <sc-for list="{{ fe.pay.items }}" as="it" hint-placeholder-count="3">
+                        <button onClick="{{ it.go }}" style="display: flex; gap: 12px; align-items: center; min-height: 64px; padding: 10px 14px; border-radius: 16px; border: 2px solid {{ it.bd }}; background: {{ it.bg }}; cursor: pointer; text-align: left; color: var(--ink);">
+                          <span style="width: 26px; height: 26px; flex: none; border-radius: 8px; border: 2px solid {{ it.boxBd }}; background: {{ it.boxBg }}; color: #fff; display: grid; place-items: center; font-weight: 700;">{{ it.check }}</span>
+                          <span style="flex: 1; display: grid; line-height: 1.4;"><strong style="font-size: 16px;">{{ it.title }}</strong><span style="font-size: 13px; color: var(--muted);">{{ it.meta }}</span></span>
+                          <strong style="font-size: 17px; white-space: nowrap;">{{ it.amt }}</strong>
+                        </button>
+                      </sc-for>
+                      <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding: 12px 14px; border-radius: 16px; border: 1px dashed var(--green-700); background: var(--green-50);">
+                        <span style="flex: 1; min-width: 180px; display: grid; line-height: 1.4;"><strong style="font-size: 16px;">অগ্রিম মাস যোগ করুন</strong><span style="font-size: 13px; color: var(--muted);">{{ fe.pay.advMeta }}</span></span>
+                        <span style="display: flex; align-items: center; gap: 8px;">
+                          <button onClick="{{ fe.pay.advDec }}" aria-label="কমান" style="width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--surface); font-size: 20px; cursor: pointer;">−</button>
+                          <strong style="min-width: 28px; text-align: center; font-size: 20px;">{{ fe.pay.adv }}</strong>
+                          <button onClick="{{ fe.pay.advInc }}" aria-label="বাড়ান" style="width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--surface); font-size: 20px; cursor: pointer;">+</button>
+                        </span>
+                      </div>
+                    </div>
+                  </sc-if>
+
+                  <sc-if value="{{ fe.pay.s2 }}" hint-placeholder-val="{{ false }}">
+                    <div style="display: grid; gap: 12px;">
+                      <h3 style="margin: 0; font-size: 18px; font-family: var(--font-head); color: var(--heading);">পেমেন্ট পদ্ধতি বেছে নিন</h3>
+                      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 10px;">
+                        <sc-for list="{{ fe.pay.methods }}" as="mt" hint-placeholder-count="3">
+                          <button onClick="{{ mt.go }}" style="display: flex; gap: 12px; align-items: center; min-height: 72px; padding: 12px 14px; border-radius: 18px; border: 2px solid {{ mt.bd }}; background: var(--surface); cursor: pointer; text-align: left; color: var(--ink);">
+                            <span style="width: 44px; height: 44px; flex: none; border-radius: 12px; display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 18px; font-family: Poppins; background: {{ mt.color }};">{{ mt.icon }}</span>
+                            <span style="flex: 1; display: grid; line-height: 1.4;"><strong style="font-size: 17px;">{{ mt.name }}</strong><span style="font-size: 13px; color: var(--muted);">{{ mt.meta }}</span></span>
+                          </button>
+                        </sc-for>
+                      </div>
+                      <div style="padding: 14px 16px; border-radius: 18px; background: var(--surface-2); border: 1px solid var(--line); display: flex; gap: 12px; align-items: flex-start;">
+                        <span style="width: 44px; height: 44px; flex: none; border-radius: 12px; display: grid; place-items: center; background: var(--green-700); color: #fff; font-size: 20px;">🏫</span>
+                        <span style="display: grid; line-height: 1.55;"><strong style="font-size: 16px;">অফিসে নগদ জমা দিন</strong><span style="font-size: 14px;">শনি–বৃহস্পতিবার, সকাল ৯টা – বিকাল ৩টা। স্টুডেন্ট আইডি ({{ fe.sid }}) বলুন; সাথে সাথে রসিদ দেওয়া হবে।</span></span>
+                      </div>
+                    </div>
+                  </sc-if>
+
+                  <sc-if value="{{ fe.pay.s3m }}" hint-placeholder-val="{{ false }}">
+                    <div style="display: grid; gap: 12px;">
+                      <div style="padding: 18px; border-radius: 22px; background: var(--surface); border: 2px solid {{ fe.pay.w.color }}; display: grid; gap: 12px; justify-items: center; text-align: center;">
+                        <span style="display: flex; gap: 8px; align-items: center;"><span style="width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; color: #fff; font-weight: 700; font-family: Poppins; background: {{ fe.pay.w.color }};">{{ fe.pay.w.icon }}</span><strong style="font-size: 18px;">{{ fe.pay.w.name }} ({{ fe.pay.w.type }})</strong></span>
+                        <span style="font-size: 14px; color: var(--muted);">এই নম্বরে পাঠান</span>
+                        <span style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center;"><strong style="font-family: Poppins; font-size: 30px; letter-spacing: .04em; line-height: 1.2;">{{ fe.pay.w.number }}</strong><button onClick="{{ fe.pay.copy }}" style="min-height: 48px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); font-weight: 600; font-size: 15px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px;">{{ fe.pay.copyL }}</button></span>
+                        <span style="display: grid; gap: 0; padding: 10px 18px; border-radius: 16px; background: var(--yellow-50); line-height: 1.4;"><span style="font-size: 13px; font-weight: 700; color: var(--warn);">ঠিক এই পরিমাণ পাঠান</span><strong style="font-family: var(--font-head); font-size: 30px;">{{ fe.pay.total }}</strong></span>
+                        <span style="padding: 10px 14px; border-radius: 12px; background: var(--info-bg); color: var(--info); font-weight: 700; font-size: 15px;">ℹ রেফারেন্সে আপনার স্টুডেন্ট আইডি লিখুন: <span style="font-family: Poppins;">{{ fe.sidEn }}</span></span>
+                        <span style="font-size: 13px; color: var(--muted); line-height: 1.55;">{{ fe.pay.w.how }}</span>
+                      </div>
+                      <label style="display: grid; gap: 4px; font-weight: 700; font-size: 15px;">ট্রানজেকশন আইডি *<input value="{{ fe.pay.txn }}" onChange="{{ fe.pay.onTxn }}" placeholder="যেমন: 9BX7KQ2M1A" autocapitalize="characters" style="height: 52px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface); width: 100%; font-size: 17px; font-family: Poppins; letter-spacing: .04em;"></label>
+                      <label style="display: grid; gap: 4px; font-weight: 700; font-size: 15px;">প্রেরকের নম্বর *<input type="tel" inputmode="numeric" value="{{ fe.pay.sender }}" onChange="{{ fe.pay.onSender }}" placeholder="01XXXXXXXXX" style="height: 52px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface); width: 100%; font-size: 17px; font-family: Poppins;"></label>
+                      <label style="display: grid; gap: 6px; font-weight: 700; font-size: 15px;">স্ক্রিনশট (ঐচ্ছিক)
+                        <span style="min-height: 56px; padding: 8px 14px; border-radius: 14px; border: 2px dashed var(--line-strong); background: var(--surface-2); display: flex; gap: 10px; align-items: center; cursor: pointer; font-weight: 600;"><input type="file" accept="image/*" onChange="{{ fe.pay.onShot }}" style="display: none; min-height: 0;">📷 <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ fe.pay.shotL }}</span></span>
+                      </label>
+                      <sc-if value="{{ fe.pay.errOn }}" hint-placeholder-val="{{ false }}"><div role="alert" style="padding: 10px 14px; border-radius: 12px; background: var(--danger-bg); color: var(--danger); font-weight: 600;">{{ fe.pay.err }}</div></sc-if>
+                    </div>
+                  </sc-if>
+
+                  <sc-if value="{{ fe.pay.s3o }}" hint-placeholder-val="{{ false }}">
+                    <div style="padding: 22px; border-radius: 22px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 12px; justify-items: center; text-align: center;">
+                      <span style="width: 56px; height: 56px; border-radius: 16px; display: grid; place-items: center; background: var(--navy-800); color: #fff; font-size: 26px;">⌁</span>
+                      <strong style="font-size: 18px;">নিরাপদ অনলাইন পেমেন্ট</strong>
+                      <span style="color: var(--muted); font-size: 14px; max-width: 420px;">কার্ড, বিকাশ বা নগদ দিয়ে পেমেন্ট গেটওয়েতে পরিশোধ করুন। সফল হলে সাথে সাথে রসিদ পাবেন।</span>
+                      <strong style="font-family: var(--font-head); font-size: 32px;">{{ fe.pay.total }}</strong>
+                      <sc-if value="{{ fe.pay.busy }}" hint-placeholder-val="{{ false }}"><span style="font-weight: 700; color: var(--navy-800);">গেটওয়েতে সংযোগ হচ্ছে…</span></sc-if>
+                    </div>
+                  </sc-if>
+
+                  <sc-if value="{{ fe.pay.s4 }}" hint-placeholder-val="{{ false }}">
+                    <div data-screen-label="Payment result" style="padding: 28px 20px; border-radius: 24px; background: {{ fe.pay.res.bg }}; border: 2px solid {{ fe.pay.res.fg }}; display: grid; gap: 10px; justify-items: center; text-align: center;">
+                      <span style="width: 72px; height: 72px; border-radius: 50%; display: grid; place-items: center; background: {{ fe.pay.res.fg }}; color: #fff; font-size: 34px;">{{ fe.pay.res.icon }}</span>
+                      <strong style="font-size: 21px; color: {{ fe.pay.res.fg }}; line-height: 1.45;">{{ fe.pay.res.title }}</strong>
+                      <span style="max-width: 440px; line-height: 1.6;">{{ fe.pay.res.body }}</span>
+                      <div style="display: grid; gap: 4px; padding: 12px 16px; border-radius: 16px; background: var(--surface); min-width: min(100%, 300px); text-align: left;">
+                        <sc-for list="{{ fe.pay.res.rows }}" as="r" hint-placeholder-count="4"><span style="display: flex; justify-content: space-between; gap: 12px; font-size: 15px;"><span style="color: var(--muted);">{{ r.k }}</span><strong style="text-align: right;">{{ r.v }}</strong></span></sc-for>
+                      </div>
+                      <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                        <sc-if value="{{ fe.pay.res.ok }}" hint-placeholder-val="{{ false }}"><a href="{{ fe.pay.res.receipt }}" target="_blank" style="min-height: 48px; padding: 0 20px; border-radius: 999px; border: 0; background: var(--green-700); color: #fff; font-weight: 700; font-size: 16px; cursor: pointer; display: inline-flex; align-items: center; text-decoration: none;">🧾 রসিদ দেখুন</a></sc-if>
+                        <sc-if value="{{ fe.pay.res.pending }}" hint-placeholder-val="{{ false }}"><span style="min-height: 48px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); font-weight: 600; font-size: 15px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: default; color: var(--muted);">🧾 যাচাই হলে রসিদ পাবেন</span></sc-if>
+                        <button onClick="{{ fe.back }}" style="min-height: 48px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); font-weight: 600; font-size: 15px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">বেতন ও ফি তে ফিরুন</button>
+                      </div>
+                    </div>
+                  </sc-if>
+
+                  <sc-if value="{{ fe.pay.bar }}" hint-placeholder-val="{{ true }}">
+                    <div style="position: sticky; bottom: 0; z-index: 5; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 12px 14px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-lg);">
+                      <button onClick="{{ fe.pay.prev }}" style="min-height: 48px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); font-weight: 600; font-size: 15px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 52px;">← {{ fe.pay.prevL }}</button>
+                      <span style="flex: 1; min-width: 110px; display: grid; line-height: 1.3; text-align: right;"><span style="font-size: 13px; color: var(--muted);">মোট</span><strong style="font-family: var(--font-head); font-size: 24px;">{{ fe.pay.total }}</strong></span>
+                      <sc-if value="{{ fe.pay.hasNext }}" hint-placeholder-val="{{ true }}"><button onClick="{{ fe.pay.next }}" disabled="{{ fe.pay.nextDis }}" style="min-height: 52px; padding: 0 22px; border-radius: 999px; border: 0; background: var(--red-600); color: #fff; font-weight: 700; font-size: 17px; cursor: pointer; opacity: {{ fe.pay.nextOp }};">{{ fe.pay.nextL }}</button></sc-if>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ fe.hist }}" hint-placeholder-val="{{ false }}">
+                <div data-screen-label="Payment history" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 10px;">
+                  <sc-for list="{{ fe.history }}" as="p" hint-placeholder-count="6">
+                    <div style="padding: 14px 16px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 12px;">
+                      <span style="width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 18px; font-family: Poppins; background: {{ p.color }};">{{ p.icon }}</span>
+                      <div style="display: grid; gap: 4px; min-width: 0;">
+                        <span style="display: flex; gap: 8px; justify-content: space-between; flex-wrap: wrap; align-items: center;"><strong style="font-size: 19px;">{{ p.amt }}</strong><span style="padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; white-space: nowrap; background: {{ p.bg }}; color: {{ p.fg }};">{{ p.glyph }} {{ p.label }}</span></span>
+                        <span style="font-size: 14px; color: var(--muted); line-height: 1.5;">{{ p.meta }}</span>
+                        <span style="font-size: 14px; line-height: 1.5;">{{ p.what }}</span>
+                        <sc-if value="{{ p.hasReason }}" hint-placeholder-val="{{ false }}"><span style="padding: 8px 10px; border-radius: 10px; background: var(--danger-bg); color: var(--danger); font-size: 13px; font-weight: 600; line-height: 1.5;">কারণ: {{ p.reason }}</span></sc-if>
+                        <sc-if value="{{ p.ok }}" hint-placeholder-val="{{ true }}"><a href="{{ p.receipt }}" target="_blank" style="justify-self: start; min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--green-700); color: var(--green-700); font-weight: 700; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center;">⬇ রসিদ PDF</a></sc-if>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ fe.led }}" hint-placeholder-val="{{ false }}">
+                <div data-screen-label="Fee ledger" style="display: grid; gap: 12px;">
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                    <sc-for list="{{ fe.ledSum }}" as="x" hint-placeholder-count="4"><div style="padding: 12px 14px; border-radius: 16px; background: {{ x.bg }}; display: grid;"><span style="font-size: 13px; color: var(--muted); font-weight: 600;">{{ x.k }}</span><strong style="font-family: var(--font-head); font-size: 22px; line-height: 1.35; color: {{ x.fg }};">{{ x.v }}</strong></div></sc-for>
+                  </div>
+                  <div style="border-radius: 20px; background: var(--surface); border: 1px solid var(--line); overflow-x: auto;">
+                    <table style="width: 100%; min-width: 600px; border-collapse: collapse; font-size: 15px;">
+                      <thead><tr style="background: var(--surface-2); text-align: left;"><th style="padding: 12px 14px;">তারিখ</th><th style="padding: 12px 8px;">বিবরণ</th><th style="padding: 12px 8px; text-align: right;">ডেবিট</th><th style="padding: 12px 8px; text-align: right;">ক্রেডিট</th><th style="padding: 12px 14px; text-align: right;">ব্যালান্স</th></tr></thead>
+                      <tbody>
+                        <sc-for list="{{ fe.ledger }}" as="l" hint-placeholder-count="10">
+                          <tr style="border-top: 1px solid var(--line);">
+                            <td style="padding: 10px 14px; white-space: nowrap; font-size: 14px;">{{ l.date }}</td>
+                            <td style="padding: 10px 8px; line-height: 1.45;">{{ l.desc }}<br><span style="font-size: 12px; color: var(--muted); font-family: Poppins;">{{ l.ref }}</span></td>
+                            <td style="padding: 10px 8px; text-align: right; white-space: nowrap; color: var(--danger);">{{ l.dr }}</td>
+                            <td style="padding: 10px 8px; text-align: right; white-space: nowrap; color: var(--success);">{{ l.cr }}</td>
+                            <td style="padding: 10px 14px; text-align: right; white-space: nowrap; font-weight: 700;">{{ l.bal }}</td>
+                          </tr>
+                        </sc-for>
+                      </tbody>
+                    </table>
+                  </div>
+                  <span style="font-size: 13px; color: var(--muted);">ব্যালান্স ধনাত্মক = বকেয়া · “অগ্রিম” = আপনার জমা অতিরিক্ত টাকা</span>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ v.notices }}" hint-placeholder-val="{{ false }}">
+            <div data-screen-label="Portal notices" style="display: grid; gap: 10px;">
+              <sc-for list="{{ notices }}" as="nt" hint-placeholder-count="6">
+                <div style="display: grid; grid-template-columns: 60px 1fr; gap: 12px; align-items: center; padding: 12px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line);">
+                  <span style="display: grid; text-align: center; line-height: 1.45; padding: 8px 0; border-radius: 12px; background: var(--green-50); color: var(--green-700);"><span style="font-family: var(--font-head); font-size: 22px;">{{ nt.d }}</span><span style="font-size: 12px; font-weight: 700;">{{ nt.m }}</span></span>
+                  <span style="font-weight: 600; line-height: 1.5;">{{ nt.title }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ v.diary }}" hint-placeholder-val="{{ false }}">
+            <div data-screen-label="Portal diary" style="display: grid; gap: 14px;">
+              <div style="padding: 12px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 10px;">
+                <div style="display: flex; gap: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+                  <strong style="font-size: 16px;">{{ dy.month }}</strong>
+                  <span style="display: flex; gap: 6px; align-items: center;">
+                    <button onClick="{{ dy.prevWeek }}" aria-label="আগের সপ্তাহ" style="width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); cursor: pointer;">‹</button>
+                    <button onClick="{{ dy.nextWeek }}" aria-label="পরের সপ্তাহ" style="width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); cursor: pointer;">›</button>
+                    <label aria-label="ক্যালেন্ডার" style="position: relative; height: 44px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--surface-2); display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 14px; cursor: pointer;">🗓 {{ t.calendar }}<input type="date" value="{{ dy.sel }}" onChange="{{ dy.onPick }}" style="position: absolute; inset: 0; opacity: 0; cursor: pointer; min-height: 0;"></label>
+                  </span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px;">
+                  <sc-for list="{{ dy.week }}" as="wd" hint-placeholder-count="7">
+                    <button onClick="{{ wd.go }}" style="min-height: 68px; padding: 6px 0; border-radius: 14px; border: 2px solid {{ wd.bd }}; background: {{ wd.bg }}; color: {{ wd.fg }}; cursor: pointer; display: grid; justify-items: center; gap: 0; line-height: 1.3;">
+                      <span style="font-size: 12px; font-weight: 600;">{{ wd.day }}</span>
+                      <strong style="font-size: 18px; font-family: var(--font-head);">{{ wd.num }}</strong>
+                      <span style="width: 6px; height: 6px; border-radius: 50%; background: {{ wd.dot }};"></span>
+                    </button>
+                  </sc-for>
+                </div>
+              </div>
+              <strong style="font-family: var(--font-head); color: var(--heading); font-size: 19px;">{{ dy.selLabel }}</strong>
+
+              <sc-if value="{{ dy.locked }}" hint-placeholder-val="{{ false }}">
+                <div style="padding: 28px 20px; border-radius: 20px; border: 2px dashed var(--line-strong); text-align: center; display: grid; gap: 6px;"><span style="font-size: 30px;">{{ dy.lockIcon }}</span><strong style="font-size: 17px;">{{ dy.lockMsg }}</strong></div>
+              </sc-if>
+
+              <sc-if value="{{ dy.open }}" hint-placeholder-val="{{ true }}">
+                <div style="display: grid; gap: 14px;">
+                  <sc-if value="{{ dy.hasPrep }}" hint-placeholder-val="{{ true }}">
+                    <div style="padding: 18px; border-radius: 22px; background: linear-gradient(135deg, var(--navy-800), #0F2257); color: #fff; display: grid; gap: 10px;">
+                      <span style="display: grid; line-height: 1.45;"><span style="font-size: 13px; font-weight: 700; color: #FFD21F;">{{ t.prepFor }}</span><strong style="font-size: 18px;">{{ dy.prepDate }}</strong></span>
+                      <sc-for list="{{ dy.prep }}" as="p" hint-placeholder-count="4">
+                        <div style="display: grid; grid-template-columns: 26px 1fr; gap: 8px; align-items: start; padding: 8px 10px; border-radius: 12px; background: rgba(255,255,255,.08);">
+                          <span style="width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; font-size: 13px; background: {{ p.iconBg }}; color: #17212B; font-weight: 700;">{{ p.icon }}</span>
+                          <span style="line-height: 1.5; font-size: 15px;"><strong>{{ p.subj }}:</strong> {{ p.text }}</span>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+
+                  <sc-for list="{{ dy.remarks }}" as="r" hint-placeholder-count="1">
+                    <div style="padding: 14px 16px; border-radius: 18px; background: {{ r.bg }}; border: 2px solid {{ r.fg }}; display: grid; gap: 4px;">
+                      <span style="font-weight: 700; color: {{ r.fg }};">{{ r.icon }} {{ t.personalRemark }}: {{ r.label }}</span>
+                      <sc-if value="{{ r.hasText }}" hint-placeholder-val="{{ true }}"><span style="line-height: 1.6;">{{ r.text }}</span></sc-if>
+                      <span style="font-size: 13px; color: var(--muted);">{{ r.meta }}</span>
+                    </div>
+                  </sc-for>
+
+                  <sc-if value="{{ dy.empty }}" hint-placeholder-val="{{ false }}">
+                    <div style="padding: 32px 20px; border-radius: 20px; border: 2px dashed var(--line-strong); text-align: center; display: grid; gap: 6px;"><span style="font-size: 32px;">📓</span><strong style="font-size: 18px;">{{ t.noDiary }}</strong><span style="color: var(--muted);">{{ t.noDiaryBody }}</span></div>
+                  </sc-if>
+
+                  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 12px; align-items: start;">
+                    <sc-for list="{{ dy.cards }}" as="c" hint-placeholder-count="4">
+                      <div style="padding: 16px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); display: grid; gap: 10px;">
+                        <strong style="font-size: 18px; color: var(--green-700); font-family: var(--font-head);">{{ c.subj }}</strong>
+                        <sc-for list="{{ c.rows }}" as="r" hint-placeholder-count="3">
+                          <div style="display: grid; grid-template-columns: 28px 1fr; gap: 8px; align-items: start;">
+                            <span style="width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; font-size: 13px; background: {{ r.iconBg }}; color: {{ r.iconFg }};">{{ r.icon }}</span>
+                            <span style="display: grid; gap: 2px;"><span style="font-size: 13px; font-weight: 700; color: var(--muted);">{{ r.k }}</span><span style="line-height: 1.6;">{{ r.v }}</span><sc-if value="{{ r.hasDue }}" hint-placeholder-val="{{ false }}"><span style="justify-self: start; padding: 1px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: var(--yellow-50); color: var(--warn); border: 1px solid var(--yellow-400);">{{ t.dueOn }}: {{ r.due }}</span></sc-if></span>
+                          </div>
+                        </sc-for>
+                        <sc-if value="{{ c.hasAtt }}" hint-placeholder-val="{{ false }}">
+                          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <sc-for list="{{ c.att }}" as="a" hint-placeholder-count="1"><button onClick="{{ a.open }}" style="min-height: 44px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface-2); font-size: 14px; font-weight: 600; cursor: pointer;">{{ a.icon }} {{ a.name }}</button></sc-for>
+                          </div>
+                        </sc-if>
+                        <span style="font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 8px;">👤 {{ c.meta }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+
+                  <sc-if value="{{ dy.canAck }}" hint-placeholder-val="{{ true }}">
+                    <button onClick="{{ dy.doAck }}" style="min-height: 60px; border-radius: 999px; border: {{ dy.ackBd }}; background: {{ dy.ackBg }}; color: {{ dy.ackFg }}; font-weight: 700; font-size: 18px; cursor: pointer;">{{ dy.ackLabel }}</button>
+                  </sc-if>
+                </div>
+              </sc-if>
+
+              <div style="border-radius: 20px; background: var(--surface); border: 1px solid var(--line); overflow: hidden;">
+                <h3 style="margin: 0; padding: 14px 18px; font-size: 17px; background: var(--yellow-50); color: var(--warn);">✎ {{ t.pendingHw }} ({{ dy.pendingN }})</h3>
+                <sc-for list="{{ dy.pending }}" as="p" hint-placeholder-count="3">
+                  <div style="display: flex; gap: 12px; align-items: center; padding: 12px 18px; border-top: 1px solid var(--line); flex-wrap: wrap;">
+                    <span style="flex: 1; min-width: 200px; display: grid; line-height: 1.5;"><strong>{{ p.subj }}</strong><span style="color: var(--muted); font-size: 14px;">{{ p.text }}</span></span>
+                    <span style="padding: 2px 12px; border-radius: 999px; font-weight: 700; font-size: 13px; background: {{ p.bg }}; color: {{ p.fg }};">{{ p.due }}</span>
+                  </div>
+                </sc-for>
+                <sc-if value="{{ dy.noPending }}" hint-placeholder-val="{{ false }}"><div style="padding: 14px 18px; color: var(--success); font-weight: 600;">✓ {{ t.noPending }}</div></sc-if>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ viewer.on }}" hint-placeholder-val="{{ false }}">
+            <div onClick="{{ closeViewer }}" style="position: fixed; inset: 0; z-index: 90; background: rgba(10,20,15,.8); display: grid; place-items: center; padding: 20px;">
+              <div style="width: 100%; max-width: 560px; display: grid; gap: 10px; justify-items: center; color: #fff; text-align: center;">
+                <div style="width: 100%; aspect-ratio: 3 / 4; max-height: 70vh; border-radius: 16px; overflow: hidden; background: #fff;"><image-slot id="{{ viewer.slot }}" shape="rounded" radius="16" fit="contain" placeholder="{{ viewer.name }}"></image-slot></div>
+                <strong>{{ viewer.name }}</strong>
+                <button onClick="{{ closeViewer }}" style="height: 44px; padding: 0 20px; border-radius: 999px; border: 0; background: #fff; color: #17212B; font-weight: 700; cursor: pointer;">✕ {{ t.close }}</button>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ v.more }}" hint-placeholder-val="{{ false }}">
+            <div style="display: grid; gap: 8px;">
+              <sc-for list="{{ moreMenu }}" as="m" hint-placeholder-count="5">
+                <button onClick="{{ m.go }}" style="display: flex; align-items: center; gap: 14px; min-height: 56px; padding: 0 16px; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; font-weight: 600; font-size: 16px; color: var(--ink); text-align: left;"><span style="font-size: 20px; width: 24px;">{{ m.icon }}</span>{{ m.label }}</button>
+              </sc-for>
+              <button onClick="{{ logout }}" style="min-height: 52px; border-radius: 16px; border: 1px solid var(--red-600); background: var(--red-50); color: var(--danger); font-weight: 700; cursor: pointer;">⎋ {{ t.logout }}</button>
+            </div>
+          </sc-if>
+        </main>
+      </div>
+    </div>
+
+    <sc-if value="{{ narrow }}" hint-placeholder-val="{{ false }}">
+      <nav style="position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: var(--surface); border-top: 1px solid var(--line); box-shadow: 0 -6px 20px rgba(0,0,0,.06); display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); padding: 6px 2px calc(6px + env(safe-area-inset-bottom));">
+        <sc-for list="{{ bottom }}" as="b" hint-placeholder-count="5">
+          <button onClick="{{ b.go }}" style="position: relative; min-height: 56px; border: 0; background: transparent; cursor: pointer; display: grid; place-items: center; gap: 0; font-size: 11px; font-weight: 700; white-space: nowrap; color: {{ b.fg }};"><span style="position: relative; width: 40px; height: 28px; border-radius: 999px; display: grid; place-items: center; font-size: 17px; background: {{ b.bg }};">{{ b.icon }}<sc-if value="{{ b.dot }}" hint-placeholder-val="{{ false }}"><span aria-label="নতুন" style="position: absolute; top: 0; right: 6px; width: 10px; height: 10px; border-radius: 50%; background: var(--red-600); border: 2px solid var(--surface);"></span></sc-if></span>{{ b.label }}</button>
+        </sc-for>
+      </nav>
+    </sc-if>
+  </sc-if>
+
+  <sc-if value="{{ toastOn }}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="position: fixed; left: 50%; bottom: 88px; transform: translateX(-50%); z-index: 80; padding: 12px 20px; border-radius: 999px; background: var(--ink); color: var(--bg); font-weight: 600; box-shadow: var(--shadow-lg);">{{ toast }}</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;start&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;login&quot;, &quot;app&quot;], &quot;default&quot;: &quot;login&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Flow&quot;}, &quot;admitState&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;available&quot;, &quot;unpaid&quot;, &quot;notReleased&quot;], &quot;default&quot;: &quot;unpaid&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;States&quot;}, &quot;dataState&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;ready&quot;, &quot;loading&quot;, &quot;empty&quot;, &quot;error&quot;], &quot;default&quot;: &quot;ready&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;States&quot;}}">
+const S = {
+  bn: { website: 'ওয়েবসাইট', loginTitle: 'শিক্ষার্থী লগইন', forgotTitle: 'পাসওয়ার্ড পুনরুদ্ধার', changeTitle: 'নতুন পাসওয়ার্ড দিন', sid: 'শিক্ষার্থী আইডি', pw: 'পাসওয়ার্ড', login: 'লগইন করুন', logging: 'যাচাই করা হচ্ছে…', forgot: 'পাসওয়ার্ড ভুলে গেছেন?',
+    demo: 'ডেমো: আইডি 20240101 · পাসওয়ার্ড 123456 (প্রথম লগইন)', badLogin: 'আইডি বা পাসওয়ার্ড সঠিক নয়', forgotBody: 'আপনার আইডি ও অভিভাবকের মোবাইল নম্বর দিন। নম্বরে একটি OTP পাঠানো হবে।', gphone: 'অভিভাবকের মোবাইল', sendOtp: 'OTP পাঠান', otpSent: 'OTP পাঠানো হয়েছে', backLogin: 'লগইনে ফিরুন',
+    firstLogin: 'প্রথমবার লগইন — নিরাপত্তার জন্য পাসওয়ার্ড পরিবর্তন করুন।', newPw: 'নতুন পাসওয়ার্ড', confirmPw: 'পাসওয়ার্ড নিশ্চিত করুন', savePw: 'সংরক্ষণ করে এগিয়ে যান', pwShort: 'কমপক্ষে ৬ অক্ষর দিন', pwMismatch: 'দুটি পাসওয়ার্ড মেলেনি',
+    home: 'হোম', results: 'ফলাফল', routine: 'রুটিন', notices: 'নোটিশ', profile: 'প্রোফাইল', more: 'আরও', admit: 'এডমিট কার্ড', idcard: 'আইডি কার্ড', fees: 'পরীক্ষার ফি', dashboard: 'ড্যাশবোর্ড', marksheet: 'মার্কশিট', logout: 'লগআউট',
+    salam: 'আস্সালামু আলাইকুম,', upcoming: 'আসন্ন পরীক্ষা', feeDue: 'বকেয়া ফি', latestNotice: 'সর্বশেষ নোটিশ', latestResult: 'সর্বশেষ ফলাফল', starts: 'শুরু', lastDate: 'শেষ তারিখ',
+    readOnly: 'শুধু দেখার জন্য — সংশোধনে অফিসে যোগাযোগ করুন', personal: 'ব্যক্তিগত তথ্য', guardian: 'অভিভাবকের তথ্য',
+    pk: ['নাম', 'আইডি', 'শ্রেণি', 'শাখা', 'রোল', 'সেশন', 'জন্ম তারিখ', 'রক্তের গ্রুপ', 'বিভাগ'], gk: ['পিতার নাম', 'মাতার নাম', 'সম্পর্ক', 'মোবাইল', 'ঠিকানা'],
+    viewMs: 'মার্কশিট দেখুন', notPub: 'প্রকাশিত হয়নি', back: 'ফিরে যান', dlPdf: 'PDF ডাউনলোড', grade: 'গ্রেড', position: 'মেধাস্থান', total: 'মোট', subject: 'বিষয়', full: 'পূর্ণমান', parts: 'অংশভিত্তিক', obtained: 'প্রাপ্ত', room: 'কক্ষ', roll: 'রোল',
+    admitReady: 'আপনার এডমিট কার্ড প্রস্তুত।', dlAdmit: 'এডমিট কার্ড ডাউনলোড', unpaidMsg: '⚠ পরীক্ষার ফি বকেয়া থাকায় এডমিট কার্ড ডাউনলোড করা যাবে না।', notRelMsg: '⏳ এডমিট কার্ড এখনো প্রকাশ করা হয়নি। পরীক্ষার ৭ দিন আগে প্রকাশ হবে।', seeFees: 'ফি পরিশোধের তথ্য দেখুন',
+    dlId: 'আইডি কার্ড ডাউনলোড', paid: 'পরিশোধিত', due: 'বকেয়া', paidOn: 'পরিশোধ', receipt: 'রসিদ', payAt: 'অফিসে নগদ অথবা বিকাশ/নগদ (01714844346) এ পরিশোধ করুন।',
+    fees: 'বেতন ও ফি', diary: 'ডায়েরি', todayDiary: 'আজকের ডায়েরি', calendar: 'ক্যালেন্ডার', prepFor: 'আগামীকালের প্রস্তুতি', personalRemark: 'ব্যক্তিগত মন্তব্য', noDiary: 'এই দিনে কোনো ডায়েরি নেই', noDiaryBody: 'শিক্ষকরা ডায়েরি প্রকাশ করলে এখানে দেখা যাবে।', dueOn: 'জমা', pendingHw: 'বাকি বাড়ির কাজ', noPending: 'কোনো বাকি বাড়ির কাজ নেই', close: 'বন্ধ', ackBtn: 'অভিভাবক দেখেছেন ✓', acked: 'দেখা হয়েছে', notAcked: 'অভিভাবক এখনো দেখেননি', holiday: 'ছুটির দিন — কোনো ক্লাস নেই', future: 'এই তারিখের ডায়েরি এখনো দেখা যাবে না', tomorrow: 'কাল', todayW: 'আজ', subjects: 'টি বিষয়', hwN: 'টি বাড়ির কাজ', prepShort: 'প্রস্তুতি', errTitle: 'তথ্য লোড করা যায়নি', errBody: 'ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।', retry: 'আবার চেষ্টা করুন', emptyTitle: 'এখানে এখনো কিছু নেই', emptyBody: 'নতুন তথ্য যুক্ত হলে এখানে দেখা যাবে।', pos: 'য়', reload: 'আবার লোড হচ্ছে…' },
+  en: { website: 'Website', loginTitle: 'Student login', forgotTitle: 'Recover password', changeTitle: 'Set a new password', sid: 'Student ID', pw: 'Password', login: 'Log in', logging: 'Checking…', forgot: 'Forgot password?',
+    demo: 'Demo: ID 20240101 · password 123456 (first login)', badLogin: 'Incorrect ID or password', forgotBody: 'Enter your ID and guardian’s mobile number. We will send an OTP to that number.', gphone: 'Guardian’s mobile', sendOtp: 'Send OTP', otpSent: 'OTP sent', backLogin: 'Back to login',
+    firstLogin: 'First login — please change your password for security.', newPw: 'New password', confirmPw: 'Confirm password', savePw: 'Save and continue', pwShort: 'Use at least 6 characters', pwMismatch: 'Passwords do not match',
+    home: 'Home', results: 'Results', routine: 'Routine', notices: 'Notices', profile: 'Profile', more: 'More', admit: 'Admit card', idcard: 'ID card', fees: 'Exam fees', dashboard: 'Dashboard', marksheet: 'Marksheet', logout: 'Log out',
+    salam: 'Assalamu Alaikum,', upcoming: 'Upcoming exam', feeDue: 'Fee due', latestNotice: 'Latest notice', latestResult: 'Latest result', starts: 'Starts', lastDate: 'Deadline',
+    readOnly: 'Read-only — contact the office for corrections', personal: 'Personal information', guardian: 'Guardian information',
+    pk: ['Name', 'ID', 'Class', 'Section', 'Roll', 'Session', 'Date of birth', 'Blood group', 'Division'], gk: ['Father', 'Mother', 'Relation', 'Mobile', 'Address'],
+    viewMs: 'View marksheet', notPub: 'Not published', back: 'Back', dlPdf: 'Download PDF', grade: 'Grade', position: 'Position', total: 'Total', subject: 'Subject', full: 'Full', parts: 'Components', obtained: 'Obtained', room: 'Room', roll: 'Roll',
+    admitReady: 'Your admit card is ready.', dlAdmit: 'Download admit card', unpaidMsg: '⚠ Admit card unavailable — the exam fee is due.', notRelMsg: '⏳ Admit cards are not released yet. They will be released 7 days before the exam.', seeFees: 'See fee details',
+    dlId: 'Download ID card', paid: 'Paid', due: 'Due', paidOn: 'Paid', receipt: 'Receipt', payAt: 'Pay in cash at the office or via bKash/Nagad (01714844346).',
+    fees: 'Fees', diary: 'Diary', todayDiary: 'Today’s diary', calendar: 'Calendar', prepFor: 'Prepare for next school day', personalRemark: 'Personal remark', noDiary: 'No diary for this day', noDiaryBody: 'Entries appear here once teachers publish them.', dueOn: 'Due', pendingHw: 'Pending homework', noPending: 'No pending homework', close: 'Close', ackBtn: 'Guardian has seen ✓', acked: 'Seen', notAcked: 'Not yet seen by guardian', holiday: 'Holiday — no classes', future: 'This date’s diary is not visible yet', tomorrow: 'Tomorrow', todayW: 'Today', subjects: ' subjects', hwN: ' homework', prepShort: 'Prepare', errTitle: 'Couldn’t load data', errBody: 'Check your internet connection and try again.', retry: 'Try again', emptyTitle: 'Nothing here yet', emptyBody: 'New information will appear here.', pos: 'nd', reload: 'Reloading…' },
+};
+
+class Component extends DCLogic {
+  state = { feeTab: 'overview', feeInv: '', pay: null, myPays: (() => { try { return JSON.parse(localStorage.getItem('arm_fee_pays') || '[]'); } catch (e) { return []; } })(), copied: false, dDate: '2026-10-18', ack: {}, viewer: null, lang: 'bn', theme: 'light', w: 1280, screen: 'login', view: 'home', examId: 'half26', f: { id: '', pw: '', np: '', cp: '' }, err: '', busy: false, otp: false, toast: '' };
+  componentDidMount() {
+    this.onR = () => this.setState({ w: window.innerWidth }); window.addEventListener('resize', this.onR); this.onR();
+    const boot = () => { if (!window.MD) return setTimeout(boot, 40); this.setState({ lang: MD.getLang(), theme: MD.getTheme(), screen: (this.props.start ?? 'login') === 'app' ? 'app' : 'login' }); };
+    boot();
+    try { this.setState({ ack: JSON.parse(localStorage.getItem('arm_diary_ack') || '{}') }); } catch (e) {}
+  }
+  componentDidUpdate(pp) { if (pp.start !== this.props.start) this.setState({ screen: this.props.start === 'app' ? 'app' : 'login' }); }
+  componentWillUnmount() { window.removeEventListener('resize', this.onR); }
+  finishPay(status, total) {
+    const p = this.state.pay, F = window.FE;
+    const id = (status === 'approved' ? 'RCPT-26-' : 'PAY-26-') + String(2200 + this.state.myPays.length);
+    const rec = { id, date: F.today, method: p.method, amount: total, txn: p.method === 'online' ? 'SSL' + Date.now().toString().slice(-10) : p.txn.trim(), sender: p.sender.trim(), inv: p.sel, adv: p.adv, status, by: status === 'approved' ? 'অনলাইন গেটওয়ে' : '', shot: p.shot };
+    const list = [rec, ...this.state.myPays];
+    try { localStorage.setItem('arm_fee_pays', JSON.stringify(list)); } catch (e) {}
+    const rows = [['পরিমাণ', F.tk(total)], ['পদ্ধতি', F.methods[p.method].bn], ['ট্রানজেকশন আইডি', rec.txn], ['রেফারেন্স', id]].map(([k, v]) => ({ k, v }));
+    this.setState({ myPays: list, pay: { ...p, step: 4, busy: false, res: { status, id, rows } } });
+  }
+  flash(m) { this.setState({ toast: m }); clearTimeout(this.tt); this.tt = setTimeout(() => this.setState({ toast: '' }), 2200); }
+  startPay(sel, adv) { this.view('fees', { feeTab: 'pay', pay: { step: 1, sel, adv: adv || 0, method: '', txn: '', sender: '', shot: '', err: '', res: null } }); }
+  view(v, extra = {}) { this.setState({ view: v, ...extra }); window.scrollTo({ top: 0 }); }
+
+  renderVals() {
+    if (!window.MD || !window.DY || !window.FE) return { fe: { inv: {}, pay: { w: {}, res: {} }, thisMonth: {} }, feDash: {}, dy: {}, dDash: {}, viewer: {}, t: {}, auth: {}, v: {}, ds: {}, err: {}, f: {}, stu: {}, dash: {}, ms: {}, admit: {} };
+    const st = this.state, lang = st.lang, s = S[lang], n = x => MD.num(x, lang), T = o => MD.t(o, lang), M = MD.student;
+    const wide = st.w >= 1024, inApp = st.screen === 'app';
+    const dsv = this.props.dataState ?? 'ready';
+    const ds = { loading: inApp && dsv === 'loading', error: inApp && dsv === 'error', empty: inApp && dsv === 'empty' && st.view !== 'home' && st.view !== 'fees' };
+    const ready = dsv === 'ready' || (dsv === 'empty' && (st.view === 'home' || st.view === 'fees'));
+    const V = ['home', 'diary', 'profile', 'results', 'marksheet', 'routine', 'admit', 'idcard', 'fees', 'notices', 'more'];
+    const v = Object.fromEntries(V.map(k => [k, inApp && ready && st.view === k]));
+    const setF = k => e => this.setState({ f: { ...this.state.f, [k]: e.target.value }, err: '' });
+    const icons = { diary: '📓', home: '⌂', results: '🏅', routine: '🗓', notices: '📢', profile: '👤', admit: '🎫', idcard: '🪪', fees: '৳', more: '☰' };
+    const navItem = (k, active) => ({ dot: (k === 'diary' && unseen) || (k === 'fees' && feeHasDue), label: s[k], icon: icons[k], go: () => this.view(k), bg: active ? 'rgba(255,255,255,.14)' : 'transparent', fg: active ? '#FFD21F' : '#E6F2EA' });
+    const cur = st.view === 'marksheet' ? 'results' : st.view;
+    const DYo = window.DY, bnn = DYo.bn;
+    let allE = DYo.entries; try { const ls = JSON.parse(localStorage.getItem('arm_diary_entries') || 'null'); if (ls) allE = ls; } catch (e) {}
+    let allR = DYo.remarks; try { const lr = JSON.parse(localStorage.getItem('arm_diary_remarks') || 'null'); if (lr) allR = lr; } catch (e) {}
+    const myE = allE.filter(e => e.cls === M.classId && e.sec === M.section && e.status === 'published' && (dsv !== 'empty'));
+    const stuKey = '2024010' + '0'.repeat(0) + M.roll; const stuRid = '202401' + M.roll;
+    const ackT = st.ack[DYo.today];
+    const unseen = myE.some(e => e.date === DYo.today) && !ackT;
+    const sel = st.dDate;
+    const dayE = myE.filter(e => e.date === sel);
+    const ORD = [...DYo.subjects.map(x => x.id), 'general'];
+    const nextD = DYo.nextSchoolDay(sel);
+    const offSel = DYo.isOff(sel), future = sel > DYo.today && !DYo.settings.futureVisible;
+    const p0 = DYo.P(sel); const back = (p0.dow + 1) % 7; const wStart = DYo.add(sel, -back);
+    const dueChip = due => { const dd = due === DYo.today ? { l: s.todayW, bg: 'var(--danger-bg)', fg: 'var(--danger)' } : due === DYo.nextSchoolDay(DYo.today) ? { l: s.tomorrow + ' · ' + DYo.dayName(due), bg: 'var(--warn-bg)', fg: 'var(--warn)' } : { l: DYo.dateShort(due), bg: 'var(--surface-2)', fg: 'var(--ink)' }; return dd; };
+    const prep = [];
+    dayE.slice().sort((a, b) => ORD.indexOf(a.subj) - ORD.indexOf(b.subj)).forEach(e => { const sn = DYo.subj(e.subj).bn; if (e.next) prep.push({ subj: sn, text: e.next, icon: '→', iconBg: '#D7F0DF' }); if (e.note) prep.push({ subj: sn, text: e.note, icon: '!', iconBg: '#FFD21F' }); });
+    myE.filter(e => e.hw && e.due === nextD).forEach(e => prep.push({ subj: DYo.subj(e.subj).bn, text: e.hw, icon: '✎', iconBg: '#FFF4CC' }));
+    const pend = myE.filter(e => e.hw && e.due >= DYo.today).sort((a, b) => a.due.localeCompare(b.due));
+    const todayE = myE.filter(e => e.date === DYo.today);
+    const FEo = window.FE;
+    const myPays = st.myPays || [];
+    const appr = myPays.filter(p => p.status === 'approved');
+    const paidX = new Set(appr.flatMap(p => p.inv));
+    let advLeft = appr.reduce((a, p) => a + (p.adv || 0), 0);
+    const INV = FEo.invoices.map(i => { let x = { ...i };
+      if ((dsv === 'empty' || paidX.has(x.id)) && (x.status === 'due' || x.status === 'partial')) x = { ...x, status: 'paid', paid: x.total };
+      if (x.status === 'upcoming' && advLeft > 0) { advLeft--; x = { ...x, status: 'paid', total: 1580, paid: 1580, adv: true }; }
+      return x; });
+    const dueOf = i => (i.status === 'due' || i.status === 'partial') ? i.total - i.paid : 0;
+    const dueList = INV.filter(i => dueOf(i) > 0).sort((a, b) => a.due.localeCompare(b.due));
+    const totalDue = dueList.reduce((a, i) => a + dueOf(i), 0);
+    const feeHasDue = totalDue > 0;
+    const up = MD.exams[0], dueFee = MD.fees.find(f => f.status === 'due');
+    const ms = MD.marksheet(st.examId);
+    const np = st.f.np; const score = (np.length >= 6) + (/[A-Z]/.test(np) || /[০-৯0-9]/.test(np)) + (np.length >= 10) + /[^A-Za-z0-9]/.test(np);
+    const admitState = this.props.admitState ?? 'unpaid';
+    const cls = T(MD.cls(M.classId));
+
+    return {
+      lang, theme: st.theme, t: s, wide, narrow: !wide, inApp, cols: wide ? '240px minmax(0,1fr)' : 'minmax(0,1fr)',
+      themeIcon: st.theme === 'dark' ? '☀' : '☾',
+      langBn: { bg: lang === 'bn' ? 'var(--green-700)' : 'transparent', fg: lang === 'bn' ? '#fff' : 'var(--muted)' },
+      langEn: { bg: lang === 'en' ? 'var(--green-700)' : 'transparent', fg: lang === 'en' ? '#fff' : 'var(--muted)' },
+      setBn: () => { MD.setLang('bn'); this.setState({ lang: 'bn' }); }, setEn: () => { MD.setLang('en'); this.setState({ lang: 'en' }); },
+      toggleTheme: () => { const x = st.theme === 'dark' ? 'light' : 'dark'; MD.setTheme(x); this.setState({ theme: x }); },
+      instName: T(MD.inst.name), instShort: T(MD.inst.short),
+      auth: { any: !inApp, login: st.screen === 'login', forgot: st.screen === 'forgot', change: st.screen === 'change', title: s[st.screen + 'Title'] || s.loginTitle },
+      f: st.f, onId: setF('id'), onPw: setF('pw'), onNp: setF('np'), onCp: setF('cp'),
+      err: { on: !!st.err, msg: st.err }, loginBtn: st.busy ? s.logging : s.login,
+      doLogin: () => {
+        this.setState({ busy: true });
+        setTimeout(() => { const ok = st.f.id.trim() === '20240101' && st.f.pw === '123456'; this.setState(ok ? { busy: false, screen: 'change', err: '' } : { busy: false, err: s.badLogin }); }, 700);
+      },
+      goForgot: () => this.setState({ screen: 'forgot', err: '', otp: false }), goLogin: () => this.setState({ screen: 'login' }),
+      sendOtp: () => this.setState({ otp: true }), forgotSent: st.otp,
+      strength: [0, 1, 2, 3].map(i => i < score ? ['var(--red-600)', 'var(--yellow-400)', 'var(--green-500)', 'var(--green-700)'][score - 1] : 'var(--line)'),
+      doChange: () => { if (np.length < 6) return this.setState({ err: s.pwShort }); if (np !== st.f.cp) return this.setState({ err: s.pwMismatch }); this.setState({ screen: 'app', view: 'home', err: '' }); },
+      logout: () => this.setState({ screen: 'login', f: { id: '', pw: '', np: '', cp: '' } }),
+      ds, v, skeleton: [1, 2, 3, 4], retry: () => this.flash(s.reload),
+      screenTitle: s[st.view === 'home' ? 'dashboard' : st.view],
+      side: ['home', 'diary', 'results', 'routine', 'admit', 'idcard', 'fees', 'notices', 'profile'].map(k => navItem(k, cur === k)),
+      bottom: ['home', 'diary', 'fees', 'results', 'routine', 'notices', 'profile'].map(k => ({ dot: (k === 'diary' && unseen) || (k === 'fees' && feeHasDue), label: s[k], icon: icons[k], go: () => this.view(k), fg: cur === k ? 'var(--green-700)' : 'var(--muted)', bg: cur === k ? 'var(--green-100)' : 'transparent' })),
+      quick: ['admit', 'idcard', 'fees', 'profile'].map(k => ({ label: s[k], icon: icons[k], go: () => this.view(k) })),
+      moreMenu: ['admit', 'idcard', 'fees'].map(k => ({ label: s[k], icon: icons[k], go: () => this.view(k) })),
+      fe: (() => {
+        const tk = FEo.tk, B = FEo.bn;
+        const STS = { paid: ['✓', 'পরিশোধিত', 'var(--success-bg)', 'var(--success)'], partial: ['◐', 'আংশিক', 'var(--warn-bg)', 'var(--warn)'], due: ['!', 'বকেয়া', 'var(--danger-bg)', 'var(--danger)'], upcoming: ['○', 'আসন্ন', 'var(--surface-2)', 'var(--muted)'], waived: ['✦', 'মওকুফ', 'var(--info-bg)', 'var(--info)'], pending: ['⏳', 'যাচাই চলছে', 'var(--warn-bg)', 'var(--warn)'] };
+        const pendIds = new Set(myPays.filter(p => p.status === 'pending').flatMap(p => p.inv));
+        const stOf = i => pendIds.has(i.id) && dueOf(i) > 0 ? 'pending' : i.status;
+        const sty = k => ({ glyph: STS[k][0], label: STS[k][1], bg: STS[k][2], fg: STS[k][3] });
+        const openInv = id => this.setState({ feeTab: 'invoice', feeInv: id });
+        const tab = st.feeTab;
+        const allPays = [...myPays, ...FEo.payments].sort((a, b) => b.date.localeCompare(a.date));
+        const last = allPays.find(p => p.status === 'approved');
+        const curM = Number(FEo.today.slice(5, 7));
+        const cm = INV.find(i => i.kind === 'monthly' && i.month === curM);
+        const recHref = id => 'Fee Documents.dc.html?doc=receipt&id=' + id;
+        const out = { session: B(FEo.session), monthly: tk(1580), dueDay: B(FEo.settings.dueDay), sid: B(M.id), sidEn: M.id,
+          showTabs: ['overview', 'history', 'ledger'].includes(tab), ov: tab === 'overview', hist: tab === 'history', led: tab === 'ledger', inv: { on: false }, pay: { on: false },
+          tabs: [['overview', 'সারসংক্ষেপ'], ['history', 'পেমেন্ট ইতিহাস'], ['ledger', 'খতিয়ান']].map(([k, l]) => ({ label: l, go: () => this.setState({ feeTab: k }), bg: tab === k ? 'var(--surface)' : 'transparent', fg: tab === k ? 'var(--green-700)' : 'var(--muted)', sh: tab === k ? 'var(--shadow-sm)' : 'none' })),
+          back: () => this.setState({ feeTab: 'overview', pay: null, feeInv: '' }),
+          totalDue: tk(totalDue), dueWords: totalDue ? FEo.words(totalDue) : 'সব পরিশোধিত', dueColor: totalDue ? 'var(--danger)' : 'var(--success)', sumBd: totalDue ? 'var(--red-600)' : 'var(--green-500)',
+          hasDue: totalDue > 0, noDue: totalDue === 0, thisMonthL: `এই মাসের বেতন (${FEo.MB[curM - 1]})`, thisMonth: sty(stOf(cm)),
+          lastPay: last ? `${FEo.date(last.date)} · ${tk(last.amount)}` : '—',
+          pendingOn: myPays.some(p => p.status === 'pending'), pendingAmt: tk(myPays.filter(p => p.status === 'pending').reduce((a, p) => a + p.amount, 0)),
+          payNow: () => this.startPay([dueList[0].id]), payAdvance: () => this.startPay([], 1),
+          legend: ['paid', 'partial', 'due', 'upcoming', 'waived'].map(k => { const x = sty(k); return { label: x.glyph + ' ' + x.label, bg: x.bg, fg: x.fg }; }),
+          months: INV.filter(i => i.kind === 'monthly').map(i => { const k = stOf(i), x = sty(k); return { name: FEo.MB[i.month - 1], glyph: x.glyph, label: x.label, fg: x.fg, bg: x.bg, bd: i.month === curM ? 'var(--navy-800)' : 'transparent',
+            amt: k === 'waived' ? '৳০' : k === 'partial' ? 'বাকি ' + tk(dueOf(i)) : tk(i.total || 1580), aria: FEo.MB[i.month - 1] + ': ' + x.label, open: () => openInv(i.id) }; }),
+          others: INV.filter(i => i.kind === 'other').map(i => { const x = sty(stOf(i)); return { ...x, title: i.title, amt: tk(i.total), meta: i.status === 'paid' ? 'পরিশোধিত' : 'শেষ তারিখ: ' + FEo.date(i.due), open: () => openInv(i.id) }; }),
+        };
+        if (tab === 'invoice') {
+          const i = INV.find(x => x.id === st.feeInv) || INV[0]; const k = stOf(i), x = sty(k), due = dueOf(i);
+          const items = (i.status === 'upcoming' ? FEo.invoices.find(z => z.kind === 'monthly').items : i.items);
+          out.inv = { on: true, id: i.id, ...x, pdf: 'Fee Documents.dc.html?doc=invoice&id=' + i.id,
+            meta: [['মাস / উদ্দেশ্য', i.title], ['শিক্ষার্থী', `${T(M.name)} · ${B(M.id)}`], ['ইস্যুর তারিখ', FEo.date(i.issue)], ['পরিশোধের শেষ তারিখ', FEo.date(i.due)]].map(([a, b]) => ({ k: a, v: b })),
+            items: items.map(it => ({ k: FEo.head(it.head).bn, v: tk(it.amt), fg: 'var(--ink)' })),
+            totals: [
+              ...(i.discount ? [{ k: 'ছাড় — ' + (i.discNote || ''), v: '− ' + tk(i.discount), fg: 'var(--success)', size: '15px', w: 600 }] : []),
+              ...(i.fine ? [{ k: 'বিলম্ব ফি', v: '+ ' + tk(i.fine), fg: 'var(--danger)', size: '15px', w: 600 }] : []),
+              { k: 'মোট', v: tk(i.status === 'waived' ? 0 : (i.total || 1580)), fg: 'var(--ink)', size: '17px', w: 700 },
+              { k: 'পরিশোধিত', v: tk(i.paid), fg: 'var(--success)', size: '15px', w: 600 },
+              { k: 'বকেয়া', v: tk(due), fg: due ? 'var(--danger)' : 'var(--ink)', size: '20px', w: 700 }],
+            hasNote: !!i.waiveNote || k === 'pending' || !!i.adv, note: i.waiveNote || (i.adv ? 'অগ্রিম পরিশোধিত' : 'এই চালানের পেমেন্ট যাচাই চলছে।'),
+            canPay: (due > 0 && k !== 'pending') || i.status === 'upcoming', payL: i.status === 'upcoming' ? 'অগ্রিম পরিশোধ' : 'এই চালান পরিশোধ করুন',
+            pay: () => i.status === 'upcoming' ? this.startPay(dueList.map(d => d.id), INV.filter(z => z.status === 'upcoming' && z.month <= i.month).length) : this.startPay([i.id]) };
+        }
+        if (tab === 'pay' && st.pay) {
+          const p = st.pay, setP = o => this.setState({ pay: { ...this.state.pay, ...o, err: '' } });
+          const upLeft = INV.filter(i => i.status === 'upcoming').length;
+          const total = dueList.filter(i => p.sel.includes(i.id)).reduce((a, i) => a + dueOf(i), 0) + p.adv * 1580;
+          const gw = (() => { try { return !!(JSON.parse(localStorage.getItem('arm_fee_settings') || '{}').gateway); } catch (e) { return false; } })();
+          const W = FEo.settings.wallets.find(w => w.id === p.method);
+          const mts = FEo.settings.wallets.map(w => ({ id: w.id, name: w.name, icon: FEo.methods[w.id].icon, color: w.color, meta: `${w.type} · ${B(w.number)}` }))
+            .concat(gw ? [{ id: 'online', name: 'অনলাইনে পেমেন্ট', icon: '⌁', color: '#16307A', meta: 'কার্ড / মোবাইল ব্যাংকিং · তাৎক্ষণিক' }] : []);
+          const submit = () => {
+            if (p.method === 'online') { setP({ busy: true }); setTimeout(() => this.finishPay('approved', total), 1200); return; }
+            if (!/^[A-Za-z0-9]{8,}$/.test(p.txn.trim())) return this.setState({ pay: { ...p, err: 'সঠিক ট্রানজেকশন আইডি দিন (কমপক্ষে ৮ অক্ষর)' } });
+            if (!/^01\d{9,10}$/.test(p.sender.trim())) return this.setState({ pay: { ...p, err: 'সঠিক প্রেরকের নম্বর দিন (01XXXXXXXXX)' } });
+            this.finishPay('pending', total);
+          };
+          const stepIdx = Math.min(p.step, 3);
+          out.pay = { on: true, showStepper: p.step < 4, s1: p.step === 1, s2: p.step === 2, s3m: p.step === 3 && p.method !== 'online', s3o: p.step === 3 && p.method === 'online', s4: p.step === 4, busy: !!p.busy,
+            steps: ['নির্বাচন', 'পদ্ধতি', 'পরিশোধ'].map((l, i) => { const done = i + 1 < stepIdx, cur = i + 1 === stepIdx; return { n: done ? '✓' : B(i + 1), label: l, bar: done || cur ? 'var(--green-700)' : 'var(--line)', fg: cur ? 'var(--green-700)' : done ? 'var(--ink)' : 'var(--muted)', dotBg: done || cur ? 'var(--green-700)' : 'var(--surface-2)', dotFg: done || cur ? '#fff' : 'var(--muted)' }; }),
+            items: dueList.map(i => { const on = p.sel.includes(i.id), pend = pendIds.has(i.id); return { title: i.title, meta: pend ? '⏳ আগের পেমেন্ট যাচাই চলছে' : (i.status === 'partial' ? 'আংশিক পরিশোধিত · ' : '') + 'শেষ তারিখ: ' + FEo.date(i.due) + (i.fine ? ' · বিলম্ব ফি সহ' : ''), amt: tk(dueOf(i)),
+              check: on ? '✓' : '', boxBg: on ? 'var(--green-700)' : 'transparent', boxBd: on ? 'var(--green-700)' : 'var(--line-strong)', bg: on ? 'var(--green-50)' : 'var(--surface)', bd: on ? 'var(--green-700)' : 'var(--line)',
+              go: () => setP({ sel: on ? p.sel.filter(x => x !== i.id) : [...p.sel, i.id] }) }; }),
+            adv: B(p.adv), advMeta: upLeft ? `প্রতি মাস ${tk(1580)} · এই সেশনে আরও ${B(upLeft)} মাস বাকি` : 'এই সেশনের সব মাস পরিশোধিত',
+            advInc: () => p.adv < upLeft && setP({ adv: p.adv + 1 }), advDec: () => p.adv > 0 && setP({ adv: p.adv - 1 }),
+            methods: mts.map(m => ({ ...m, bd: p.method === m.id ? m.color : 'var(--line)', go: () => setP({ method: m.id, step: 3 }) })),
+            w: W ? { ...W, icon: FEo.methods[W.id].icon, number: W.number } : {}, copyL: st.copied ? '✓ কপি হয়েছে' : '⧉ কপি',
+            copy: () => { try { navigator.clipboard.writeText(W.number); } catch (e) {} this.setState({ copied: true }); setTimeout(() => this.setState({ copied: false }), 1600); },
+            txn: p.txn, sender: p.sender, onTxn: e => setP({ txn: e.target.value.toUpperCase() }), onSender: e => setP({ sender: e.target.value }),
+            shotL: p.shot || 'লেনদেনের স্ক্রিনশট যোগ করুন', onShot: e => { const f = e.target.files && e.target.files[0]; if (f) setP({ shot: f.name }); },
+            errOn: !!p.err, err: p.err, total: tk(total),
+            bar: p.step < 4 && !(p.step === 2), hasNext: true,
+            prevL: p.step === 1 ? 'বাতিল' : 'পেছনে', prev: () => p.step === 1 ? this.setState({ feeTab: 'overview', pay: null }) : setP({ step: p.step - 1 }),
+            nextL: p.step === 1 ? 'পরবর্তী →' : p.method === 'online' ? (p.busy ? 'অপেক্ষা করুন…' : 'পরিশোধ করুন') : 'জমা দিন', nextDis: total === 0 || !!p.busy, nextOp: total === 0 ? 0.5 : 1,
+            next: () => p.step === 1 ? (total > 0 && setP({ step: 2 })) : submit(),
+            res: p.res ? (p.res.status === 'approved'
+              ? { ok: true, pending: false, icon: '✓', title: 'পেমেন্ট সফল হয়েছে', body: 'আপনার পেমেন্ট গৃহীত হয়েছে। রসিদ ডাউনলোড করে রাখুন।', bg: 'var(--success-bg)', fg: 'var(--success)', receipt: recHref(p.res.id), rows: p.res.rows }
+              : { ok: false, pending: true, icon: '⏳', title: 'আপনার পেমেন্ট যাচাইয়ের অপেক্ষায় আছে', body: 'অফিস সাধারণত ২৪ ঘণ্টার মধ্যে যাচাই করে। অনুমোদন হলে SMS পাবেন এবং রসিদ এখানে দেখা যাবে।', bg: 'var(--warn-bg)', fg: 'var(--warn)', rows: p.res.rows }) : {} };
+          if (p.step === 2) out.pay.bar = true, out.pay.hasNext = false;
+        }
+        out.history = allPays.map(p => { const k = p.status === 'approved' ? ['✓', 'অনুমোদিত', 'var(--success-bg)', 'var(--success)'] : p.status === 'pending' ? ['⏳', 'যাচাই চলছে', 'var(--warn-bg)', 'var(--warn)'] : ['✕', 'বাতিল', 'var(--danger-bg)', 'var(--danger)'];
+          const md = FEo.methods[p.method];
+          return { amt: tk(p.amount), glyph: k[0], label: k[1], bg: k[2], fg: k[3], icon: md.icon, color: md.color, ok: p.status === 'approved', receipt: recHref(p.id), hasReason: !!p.reason, reason: p.reason || '',
+            meta: `${FEo.date(p.date)} · ${md.bn}${p.txn ? ' · ' + p.txn : ''}`, what: (p.inv || []).map(id => { const iv = FEo.invoices.find(z => z.id === id); return iv ? iv.title.replace(' — মাসিক বেতন', '') : id; }).concat(p.adv ? [`অগ্রিম ${B(p.adv)} মাস`] : []).join(', ') }; });
+        const L = [];
+        INV.filter(i => i.status !== 'upcoming' && !(i.adv)).forEach(i => L.push({ d: i.issue, desc: i.status === 'waived' ? i.title + ' (মওকুফ)' : i.title, ref: i.id, dr: i.status === 'waived' ? 0 : i.total, cr: 0 }));
+        INV.filter(i => i.adv).forEach(i => L.push({ d: i.issue, desc: i.title + ' (অগ্রিম)', ref: i.id, dr: i.total, cr: 0 }));
+        [...FEo.payments, ...myPays].filter(p => p.status === 'approved').forEach(p => L.push({ d: p.date, desc: 'পেমেন্ট — ' + FEo.methods[p.method].bn, ref: p.id, dr: 0, cr: p.amount }));
+        L.sort((a, b) => a.d.localeCompare(b.d) || (b.dr - a.dr));
+        let bal = 0; const totDr = L.reduce((a, x) => a + x.dr, 0), totCr = L.reduce((a, x) => a + x.cr, 0);
+        out.ledger = L.map(x => { bal += x.dr - x.cr; return { date: FEo.dateShort(x.d), desc: x.desc, ref: x.ref, dr: x.dr ? tk(x.dr) : '—', cr: x.cr ? tk(x.cr) : '—', bal: bal >= 0 ? tk(bal) : 'অগ্রিম ' + tk(-bal) }; });
+        if (dsv === 'empty') out.ledger = [];
+        out.ledSum = [{ k: 'মোট চালান', v: tk(totDr), bg: 'var(--surface)', fg: 'var(--ink)' }, { k: 'মোট পরিশোধ', v: tk(totCr), bg: 'var(--success-bg)', fg: 'var(--success)' },
+          { k: 'বকেয়া', v: tk(Math.max(0, totalDue)), bg: totalDue ? 'var(--danger-bg)' : 'var(--surface)', fg: totalDue ? 'var(--danger)' : 'var(--ink)' }, { k: 'অগ্রিম ব্যালান্স', v: tk(Math.max(0, totCr - totDr)), bg: 'var(--info-bg)', fg: 'var(--info)' }];
+        return out;
+      })(),
+      feDash: { on: feeHasDue, amt: window.FE.tk(totalDue), meta: feeHasDue ? `${dueList.length}টি চালান · শেষ তারিখ ${window.FE.date(dueList[0].due)}`.replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]) : '', pay: () => feeHasDue && this.startPay([dueList[0].id]) },
+      goDiary: () => this.view('diary'),
+      dDash: { date: DYo.dateShort(DYo.today), summary: todayE.length ? `${bnn(todayE.filter(e => e.subj !== 'general').length)}${s.subjects} · ${bnn(todayE.filter(e => e.hw).length)}${s.hwN}` : s.noDiary,
+        prep: todayE.length ? `${s.prepShort}: ${DYo.dayName(DYo.nextSchoolDay(DYo.today))} — ${todayE.filter(e => e.next || e.note).map(e => DYo.subj(e.subj).bn).slice(0, 3).join(', ')}` : s.noDiaryBody,
+        ack: ackT ? '✓ ' + s.acked : '● ' + s.notAcked, ackBg: ackT ? 'var(--success-bg)' : 'var(--danger-bg)', ackFg: ackT ? 'var(--success)' : 'var(--danger)', bd: unseen ? 'var(--red-600)' : 'var(--line)' },
+      dy: {
+        month: `${MD.dayM(wStart, 'bn').m} ${bnn(p0.y)}`, sel, selLabel: `${DYo.dayName(sel)}, ${DYo.date(sel)}`,
+        prevWeek: () => this.setState({ dDate: DYo.add(sel, -7) }), nextWeek: () => this.setState({ dDate: DYo.add(sel, 7) }), onPick: e => e.target.value && this.setState({ dDate: e.target.value }),
+        week: Array.from({ length: 7 }, (_, i) => { const dd = DYo.add(wStart, i), on = dd === sel, isT = dd === DYo.today, off = DYo.isOff(dd), has = myE.some(e => e.date === dd);
+          return { day: off ? 'ছুটি' : DYo.dayShort(dd), num: bnn(DYo.P(dd).d), go: () => this.setState({ dDate: dd }), bg: on ? 'var(--green-700)' : off ? 'var(--surface-2)' : 'var(--surface)', fg: on ? '#fff' : off ? 'var(--faint)' : 'var(--ink)', bd: isT ? 'var(--yellow-400)' : on ? 'var(--green-700)' : 'var(--line)', dot: has ? (on ? '#FFD21F' : 'var(--red-600)') : 'transparent' }; }),
+        locked: (offSel && !dayE.length) || future, lockIcon: future ? '🔒' : '🌙', lockMsg: future ? s.future : s.holiday, open: !((offSel && !dayE.length) || future),
+        hasPrep: prep.length > 0, prep, prepDate: `${DYo.dayName(nextD)}, ${DYo.date(nextD)}`,
+        remarks: allR.filter(r => r.date === sel && r.stuId === stuRid).map(r => { const ty = DYo.remarkTypes.find(x => x.id === r.type); const good = r.type === 'praise'; return { icon: good ? '★' : '!', label: ty.bn, text: r.text, hasText: !!r.text, bg: good ? 'var(--success-bg)' : 'var(--warn-bg)', fg: good ? 'var(--success)' : 'var(--warn)', meta: `${DYo.subj(r.subj).bn} · ${DYo.teacher(r.teacher).name}` }; }),
+        empty: dayE.length === 0,
+        cards: dayE.slice().sort((a, b) => ORD.indexOf(a.subj) - ORD.indexOf(b.subj)).map(e => ({ subj: DYo.subj(e.subj).bn, meta: `${DYo.teacher(e.teacher).name} · ${DYo.time(e.time)}`,
+          rows: [['আজকের পাঠ', e.today, '📖', 'var(--green-50)', 'var(--green-700)'], ['আগামীকালের পড়া', e.next, '→', 'var(--navy-50)', 'var(--navy-800)'], ['বাড়ির কাজ', e.hw, '✎', 'var(--yellow-50)', 'var(--warn)'], ['বিশেষ নির্দেশনা', e.note, '!', 'var(--red-50)', 'var(--danger)']].filter(r => r[1]).map(r => ({ k: r[0], v: r[1], icon: r[2], iconBg: r[3], iconFg: r[4], hasDue: r[0] === 'বাড়ির কাজ' && !!e.due, due: e.due ? DYo.dateShort(e.due) : '' })),
+          hasAtt: e.attach.length > 0, att: e.attach.map((a, i) => ({ icon: a.type === 'pdf' ? '📄' : '🖼', name: a.name, open: () => this.setState({ viewer: { slot: 'diary-att-' + e.id + '-' + i, name: a.name } }) })) })),
+        canAck: dayE.length > 0, ackLabel: st.ack[sel] ? `✓ ${s.acked}, ${DYo.time(st.ack[sel])}` : s.ackBtn,
+        ackBg: st.ack[sel] ? 'var(--success-bg)' : 'var(--green-700)', ackFg: st.ack[sel] ? 'var(--success)' : '#fff', ackBd: st.ack[sel] ? '2px solid var(--success)' : '0',
+        doAck: () => { if (st.ack[sel]) return; const d = new Date(); const a = { ...st.ack, [sel]: `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}` }; try { localStorage.setItem('arm_diary_ack', JSON.stringify(a)); } catch (e) {} this.setState({ ack: a }); this.flash('✓ ' + s.acked); },
+        pendingN: bnn(pend.length), noPending: pend.length === 0,
+        pending: pend.map(e => { const c = dueChip(e.due); return { subj: DYo.subj(e.subj).bn, text: e.hw, due: s.dueOn + ': ' + c.l, bg: c.bg, fg: c.fg }; }),
+      },
+      viewer: st.viewer ? { on: true, ...st.viewer } : { on: false }, closeViewer: () => this.setState({ viewer: null }),
+      goRoutine: () => this.view('routine'), goFees: () => this.view('fees', { feeTab: 'overview', pay: null }), goNotices: () => this.view('notices'), goResults: () => this.view('results'), openLatest: () => this.view('marksheet', { examId: 'model26' }),
+      stu: { name: T(M.name), id: n(M.id), cls, roll: n(M.roll), blood: M.blood, chips: [cls, `${s.pk[3]}: ${T(MD.sec(M.section))}`, `${s.roll}: ${n(M.roll)}`, `${s.pk[5]}: ${n(M.session)}`] },
+      dash: { exam: T(up), examWhen: `${s.starts}: ${MD.date(up.from, lang)}`, due: window.FE.tk(totalDue), dueWhen: feeHasDue ? `${s.lastDate}: ${window.FE.date(dueList[0].due)}` : '', notice: T(MD.notices[0].title), noticeDate: MD.date(MD.notices[0].date, lang), result: T(MD.exams[1]), gpa: n(MD.marksheet('model26').gpa), grade: MD.marksheet('model26').final },
+      profileGroups: [
+        { title: s.personal, rows: [T(M.name), n(M.id), cls, T(MD.sec(M.section)), n(M.roll), n(M.session), MD.date(M.dob, lang), M.blood, T(M.division)].map((x, i) => ({ k: s.pk[i], v: x })) },
+        { title: s.guardian, rows: [T(M.father), T(M.mother), T(M.relation), n(M.guardianPhone), T(M.address)].map((x, i) => ({ k: s.gk[i], v: x })) },
+      ],
+      examResults: MD.exams.filter(e => e.status !== 'draft').map(e => { const m = e.published ? MD.marksheet(e.id) : null; return { name: T(e), pub: e.published, unpub: !e.published, icon: e.published ? '🏅' : '⏳', bg: e.published ? 'var(--green-50)' : 'var(--warn-bg)', meta: m ? `GPA ${n(m.gpa)} · ${m.final} · ${MD.date(e.to, lang)}` : MD.date(e.from, lang), open: () => this.view('marksheet', { examId: e.id }) }; }),
+      ms: { gpa: n(ms.gpa), final: ms.final, pos: n(ms.position) + s.pos, total: `${n(ms.total)}/${n(ms.full)}`, rows: ms.rows.map(r => ({ subj: T(r.subj), full: n(r.full), parts: r.parts.map(p => `${T(MD.comps[p.k])} ${n(p.got)}/${n(p.full)}`).join(' · '), got: n(r.got), grade: r.grade, gp: n(r.gp.toFixed(2)) })) },
+      routine: MD.routineFor('annual26').map(r => { const dm = MD.dayM(r.date, lang); return { dd: dm.d, mm: dm.m, day: MD.day(r.date, lang), subj: T(r.subj), time: n(r.time), room: n(r.room) }; }),
+      admit: { ok: admitState === 'available', blocked: admitState !== 'available', unpaid: admitState === 'unpaid', msg: admitState === 'unpaid' ? s.unpaidMsg : s.notRelMsg, bg: admitState === 'unpaid' ? 'var(--danger-bg)' : 'var(--warn-bg)', fg: admitState === 'unpaid' ? 'var(--danger)' : 'var(--warn)' },
+      fees: MD.fees.map(f => { const paid = f.status === 'paid'; return { exam: T(MD.exams.find(e => e.id === f.examId)), amount: '৳ ' + n(f.amount), status: paid ? '✓ ' + s.paid : '! ' + s.due, due: !paid, pbg: paid ? 'var(--success-bg)' : 'var(--danger-bg)', pfg: paid ? 'var(--success)' : 'var(--danger)', bd: paid ? 'var(--line)' : 'var(--red-600)', meta: paid ? `${s.paidOn}: ${MD.date(f.paidOn, lang)} · ${T(f.method)} · ${s.receipt} ${f.receipt}` : `${s.lastDate}: ${MD.date(f.due, lang)}` }; }),
+      notices: MD.notices.map(x => { const dm = MD.dayM(x.date, lang); return { title: T(x.title), d: dm.d, m: dm.m }; }),
+      toast: st.toast, toastOn: !!st.toast,
+    };
+  }
+}
+</script>
+</body>
+</html>

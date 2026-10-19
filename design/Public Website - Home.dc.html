@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/design-system-009914db-f7bd-4883-a3fd-9c9777ef004a/fonts/fonts.css">
+  <link rel="stylesheet" href="_ds/design-system-009914db-f7bd-4883-a3fd-9c9777ef004a/_ds_bundle.css">
+  <link rel="stylesheet" href="_ds/design-system-009914db-f7bd-4883-a3fd-9c9777ef004a/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Tiro+Bangla&family=Amiri:wght@700&family=Poppins:wght@500;700&display=swap">
+  <script src="_ds/design-system-009914db-f7bd-4883-a3fd-9c9777ef004a/_ds_bundle.js"></script>
+  <script src="./image-slot.js"></script>
+  <style>
+    html, body { margin: 0; padding: 0; }
+    a { color: #0B6B3A; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+    a:hover { color: #16307A; }
+    @keyframes tick { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  </style>
+</helmet>
+
+<div class="hc-root" data-theme="{{ theme }}" data-screen-label="Home" style="--hc-font-ui: 'Hind Siliguri', sans-serif; --hc-font-prose: 'Hind Siliguri', sans-serif; --hc-font-data: 'Hind Siliguri', sans-serif; --hc-font-display: 'Tiro Bangla', serif; --hc-accent: var(--hc-coral); --hc-accent-deep: var(--hc-coral-deep); min-height: 100vh; background: var(--hc-bg-base); color: var(--hc-text); font-family: 'Hind Siliguri', sans-serif; font-size: 16px; line-height: 1.7;">
+
+  <!-- Ticker -->
+  <div style="display: flex; align-items: stretch; background: var(--hc-bg-raised); border-bottom: 2px solid var(--hc-outline); overflow: hidden; height: 40px;">
+    <div style="flex: none; display: flex; align-items: center; padding: 0 14px; background: var(--hc-coral); color: #000; font-weight: 700; border-right: 2px solid var(--hc-outline); font-size: 15px;">নতুন</div>
+    <div style="flex: 1; min-width: 0; overflow: hidden; display: flex; align-items: center;">{{ ticker }}</div>
+  </div>
+
+  <!-- Header -->
+  <header style="position: sticky; top: 0; z-index: 30; background: var(--hc-bg-raised); border-bottom: 2px solid var(--hc-outline);">
+    <div style="max-width: 1240px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 12px;">
+      <a href="#" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--hc-text); min-width: 0; flex: 1;">
+        <div style="flex: none; width: 52px; height: 52px; border-radius: 50%; border: 2px solid var(--hc-outline); overflow: hidden; background: var(--hc-bg-inset);">
+          <image-slot id="logo-header" shape="circle" placeholder="লোগো" style="width: 52px; height: 52px;"></image-slot>
+        </div>
+        <div style="min-width: 0; display: grid; line-height: 1.3;">
+          <span style="font-family: 'Tiro Bangla', serif; font-size: 17px; font-weight: 400; text-wrap: balance;">আর রহমান ইন্টারন্যাশনাল ক্যাডেট মাদরাসা</span>
+          <span style="font-size: 13px; color: var(--hc-text-muted);">স্থাপিত: ২০২৪ ইং · গাইবান্ধা</span>
+        </div>
+      </a>
+      <div style="display: flex; align-items: center; gap: 10px; flex: none;">
+        <x-import component-from-global-scope="HardCandy.SegmentedControl" options="{{ langOptions }}" value="{{ lang }}" on-change="{{ setLang }}" label="ভাষা" hint-size="88px,36px"></x-import>
+        <sc-if value="{{ isWide }}" hint-placeholder-val="{{ true }}">
+          <div style="display: flex; gap: 10px;">
+            <x-import component-from-global-scope="HardCandy.Button" variant="primary" hint-size="120px,44px">ভর্তি চলছে</x-import>
+            <x-import component-from-global-scope="HardCandy.Button" variant="secondary" hint-size="80px,44px">লগইন</x-import>
+          </div>
+        </sc-if>
+        <sc-if value="{{ isNarrow }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ openDrawer }}" aria-label="মেনু" style="width: 44px; height: 44px; border: 2px solid var(--hc-outline); background: var(--hc-bg-raised); box-shadow: var(--hc-shadow-1); font-size: 20px; color: var(--hc-text); cursor: pointer; display: grid; place-items: center;">☰</button>
+        </sc-if>
+      </div>
+    </div>
+    <sc-if value="{{ isWide }}" hint-placeholder-val="{{ true }}">
+      <nav style="background: #0B6B3A; border-top: 2px solid var(--hc-outline);">
+        <div style="max-width: 1240px; margin: 0 auto; padding: 0 8px; display: flex; flex-wrap: wrap;">
+          <sc-for list="{{ nav }}" as="n" hint-placeholder-count="9">
+            <a href="#" style="color: #fff; text-decoration: none; padding: 10px 14px; font-weight: 500; font-size: 15.5px;" style-hover="background: rgba(255,255,255,.12); color: #fff;">{{ n }}</a>
+          </sc-for>
+        </div>
+      </nav>
+    </sc-if>
+  </header>
+
+  <!-- Mobile drawer -->
+  <sc-if value="{{ drawerOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position: fixed; inset: 0; z-index: 50; background: #0B6B3A; color: #fff; display: flex; flex-direction: column; overflow-y: auto;">
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 2px solid rgba(255,255,255,.25);">
+        <span style="font-family: 'Tiro Bangla', serif; font-size: 18px;">মেনু</span>
+        <button onClick="{{ closeDrawer }}" aria-label="বন্ধ করুন" style="width: 44px; height: 44px; border: 2px solid #fff; background: transparent; color: #fff; font-size: 20px; cursor: pointer;">✕</button>
+      </div>
+      <nav style="display: grid; padding: 8px 0;">
+        <sc-for list="{{ nav }}" as="n" hint-placeholder-count="9">
+          <a href="#" onClick="{{ closeDrawer }}" style="color: #fff; text-decoration: none; padding: 12px 20px; font-size: 20px; font-weight: 500; border-bottom: 1px solid rgba(255,255,255,.15);">{{ n }}</a>
+        </sc-for>
+      </nav>
+      <div style="display: grid; gap: 12px; padding: 20px 16px 32px;">
+        <x-import component-from-global-scope="HardCandy.Button" variant="primary" size="lg" block="{{ true }}" hint-size="100%,52px">ভর্তি চলছে</x-import>
+        <x-import component-from-global-scope="HardCandy.Button" variant="secondary" size="lg" block="{{ true }}" hint-size="100%,52px">লগইন</x-import>
+        <div style="display: grid; gap: 4px; margin-top: 8px; font-size: 15px;">
+          <a href="tel:01714844346" style="color: #FFD21F;">০১৭১৪৮৪৪৩৪৬</a>
+          <a href="tel:01761781338" style="color: #FFD21F;">০১৭৬১৭৮১৩৩৮</a>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <main>
+    <!-- Hero -->
+    <section style="border-bottom: 2px solid var(--hc-outline); background-color: var(--hc-bg-inset); background-image: radial-gradient(circle at 1px 1px, var(--hc-outline-soft) 1.2px, transparent 0), linear-gradient(45deg, transparent 48%, color-mix(in oklch, var(--hc-mint) 40%, transparent) 49%, color-mix(in oklch, var(--hc-mint) 40%, transparent) 51%, transparent 52%); background-size: 22px 22px, 44px 44px;">
+      <div style="max-width: 1240px; margin: 0 auto; padding: 40px 16px 56px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 40px; align-items: center;">
+        <div style="display: grid; gap: 20px; justify-items: start;">
+          <span style="font-family: 'Amiri', serif; font-size: 26px; line-height: 1.4; direction: rtl;">الرحمن انترناشونال كاديت مدرسة</span>
+          <h1 style="margin: 0; font-family: 'Tiro Bangla', serif; font-weight: 400; font-size: clamp(34px, 6vw, 56px); line-height: 1.25; text-wrap: balance;">শিশুর মেধা বিকাশে আমাদের প্রতিশ্রুতি…</h1>
+          <p style="margin: 0; font-size: 19px; color: var(--hc-text-muted); max-width: 34ch; text-wrap: pretty;">ছোট থেকেই মেধার ভিত্তি গড়ি — হিফজুল কুরআন, সাধারণ শিক্ষা ও ক্যাডেট শৃঙ্খলা এক ছাদের নিচে।</p>
+          <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+            <x-import component-from-global-scope="HardCandy.Button" variant="primary" size="lg" hint-size="160px,52px">ভর্তির আবেদন</x-import>
+            <x-import component-from-global-scope="HardCandy.Button" variant="secondary" size="lg" hint-size="160px,52px">যোগাযোগ করুন</x-import>
+          </div>
+          <span style="font-size: 16px; font-weight: 600;">আপনারা সবাই সাদর আমন্ত্রিত!</span>
+        </div>
+        <div style="position: relative; padding: 16px 16px 24px 0;">
+          <div style="aspect-ratio: 5 / 4; border: 2px solid var(--hc-outline); box-shadow: var(--hc-shadow-3); background: var(--hc-bg-raised);">
+            <image-slot id="hero-students" shape="rect" placeholder="ছাত্র-ছাত্রীদের ছবি — টুপি পরা ছেলে ও হিজাব পরা মেয়ে"></image-slot>
+          </div>
+          <div style="position: absolute; top: 0; right: 0; padding: 6px 12px; background: var(--hc-butter); color: #000; border: 2px solid var(--hc-outline); box-shadow: var(--hc-shadow-1); font-weight: 700; font-size: 15px; pointer-events: none;">স্থাপিত ২০২৪</div>
+          <div style="position: absolute; bottom: 0; left: -8px; padding: 6px 12px; background: var(--hc-mint); color: #000; border: 2px solid var(--hc-outline); box-shadow: var(--hc-shadow-1); font-weight: 700; font-size: 15px; pointer-events: none;">হিফজ + সাধারণ শিক্ষা</div>
+        </div>
+      </div>
+    </section>
+
+    <div style="max-width: 1240px; margin: 0 auto; padding: 0 16px; display: grid; gap: 72px;">
+
+      <!-- Admission banner (admin-editable) -->
+      <sc-if value="{{ showBanner }}" hint-placeholder-val="{{ true }}">
+        <section style="margin-top: 40px; background: var(--hc-butter); color: #000; border: 2px solid #000; box-shadow: var(--hc-shadow-3); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));">
+          <div style="padding: 24px; display: grid; gap: 10px; align-content: center; border-right: 2px solid #000;">
+            <span style="justify-self: start; padding: 2px 12px; background: var(--hc-coral); border: 2px solid #000; font-weight: 700; font-size: 14px;">২০২৬–২৭ শিক্ষাবর্ষ</span>
+            <h2 style="margin: 0; font-family: 'Tiro Bangla', serif; font-weight: 400; font-size: clamp(32px, 5vw, 44px); line-height: 1.2;">ভর্তি চলছে!</h2>
+            <p style="margin: 0; font-size: 18px; font-weight: 600;">নভেম্বরের ১ তারিখে ফ্রি ক্লাস!</p>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; border-top: 0;">
+            <div style="padding: 24px; border-right: 2px solid #000; display: grid; align-content: center; gap: 2px;">
+              <span style="font-size: 14px; font-weight: 600;">ভর্তি শুরু</span>
+              <span style="font-family: 'Tiro Bangla', serif; font-size: 26px; line-height: 1.3;">২১ অক্টোবর ২০২৬</span>
+            </div>
+            <div style="padding: 24px; display: grid; align-content: center; gap: 2px;">
+              <span style="font-size: 14px; font-weight: 600;">ক্লাস শুরু</span>
+              <span style="font-family: 'Tiro Bangla', serif; font-size: 26px; line-height: 1.3;">১ নভেম্বর ২০২৬</span>
+            </div>
+          </div>
+          <div style="padding: 24px; display: grid; gap: 10px; align-content: center; border-left: 2px solid #000; background: var(--hc-bg-raised);">
+            <x-import component-from-global-scope="HardCandy.Button" variant="primary" size="lg" block="{{ true }}" hint-size="100%,52px">অনলাইনে আবেদন করুন</x-import>
+            <a href="tel:01714844346" style="text-align: center; font-weight: 600; color: var(--hc-text);">কল করুন: ০১৭১৪৮৪৪৩৪৬</a>
+          </div>
+        </section>
+      </sc-if>
+
+      <!-- Abacus program -->
+      <section style="display: grid; gap: 24px; margin-top: 8px;">
+        <div style="display: grid; gap: 6px; max-width: 720px;">
+          <span style="font-size: 14px; font-weight: 700; color: var(--hc-text-muted);">বিশেষ প্রোগ্রাম</span>
+          <h2 style="margin: 0; font-family: 'Tiro Bangla', serif; font-weight: 400; font-size: clamp(28px, 4vw, 38px); line-height: 1.3; text-wrap: balance;">মেন্টাল অ্যাবাকাস ও মেন্টাল ম্যাথ প্রোগ্রাম</h2>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 16px;">
+          <sc-for list="{{ benefits }}" as="b" hint-placeholder-count="4">
+            <x-import component-from-global-scope="HardCandy.Card" hint-size="100%,150px">
+              <div style="display: grid; gap: 14px;">
+                <span style="justify-self: start; width: 44px; height: 44px; display: grid; place-items: center; background: var(--hc-mint); color: #000; border: 2px solid var(--hc-outline); font-weight: 700; font-size: 18px;">{{ b.n }}</span>
+                <span style="font-size: 19px; font-weight: 600; line-height: 1.5;">{{ b.t }}</span>
+              </div>
+            </x-import>
+          </sc-for>
+        </div>
+      </section>
+
+      <!-- Divisions -->
+      <section style="display: grid; gap: 24px;">
+        <div style="display: grid; gap: 6px;">
+          <span style="font-size: 14px; font-weight: 700; color: var(--hc-text-muted);">বয়সভিত্তিক বিভাগ</span>
+          <h2 style="margin: 0; font-family: 'Tiro Bangla', serif; font-weight: 400; font-size: clamp(28px, 4vw, 38px); line-height: 1.3;">আপনার সন্তানের জন্য সঠিক বিভাগ</h2>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 20px;">
+          <div style="border: 2px solid var(--hc-outline); box-shadow: var(--hc-shadow-2); background: var(--hc-bg-raised); display: grid; grid-template-columns: 120px 1fr;">
+            <div style="background: var(--hc-sky); color: #000; border-right: 2px solid var(--hc-outline); display: grid; place-items: center; text-align: center; padding: 12px;">
+              <span style="font-family: 'Tiro Bangla', serif; font-size: 30px; line-height: 1.1;">৫–১১<br><span style="font-family: 'Hind Siliguri'; font-size: 15px; font-weight: 600;">বছর</span></span>
+            </div>
+            <div style="padding: 20px; display: grid; gap: 6px; align-content: center;">
+              <h3 style="margin: 0; font-family: 'Tiro Bangla', serif; font-weight: 400; font-size: 26px;">কিডস বিভাগ</h3>
+              <p style="margin: 0; color: var(--hc-text-muted);">কুরআন তিলাওয়াত, বাংলা-ইংরেজি-আরবি ভিত্তি ও মেন্টাল অ্যাবাকাস।</p>
+            </div>
+          </div>
+          <div style="border: 2px solid var(--hc-outline); box-shadow: var(--hc-shadow-2); background: var(--hc-bg-raised); display: grid; grid-template-columns: 120px 1fr;">
+            <div style="background: var(--hc-lilac); color: #000; border-right: 2px solid var(--hc-outline); display: grid; place-items: center; text-align: center; padding: 12px;">
+              <span style="font-family: 'Tiro Bangla', serif; font-size: 30px; line-height: 1.1;">১২–১৫<br><span style="font-family: 'Hind Siliguri'; font-size: 15px; font-weight: 600;">বছর</span></span>
+            </div>
+            <div style="padding: 20px; display: grid; gap: 6px; align-content: center;">
+              <h3 style="margin: 0; font-family: 'Tiro Bangla', serif; font-weight: 400; font-size: 26px;">জুনিয়র বিভাগ</h3>
+              <p style="margin: 0; color: var(--hc-text-muted);">হিফজ ও সাধারণ শিক্ষার সমন্বয়, ক্যাডেট শৃঙ্খলা ও নেতৃত্ব গঠন।</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Why us -->
+      <section style="display: grid; gap: 24px;">
+        <div style="display: grid; gap: 6px;">
+          <span style="font-size: 14px; font-weight: 700; color: var(--hc-text-muted);">কেন আমরা</span>
+          <h2 style="margin: 0; font-family: 'Tiro Bangla', serif; font-weight: 400; font-size: clamp(28px, 4vw, 38px); line-height: 1.3;">দ্বীনি ও আধুনিক শিক্ষার সমন্বয়</h2>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); border-top: 2px solid var(--hc-outline); border-left: 2px solid var(--hc-outline);">
+          <sc-for list="{{ why }}" as="w" hint-placeholder-count="6">
+            <div style="padding: 20px; border-right: 2px solid var(--hc-outline); border-bottom: 2px solid var(--hc-outline); background: var(--hc-bg-raised); display: grid; gap: 4px;">
+              <span style="font-size: 19px; font-weight: 700;">{{ w.t }}</span>
+              <span style="color: var(--hc-text-muted);">{{ w.d }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <!-- Principal -->
+      <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 32px; align-items: center;">
+        <div style="max-width: 360px; width: 100%; aspect-ratio: 4 / 5; border: 2px solid var(--hc-outline); box-shadow: var(--hc-shadow-3); background: var(--hc-bg-raised);">
+          <image-slot id="principal" shape="rect" placeholder="অধ্যক্ষের ছবি"></image-slot>
+        </div>
+        <div style="display: grid; gap: 16px; grid-column: span 2; min-width: 0;">
+          <span style="font-size: 14px; font-weight: 700; color: var(--hc-text-muted);">অধ্যক্ষের বাণী</span>
+          <blockquote style="margin: 0; font-family: 'Tiro Bangla', serif; font-size: clamp(22px, 3vw, 30px); line-height: 1.6; text-wrap: pretty;">“প্রতিটি শিশু আল্লাহর দেওয়া আমানত। কুরআনের আলো ও আধুনিক জ্ঞানের সমন্বয়ে আমরা তাদের আদর্শ মানুষ হিসেবে গড়ে তুলতে চাই।”</blockquote>
+          <div style="display: grid; line-height: 1.4;">
+            <span style="font-weight: 700; font-size: 18px;">অধ্যক্ষের নাম</span>
+            <span style="color: var(--hc-text-muted);">অধ্যক্ষ, আর রহমান ইন্টারন্যাশনাল ক্যাডেট মাদরাসা</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Notices -->
+      <section style="display: grid; gap: 20px;">
+        <div style="display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px;">
+          <div style="display: grid; gap: 6px;">
+            <span style="font-size: 14px; font-weight: 700; color: var(--hc-text-muted);">নোটিশ বোর্ড</span>
+            <h2 style="margin: 0; font-family: 'Tiro Bangla', serif; font-weight: 400; font-size: clamp(28px, 4vw, 38px); line-height: 1.3;">সর্বশেষ নোটিশ</h2>
+          </div>
+          <x-import component-from-global-scope="HardCandy.Button" variant="secondary" hint-size="110px,44px">সব নোটিশ →</x-import>
+        </div>
+        <div style="display: grid; gap: 12px;">
+          <sc-for list="{{ notices }}" as="nt" hint-placeholder-count="5">
+            <a href="#" style="text-decoration: none; color: var(--hc-text); display: grid; grid-template-columns: 76px 1fr auto; gap: 16px; align-items: center; padding: 12px 16px 12px 12px; background: var(--hc-bg-raised); border: 2px solid var(--hc-outline); box-shadow: var(--hc-shadow-1);" style-hover="box-shadow: var(--hc-shadow-2); transform: translate(-1px,-1px);">
+              <span style="display: grid; text-align: center; line-height: 1.2; padding: 6px 0; background: var(--hc-bg-sunken); border: 2px solid var(--hc-outline);">
+                <span style="font-family: 'Tiro Bangla', serif; font-size: 24px;">{{ nt.d }}</span>
+                <span style="font-size: 13px; font-weight: 600;">{{ nt.m }}</span>
+              </span>
+              <span style="display: grid; gap: 2px; min-width: 0;">
+                <span style="font-size: 17px; font-weight: 600; line-height: 1.5; text-wrap: pretty;">{{ nt.t }}</span>
+                <span style="font-size: 14px; color: var(--hc-text-muted);">{{ nt.c }}</span>
+              </span>
+              <span style="font-size: 13px; font-weight: 700; padding: 2px 8px; border: 2px solid var(--hc-outline); background: var(--hc-bg-inset);">{{ nt.tag }}</span>
+            </a>
+          </sc-for>
+        </div>
+      </section>
+    </div>
+
+    <!-- Stats -->
+    <section style="margin-top: 72px; background: #0B6B3A; color: #fff; border-top: 2px solid var(--hc-outline); border-bottom: 2px solid var(--hc-outline);">
+      <div style="max-width: 1240px; margin: 0 auto; padding: 40px 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: 24px;">
+        <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
+          <div style="display: grid; gap: 2px;">
+            <span style="font-family: 'Tiro Bangla', serif; font-size: clamp(40px, 6vw, 56px); line-height: 1.1; color: #FFD21F;">{{ s.v }}</span>
+            <span style="font-size: 17px; font-weight: 500;">{{ s.l }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <div style="max-width: 1240px; margin: 0 auto; padding: 72px 16px 0; display: grid; gap: 72px;">
+
+      <!-- Gallery -->
+      <section style="display: grid; gap: 20px;">
+        <div style="display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px;">
+          <div style="display: grid; gap: 6px;">
+            <span style="font-size: 14px; font-weight: 700; color: var(--hc-text-muted);">গ্যালারি</span>
+            <h2 style="margin: 0; font-family: 'Tiro Bangla', serif; font-weight: 400; font-size: clamp(28px, 4vw, 38px); line-height: 1.3;">মাদরাসার দিনলিপি</h2>
+          </div>
+          <x-import component-from-global-scope="HardCandy.Button" variant="secondary" hint-size="130px,44px">সব অ্যালবাম →</x-import>
+        </div>
+        <div style="column-width: 220px; column-gap: 12px;">
+          <sc-for list="{{ gallery }}" as="g" hint-placeholder-count="8">
+            <div style="break-inside: avoid; margin-bottom: 12px; height: {{ g.h }}px; border: 2px solid var(--hc-outline); background: var(--hc-bg-raised);">
+              <image-slot id="{{ g.id }}" shape="rect" placeholder="{{ g.p }}"></image-slot>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <!-- Quick result -->
+      <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 24px; align-items: start;">
+        <x-import component-from-global-scope="HardCandy.Panel" title="দ্রুত ফলাফল খুঁজুন" hint-size="100%,380px">
+          <div style="display: grid; gap: 16px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 12px;">
+              <x-import component-from-global-scope="HardCandy.Field" label="পরীক্ষা" hint-size="100%,72px">
+                <x-import component-from-global-scope="HardCandy.Select" options="{{ examOptions }}" value="{{ exam }}" on-change="{{ onExam }}" hint-size="100%,44px"></x-import>
+              </x-import>
+              <x-import component-from-global-scope="HardCandy.Field" label="শ্রেণি" hint-size="100%,72px">
+                <x-import component-from-global-scope="HardCandy.Select" options="{{ classOptions }}" hint-size="100%,44px"></x-import>
+              </x-import>
+              <x-import component-from-global-scope="HardCandy.Field" label="রোল / আইডি" hint="নমুনা: ১০১" hint-size="100%,72px">
+                <x-import component-from-global-scope="HardCandy.TextInput" value="{{ roll }}" on-change="{{ onRoll }}" placeholder="যেমন: ১০১" inputmode="numeric" hint-size="100%,44px"></x-import>
+              </x-import>
+              <x-import component-from-global-scope="HardCandy.Field" label="জন্ম তারিখ" hint-size="100%,72px">
+                <x-import component-from-global-scope="HardCandy.TextInput" type="date" hint-size="100%,44px"></x-import>
+              </x-import>
+            </div>
+            <div onClick="{{ search }}">
+              <x-import component-from-global-scope="HardCandy.Button" variant="primary" size="lg" block="{{ true }}" loading="{{ loading }}" hint-size="100%,52px">ফলাফল দেখুন</x-import>
+            </div>
+          </div>
+        </x-import>
+        <div style="display: grid; min-height: 100%;">
+          <sc-if value="{{ rsIdle }}" hint-placeholder-val="{{ true }}">
+            <x-import component-from-global-scope="HardCandy.EmptyState" title="তথ্য দিয়ে খুঁজুন" body="পরীক্ষা, শ্রেণি, রোল ও জন্ম তারিখ দিলে এখানে ফলাফল দেখাবে।" hint-size="100%,220px"></x-import>
+          </sc-if>
+          <sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}">
+            <div style="border: 2px dashed var(--hc-outline); padding: 40px; display: grid; place-items: center; gap: 12px;">
+              <x-import component-from-global-scope="HardCandy.Spinner" hint-size="24px,24px"></x-import>
+              <span style="color: var(--hc-text-muted);">ফলাফল খোঁজা হচ্ছে…</span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ rsFound }}" hint-placeholder-val="{{ false }}">
+            <x-import component-from-global-scope="HardCandy.Panel" title="অর্ধবার্ষিক পরীক্ষা ২০২৬" actions="{{ passPill }}" hint-size="100%,300px">
+              <div style="display: grid; gap: 16px;">
+                <div style="display: grid; line-height: 1.4;">
+                  <span style="font-size: 20px; font-weight: 700;">মোহাম্মদ আব্দুল্লাহ</span>
+                  <span style="color: var(--hc-text-muted);">শ্রেণি: ৫ম · রোল: ১০১ · আইডি: ২০২৪০১০১</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); border: 2px solid var(--hc-outline);">
+                  <div style="padding: 12px; border-right: 2px solid var(--hc-outline); background: var(--hc-mint); color: #000; display: grid;">
+                    <span style="font-size: 13px; font-weight: 600;">জিপিএ</span>
+                    <span style="font-family: 'Tiro Bangla', serif; font-size: 30px; line-height: 1.2;">৪.৮৩</span>
+                  </div>
+                  <div style="padding: 12px; border-right: 2px solid var(--hc-outline); display: grid;">
+                    <span style="font-size: 13px; font-weight: 600;">গ্রেড</span>
+                    <span style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 26px; line-height: 1.3;">A+</span>
+                  </div>
+                  <div style="padding: 12px; display: grid;">
+                    <span style="font-size: 13px; font-weight: 600;">মেধাস্থান</span>
+                    <span style="font-family: 'Tiro Bangla', serif; font-size: 30px; line-height: 1.2;">৩য়</span>
+                  </div>
+                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                  <x-import component-from-global-scope="HardCandy.Button" variant="secondary" hint-size="140px,44px">মার্কশিট দেখুন</x-import>
+                  <x-import component-from-global-scope="HardCandy.Button" variant="ghost" hint-size="120px,44px">ডাউনলোড</x-import>
+                </div>
+              </div>
+            </x-import>
+          </sc-if>
+          <sc-if value="{{ rsNotFound }}" hint-placeholder-val="{{ false }}">
+            <x-import component-from-global-scope="HardCandy.EmptyState" title="ফলাফল পাওয়া যায়নি" body="রোল/আইডি ও জন্ম তারিখ আবার মিলিয়ে দেখুন। সমস্যা থাকলে অফিসে যোগাযোগ করুন।" hint-size="100%,220px"></x-import>
+          </sc-if>
+          <sc-if value="{{ rsUnpub }}" hint-placeholder-val="{{ false }}">
+            <x-import component-from-global-scope="HardCandy.EmptyState" title="ফলাফল এখনো প্রকাশিত হয়নি" body="বার্ষিক পরীক্ষা ২০২৬-এর ফলাফল প্রকাশের পর এখানে দেখা যাবে। নোটিশ বোর্ডে চোখ রাখুন।" hint-size="100%,220px"></x-import>
+          </sc-if>
+        </div>
+      </section>
+
+      <!-- Contact -->
+      <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); border: 2px solid var(--hc-outline); box-shadow: var(--hc-shadow-2); background: var(--hc-bg-raised);">
+        <div style="padding: 24px; display: grid; gap: 16px; align-content: start;">
+          <h2 style="margin: 0; font-family: 'Tiro Bangla', serif; font-weight: 400; font-size: clamp(28px, 4vw, 34px); line-height: 1.3;">যোগা
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <title>বেতন ও ফি — প্রিন্ট ডকুমেন্ট</title>
+  <link rel="icon" href="assets/logo.jpeg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@600;700&family=Poppins:wght@400;500;600;700&family=Amiri:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="madrasa-theme.css">
+  <script src="madrasa-data.js"></script>
+  <script src="fees-data.js"></script>
+  <style>
+    body { margin: 0; background: #E9ECE6; font-family: 'Noto Sans Bengali', sans-serif; color: #17212B; }
+    a { color: #0B6B3A; } a:hover { color: #15A04A; }
+    @media print { body { background: #fff; } .no-print { display: none !important; } .sheet { box-shadow: none !important; margin: 0 !important; } }
+  </style>
+</helmet>
+<div style="min-height: 100vh; display: grid; gap: 20px; padding: 16px; justify-items: center; align-content: start;">
+  <div class="no-print" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: center; max-width: 100%;">
+    <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.go }}" style="min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid {{ t.bd }}; background: {{ t.bg }}; color: {{ t.fg }}; font-family: inherit; font-weight: 700; font-size: 15px; cursor: pointer;">{{ t.label }}</button></sc-for>
+    <button onClick="{{ print }}" style="min-height: 44px; padding: 0 18px; border-radius: 999px; border: 0; background: #D6202A; color: #fff; font-family: inherit; font-weight: 700; font-size: 15px; cursor: pointer;">🖨 প্রিন্ট / PDF</button>
+  </div>
+
+  <sc-if value="{{ isThermal }}" hint-placeholder-val="{{ false }}">
+    <div data-screen-label="Thermal receipt 80mm" class="sheet" style="width: 80mm; padding: 5mm 4mm 7mm; background: #fff; box-shadow: 0 6px 24px rgba(0,0,0,.15); font-size: 11px; line-height: 1.5; color: #000; display: grid; gap: 4px; box-sizing: border-box;">
+      <div style="display: grid; justify-items: center; text-align: center; gap: 1px;">
+        <img src="assets/logo.jpeg" alt="" style="width: 16mm; height: 16mm; border-radius: 50%; filter: grayscale(1);">
+        <strong style="font-size: 13px; line-height: 1.35;">আর রহমান ইন্টারন্যাশনাল ক্যাডেট মাদরাসা</strong>
+        <span style="font-size: 10px;">লেংগা বাজার, কলেজ পাড়া, গাইবান্ধা সদর</span>
+        <span style="font-size: 10px;">০১৭১৪৮৪৪৩৪৬ · ০১৭৬১৭৮১৩৩৮</span>
+        <strong style="margin-top: 3px; padding: 1px 10px; border: 1px solid #000; font-size: 12px;">মানি রিসিপ্ট</strong>
+      </div>
+      <div style="border-top: 1px dashed #000; margin: 3px 0;"></div>
+      <sc-for list="{{ r.metaT }}" as="m" hint-placeholder-count="6"><div style="display: flex; justify-content: space-between; gap: 6px;"><span>{{ m.k }}</span><strong style="text-align: right;">{{ m.v }}</strong></div></sc-for>
+      <div style="border-top: 1px dashed #000; margin: 3px 0;"></div>
+      <sc-for list="{{ r.lines }}" as="l" hint-placeholder-count="2"><div style="display: flex; justify-content: space-between; gap: 6px;"><span>{{ l.k }}</span><span style="white-space: nowrap;">{{ l.v }}</span></div></sc-for>
+      <div style="border-top: 1px solid #000; margin: 3px 0;"></div>
+      <div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: 700;"><span>মোট পরিশোধ</span><span>{{ r.amt }}</span></div>
+      <div style="font-size: 10px;">কথায়: {{ r.words }}</div>
+      <div style="border-top: 1px dashed #000; margin: 3px 0;"></div>
+      <div style="display: flex; justify-content: space-between;"><span>পদ্ধতি</span><strong>{{ r.method }}</strong></div>
+      <sc-if value="{{ r.hasTxn }}" hint-placeholder-val="{{ false }}"><div style="display: flex; justify-content: space-between;"><span>TxnID</span><strong style="font-family: Poppins;">{{ r.txn }}</strong></div></sc-if>
+      <div style="display: flex; justify-content: space-between;"><span>গ্রহণকারী</span><strong>{{ r.by }}</strong></div>
+      <div style="display: grid; justify-items: center; gap: 2px; margin-top: 4px;"><div style="width: 22mm; height: 22mm; display: grid; grid-template-columns: repeat(11, 1fr);"><sc-for list="{{ qr }}" as="q" hint-placeholder-count="121"><span style="background: {{ q }};"></span></sc-for></div><span style="font-size: 9px;">যাচাই: armadrasa.edu.bd/r/{{ r.idEn }}</span></div>
+      <div style="text-align: center; font-size: 9px; margin-top: 4px;">{{ footer }}</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isA5 }}" hint-placeholder-val="{{ true }}">
+    <div data-screen-label="{{ a5Label }}" class="sheet" style="width: 210mm; height: 148mm; max-width: 100%; box-sizing: border-box; padding: 9mm 11mm; background: #fff; box-shadow: 0 6px 24px rgba(0,0,0,.15); position: relative; overflow: hidden; display: grid; grid-template-rows: auto auto 1fr auto; gap: 4mm; font-size: 12.5px; line-height: 1.5;">
+      <img src="assets/logo.jpeg" alt="" style="position: absolute; left: 50%; top: 52%; width: 80mm; transform: translate(-50%, -50%); opacity: .05; pointer-events: none;">
+      <sc-if value="{{ stamp.on }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; right: 18mm; top: 46mm; transform: rotate(-14deg); padding: 2mm 6mm; border: 3px solid {{ stamp.c }}; color: {{ stamp.c }}; font-weight: 700; font-size: 22px; letter-spacing: .06em; border-radius: 6px; opacity: .8;">{{ stamp.t }}</span></sc-if>
+      <div style="display: grid; grid-template-columns: 20mm 1fr auto; gap: 4mm; align-items: center; border-bottom: 3px solid #0B6B3A; padding-bottom: 3mm;">
+        <img src="assets/logo.jpeg" alt="" style="width: 20mm; height: 20mm; border-radius: 50%;">
+        <div style="display: grid; line-height: 1.3;">
+          <span style="font-family: Amiri, serif; font-size: 15px; color: #0B6B3A; direction: rtl; text-align: left;">الرحمن انترناشونال كاديت مدرسة</span>
+          <strong style="font-family: 'Noto Serif Bengali', serif; font-size: 19px; color: #0B6B3A;">আর রহমান ইন্টারন্যাশনাল ক্যাডেট মাদরাসা</strong>
+          <span style="font-family: Poppins; font-size: 10.5px; color: #16307A; font-weight: 600;">AR Rahman International Cadet Madrasa</span>
+          <span style="font-size: 11px; color: #475467;">লেংগা বাজার, কলেজ পাড়া, গাইবান্ধা সদর, গাইবান্ধা · ০১৭১৪৮৪৪৩৪৬, ০১৭৬১৭৮১৩৩৮</span>
+        </div>
+        <div style="display: grid; justify-items: end; gap: 2px;">
+          <span style="padding: 2mm 5mm; border-radius: 999px; background: {{ titleBg }}; color: #fff; font-weight: 700; font-size: 14px; white-space: nowrap;">{{ title }}</span>
+          <span style="font-family: Poppins; font-size: 11px; font-weight: 600;">{{ docNo }}</span>
+          <span style="font-size: 11px;">তারিখ: {{ docDate }}</span>
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1mm 6mm; padding: 2.5mm 4mm; border-radius: 3mm; background: #F1F7F2;">
+        <sc-for list="{{ stu }}" as="s" hint-placeholder-count="6"><span><span style="color: #475467;">{{ s.k }}:</span> <strong>{{ s.v }}</strong></span></sc-for>
+      </div>
+
+      <sc-if value="{{ isNotice }}" hint-placeholder-val="{{ false }}">
+        <div style="display: grid; gap: 3mm; align-content: start;">
+          <span>সম্মানিত অভিভাবক, আসসালামু আলাইকুম।</span>
+          <span style="text-wrap: pretty;">আপনার সন্তানের নিম্নলিখিত ফি এখনো পরিশোধ করা হয়নি। আগামী <strong>{{ noticeBy }}</strong> তারিখের মধ্যে মাদরাসা অফিসে নগদ অথবা বিকাশ/নগদ/রকেটে পরিশোধ করার জন্য অনুরোধ করা হলো। নির্ধারিত সময়ে পরিশোধ না হলে বিলম্ব ফি যোগ হবে এবং বার্ষিক পরীক্ষার এডমিট কার্ড প্রদান স্থগিত থাকবে।</span>
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead><tr style="background: #0B6B3A; color: #fff;"><th style="padding: 1.5mm 3mm; text-align: left;">বকেয়া চালান</th><th style="padding: 1.5mm 3mm; text-align: left;">শেষ তারিখ</th><th style="padding: 1.5mm 3mm; text-align: right;">টাকা</th></tr></thead>
+            <tbody><sc-for list="{{ rows }}" as="l" hint-placeholder-count="2"><tr style="border-bottom: 1px solid #D0D5DD;"><td style="padding: 1.5mm 3mm;">{{ l.k }}</td><td style="padding: 1.5mm 3mm;">{{ l.d }}</td><td style="padding: 1.5mm 3mm; text-align: right; white-space: nowrap;">{{ l.v }}</td></tr></sc-for>
+            <tr style="font-weight: 700; font-size: 14px;"><td style="padding: 2mm 3mm;" colspan="2">মোট বকেয়া <span style="font-weight: 500; font-size: 11px;">({{ words }})</span></td><td style="padding: 2mm 3mm; text-align: right; color: #D6202A; white-space: nowrap;">{{ total }}</td></tr></tbody>
+          </table>
+          <span style="font-size: 11.5px; color: #475467;">বিকাশ (মার্চেন্ট): ০১৭১৪৮৪৪৩৪৬ · নগদ: ০১৭৬১৭৮১৩৩৮ · রেফারেন্সে স্টুডেন্ট আইডি লিখুন। ইতোমধ্যে পরিশোধ করে থাকলে এই নোটিশটি উপেক্ষা করুন।</span>
+        </div>
+      </sc-if>
+      <sc-if value="{{ notNotice }}" hint-placeholder-val="{{ true }}">
+        <div style="display: grid; grid-template-columns: minmax(0, 1fr) 54mm; gap: 6mm; align-content: start;">
+          <table style="width: 100%; border-collapse: collapse; align-self: start;">
+            <thead><tr style="background: #0B6B3A; color: #fff;"><th style="padding: 1.5mm 3mm; text-align: left; width: 8mm;">ক্রম</th><th style="padding: 1.5mm 3mm; text-align: left;">{{ colLabel }}</th><th style="padding: 1.5mm 3mm; text-align: right;">টাকা</th></tr></thead>
+            <tbody>
+              <sc-for list="{{ rows }}" as="l" hint-placeholder-count="3"><tr style="border-bottom: 1px solid #D0D5DD;"><td style="padding: 1.3mm 3mm;">{{ l.n }}</td><td style="padding: 1.3mm 3mm;">{{ l.k }}</td><td style="padding: 1.3mm 3mm; text-align: right; white-space: nowrap; color: {{ l.fg }};">{{ l.v }}</td></tr></sc-for>
+              <sc-for list="{{ sums }}" as="s" hint-placeholder-count="3"><tr style="font-weight: {{ s.w }}; font-size: {{ s.size }};"><td></td><td style="padding: 1.2mm 3mm; text-align: right;">{{ s.k }}</td><td style="padding: 1.2mm 3mm; text-align: right; white-space: nowrap; color: {{ s.fg }}; border-top: {{ s.bt }};">{{ s.v }}</td></tr></sc-for>
+            </tbody>
+          </table>
+          <div style="display: grid; gap: 2.5mm; align-content: start;">
+            <div style="padding: 2.5mm 3mm; border-radius: 3mm; border: 1.5px solid #0B6B3A; display: grid; gap: 1mm;">
+              <span style="font-size: 11px; color: #475467;">{{ boxLabel }}</span>
+              <strong style="font-family: 'Noto Serif Bengali', serif; font-size: 22px; line-height: 1.2; color: #0B6B3A;">{{ total }}</strong>
+              <span style="font-size: 10.5px; line-height: 1.45;">কথায়: {{ words }}</span>
+            </div>
+            <sc-for list="{{ pay }}" as="p" hint-placeholder-count="3"><span style="font-size: 11.5px; display: flex; justify-content: space-between; gap: 2mm;"><span style="color: #475467;">{{ p.k }}</span><strong style="text-align: right;">{{ p.v }}</strong></span></sc-for>
+            <div style="display: flex; gap: 3mm; align-items: center;"><div style="width: 20mm; height: 20mm; flex: none; display: grid; grid-template-columns: repeat(11, 1fr);"><sc-for list="{{ qr }}" as="q" hint-placeholder-count="121"><span style="background: {{ q }};"></span></sc-for></div><span style="font-size: 9.5px; color: #475467; line-height: 1.4;">QR স্ক্যান করে যাচাই করুন<br><span style="font-family: Poppins;">armadrasa.edu.bd/v/{{ idEn }}</span></span></div>
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="display: grid; grid-template-columns: 1fr auto auto; gap: 10mm; align-items: end; border-top: 1px solid #D0D5DD; padding-top: 2mm;">
+        <span style="font-size: 10px; color: #475467; line-height: 1.45;">{{ footer }}</span>
+        <span style="display: grid; justify-items: center; font-size: 11px; min-width: 34mm;"><span style="font-family: 'Noto Serif Bengali', serif; font-style: italic; color: #16307A; font-size: 13px;">{{ sign1n }}</span><span style="border-top: 1px solid #17212B; width: 100%; text-align: center; padding-top: 1mm;">{{ sign1 }}</span></span>
+        <span style="display: grid; justify-items: center; font-size: 11px; min-width: 34mm;"><span style="font-family: 'Noto Serif Bengali', serif; font-style: italic; color: #16307A; font-size: 13px;">মো. আব্দুর রহমান</span><span style="border-top: 1px solid #17212B; width: 100%; text-align: center; padding-top: 1mm;">অধ্যক্ষ</span></span>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { doc: 'receipt' };
+  componentDidMount() {
+    const q = new URLSearchParams(location.search); this.q = q;
+    const d = q.get('doc'); if (['receipt', 'thermal', 'invoice', 'notice'].includes(d)) this.setState({ doc: d });
+  }
+  renderVals() {
+    const F = window.FE; if (!F) return { r: {}, stamp: {}, tabs: [], qr: [] };
+    const q = this.q || new URLSearchParams(location.search), doc = this.state.doc, B = F.bn, tk = F.tk;
+    const stuId = q.get('stu') || '20240101', D = F.desk.find(x => x.id === stuId) || F.desk[11];
+    const stu = [['নাম', D.name], ['স্টুডেন্ট আইডি', B(D.id)], ['শ্রেণি', '৫ম শ্রেণি – ক শাখা'], ['রোল', B(D.roll)], ['পিতা', D.father], ['মোবাইল', B(D.phone)]].map(([k, v]) => ({ k, v }));
+    let seed = (q.get('id') || doc).split('').reduce((a, c) => a + c.charCodeAt(0), 7);
+    const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+    const qr = Array.from({ length: 121 }, (_, i) => { const x = i % 11, y = Math.floor(i / 11), fin = (a, b) => x >= a && x < a + 3 && y >= b && y < b + 3; return fin(0, 0) || fin(8, 0) || fin(0, 8) ? '#000' : rnd() > 0.5 ? '#000' : 'transparent'; });
+    const settings = F.settings;
+    const base = { tabs: [['receipt', 'মানি রিসিপ্ট (A5)'], ['thermal', 'রসিদ (৮০মিমি)'], ['invoice', 'চালান (A5)'], ['notice', 'বকেয়া নোটিশ (A5)']].map(([k, l]) => ({ label: l, go: () => this.setState({ doc: k }), bd: doc === k ? '#0B6B3A' : '#D0D5DD', bg: doc === k ? '#0B6B3A' : '#fff', fg: doc === k ? '#fff' : '#17212B' })),
+      print: () => window.print(), qr, stu, footer: settings.receiptFooter, isThermal: doc === 'thermal', isA5: doc !== 'thermal', isNotice: doc === 'notice', notNotice: doc !== 'notice', stamp: { on: false }, r: {} };
+    const pid = q.get('id');
+    const pay = F.payments.find(p => p.id === pid) || (pid ? null : F.payments[6]);
+    const amt = pay ? pay.amount : Number(q.get('amt')) || 1700, method = pay ? pay.method : (q.get('m') || 'cash');
+    const invs = pay ? pay.inv.map(id => F.invoices.find(i => i.id === id)).filter(Boolean) : D.dueMonths.length ? D.dueMonths.map(m => ({ title: F.MB[m - 1] + ' ' + B(2026) + ' — মাসিক বেতন', total: D.net + 50 })) : [{ title: 'মাসিক বেতন', total: amt }];
+    const rid = pid || (pay && pay.id) || 'RCPT-26-1561', rDate = pay ? F.date(pay.date) : F.date(F.today);
+    const by = pay ? pay.by : 'মোঃ জাকির হোসেন';
+    const lines = invs.map(i => ({ k: i.title.replace(' — মাসিক বেতন', ' — বেতন'), v: tk(i.total) }));
+    if (doc === 'thermal' || doc === 'receipt') {
+      const r = { amt: tk(amt), words: F.words(amt), method: F.methods[method].bn, hasTxn: !!(pay && pay.txn), txn: pay ? pay.txn : '', by, idEn: rid, lines,
+        metaT: [['রসিদ নং', rid], ['তারিখ', rDate], ['নাম', D.name], ['আইডি', B(D.id)], ['শ্রেণি/রোল', '৫ম–ক / ' + B(D.roll)]].map(([k, v]) => ({ k, v })) };
+      return { ...base, r, a5Label: 'Money receipt A5', title: 'মানি রিসিপ্ট', titleBg: '#0B6B3A', docNo: rid, docDate: rDate, idEn: rid, colLabel: 'পরিশোধিত চালান / মাস',
+        rows: lines.map((l, i) => ({ n: B(i + 1), k: l.k, v: l.v, fg: 'inherit' })),
+        sums: [{ k: 'মোট পরিশোধ', v: tk(amt), w: 700, size: '14px', fg: '#0B6B3A', bt: '2px solid #17212B' }],
+        boxLabel: 'প্রাপ্ত টাকা', total: tk(amt), words: F.words(amt),
+        pay: [['পদ্ধতি', F.methods[method].bn], ...(pay && pay.txn ? [['ট্রানজেকশন আইডি', pay.txn]] : []), ['গ্রহণকারী', by]].map(([k, v]) => ({ k, v })),
+        stamp: { on: true, t: 'PAID', c: '#15A04A' }, sign1: 'গ্রহণকারীর স্বাক্ষর', sign1n: by === 'অনলাইন যাচাই' ? '' : by };
+    }
+    if (doc === 'invoice') {
+      const iid = q.get('id'), inv = F.invoices.find(i => i.id === iid) || F.invoices.find(i => i.month === 10);
+      const items = inv.status === 'upcoming' ? F.invoices[0].items : inv.items, due = inv.status === 'waived' ? 0 : (inv.total || 1580) - inv.paid;
+      const sums = [{ k: 'উপমোট', v: tk(items.reduce((a, x) => a + x.amt, 0)), w: 500, size: '12.5px', fg: 'inherit', bt: '1px solid #17212B' }];
+      if (inv.discount) sums.push({ k: 'ছাড় (' + (inv.discNote || '') + ')', v: '− ' + tk(inv.discount), w: 500, size: '12.5px', fg: '#0B6B3A', bt: 'none' });
+      if (inv.fine) sums.push({ k: 'বিলম্ব ফি', v: '+ ' + tk(inv.fine), w: 500, size: '12.5px', fg: '#D6202A', bt: 'none' });
+      sums.push({ k: 'মোট', v: tk(inv.status === 'waived' ? 0 : inv.total || 1580), w: 700, size: '13.5px', fg: 'inherit', bt: '1px solid #17212B' }, { k: 'পরিশোধিত', v: tk(inv.paid), w: 500, size: '12.5px', fg: '#0B6B3A', bt: 'none' }, { k: 'বকেয়া', v: tk(due), w: 700, size: '14px', fg: due ? '#D6202A' : 'inherit', bt: '2px solid #17212B' });
+      const ST = { paid: ['PAID', '#15A04A'], partial: ['PARTIAL', '#B7791F'], due: ['DUE', '#D6202A'], waived: ['WAIVED', '#16307A'] }[inv.status];
+      return { ...base, a5Label: 'Invoice A5', title: 'চালান', titleBg: '#16307A', docNo: inv.id, docDate: F.date(inv.issue), idEn: inv.id, colLabel: inv.title, rows: items.map((x, i) => ({ n: B(i + 1), k: F.head(x.head).bn, v: tk(x.amt), fg: 'inherit' })), sums,
+        boxLabel: 'প্রদেয় (বকেয়া)', total: tk(due), words: F.words(due),
+        pay: [['পরিশোধের শেষ তারিখ', F.date(inv.due)], ['বিলম্ব ফি', tk(settings.fine) + ' (' + B(settings.dueDay + settings.fineAfter) + ' তারিখের পর)'], ['বিকাশ / নগদ', B('01714844346')]].map(([k, v]) => ({ k, v })),
+        stamp: ST ? { on: true, t: ST[0], c: ST[1] } : { on: false }, sign1: 'হিসাবরক্ষক', sign1n: 'মোঃ জাকির হোসেন' };
+    }
+    const dueInv = stuId === '20240101' ? F.invoices.filter(i => i.status === 'due' || i.status === 'partial').map(i => ({ k: i.title, d: F.date(i.due), amt: i.total - i.paid }))
+      : D.dueMonths.map(m => ({ k: F.MB[m - 1] + ' ' + B(2026) + ' — মাসিক বেতন', d: F.date('2026-' + String(m).padStart(2, '0') + '-10'), amt: D.net + 50 }));
+    const tot = dueInv.reduce((a, x) => a + x.amt, 0);
+    return { ...base, a5Label: 'Due notice A5', title: 'বকেয়া নোটিশ', titleBg: '#D6202A', docNo: 'DN-26-10-' + D.roll, docDate: F.date(F.today), idEn: D.id, noticeBy: F.date('2026-10-31'),
+      rows: dueInv.map(x => ({ k: x.k, d: x.d, v: tk(x.amt) })), total: tk(tot), words: F.words(tot), sign1: 'শ্রেণি শিক্ষক', sign1n: 'মো. হাবিবুর রহমান' };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@500;600;700&family=Hind+Siliguri:wght@400;500;600;700&family=Amiri:wght@400;700&family=Poppins:wght@400;500;600;700&display=swap");
+
+/* Design tokens — mirrored 1:1 in tailwind.config.js */
+:root, [data-theme="light"] {
+  --green-900: #064424; --green-700: #0B6B3A; --green-500: #15A04A; --green-100: #D7F0DF; --green-50: #EEF8F1;
+  --red-700: #B0141D; --red-600: #D6202A; --red-50: #FDECEC;
+  --navy-800: #16307A; --navy-50: #EAEEF8;
+  --yellow-400: #FFD21F; --yellow-50: #FFF8D6;
+  --bg: #FAFAF5; --surface: #FFFFFF; --surface-2: #F3F4EE; --ink: #17212B; --muted: #566170; --faint: #8A939E;
+  --line: #E3E6DE; --line-strong: #CBD1C7;
+  --heading: var(--navy-800); --brand: var(--green-700); --brand-ink: #FFFFFF; --accent: var(--red-600);
+  --success: #15803D; --success-bg: #E6F6EC; --warn: #8A5A00; --warn-bg: #FFF4CC; --danger: #B0141D; --danger-bg: #FDECEC; --info: #16307A; --info-bg: #EAEEF8;
+  --shadow-sm: 0 1px 2px rgba(18,32,24,.06), 0 1px 3px rgba(18,32,24,.06);
+  --shadow-md: 0 4px 12px rgba(18,32,24,.07), 0 1px 3px rgba(18,32,24,.05);
+  --shadow-lg: 0 18px 40px rgba(18,32,24,.12);
+  --pattern: rgba(11,107,58,.07);
+  --r-sm: 8px; --r-md: 12px; --r-xl: 16px; --r-2xl: 20px;
+  --font-body: "Noto Sans Bengali", "Hind Siliguri", "Poppins", sans-serif;
+  --font-head: "Noto Serif Bengali", "Noto Sans Bengali", serif;
+  --font-ar: "Amiri", serif;
+}
+[data-theme="dark"] {
+  --green-900: #0A2E1B; --green-700: #12854A; --green-500: #2CC46A; --green-100: #173A27; --green-50: #12261B;
+  --red-700: #FF6B70; --red-600: #E8343E; --red-50: #3A1517;
+  --navy-800: #9DB2F5; --navy-50: #18213D;
+  --yellow-400: #FFD21F; --yellow-50: #332B0A;
+  --bg: #0D1411; --surface: #141E19; --surface-2: #1A2620; --ink: #EAF0EC; --muted: #A9B5AE; --faint: #77847D;
+  --line: #24332B; --line-strong: #33463B;
+  --heading: #E7EEFF; --brand: #12854A; --success: #4ADE80; --success-bg: #12301E; --warn: #FFD666; --warn-bg: #33290A;
+  --danger: #FF8A8F; --danger-bg: #3A1517; --info: #A9BCF7; --info-bg: #18213D;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.4); --shadow-md: 0 4px 14px rgba(0,0,0,.4); --shadow-lg: 0 18px 40px rgba(0,0,0,.5);
+  --pattern: rgba(44,196,106,.07);
+}
+[data-lang="en"] { --font-body: "Poppins", "Noto Sans Bengali", sans-serif; --font-head: "Poppins", sans-serif; }
+
+html, body { margin: 0; padding: 0; background: var(--bg); }
+* { box-sizing: border-box; }
+a { color: var(--green-700); text-underline-offset: 3px; }
+a:hover { color: var(--navy-800); }
+button, input, select, textarea { font: inherit; color: inherit; }
+input, select, textarea { min-height: 44px; }
+:focus-visible { outline: 3px solid var(--yellow-400); outline-offset: 2px; }
+@keyframes arm-tick { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes arm-shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+@keyframes arm-spin { to { transform: rotate(360deg); } }
+@keyframes arm-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media print { body { background: #fff; } [data-noprint] { display: none !important; } [data-print-desk] { background: #fff !important; padding: 0 !important; gap: 0 !important; } [data-page] { box-shadow: none !important; margin: 0 !important; break-after: page; } }

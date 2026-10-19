@@ -1,0 +1,951 @@
+/* Space Mono for the machine, Karla for prose. Bundled here so the families
+   travel with the stylesheet - a rendered design receives only this file. An
+   app that must work offline should also ship these as local @font-face; a
+   later declaration of the same family wins. */
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Karla:wght@400;500;600;700&display=swap');
+
+/* =============================================================
+   HARD CANDY — Bigloop's design system
+   Tokens v0.1 · 2026-09-04
+
+   Pastel fills on a brutal skeleton. The palette says toy, the
+   structure says machine, and the tension between them is the
+   whole idea.
+
+   ---------------------------------------------------------------
+   THE ONE RULE THAT MATTERS
+
+   The candy fills never change between themes, and they always
+   carry a BLACK label. What flips is the OUTLINE.
+
+     light  →  black outlines on white and lilac haze
+     dark   →  white outlines on near-black
+
+   That is what keeps a pastel legible on either ground: every
+   candy hue is light, so black type sits on it at 12:1 or better
+   in both themes, and no fill token ever needs a second value.
+   Give an outline a hue and the whole system goes soft; give a
+   fill a dark variant and its label breaks.
+   ---------------------------------------------------------------
+
+   Theme resolution (three states, so the un-stamped default works):
+     :root                          → light palette
+     @media (prefers-color-scheme)  → dark, unless [data-theme="light"]
+     [data-theme="dark"]            → dark, explicit
+
+   Fonts (Google Fonts): Space Mono 400,700 · Karla 400,500,600,700
+   ============================================================= */
+
+/* ---------- 1. PRIMITIVES (theme-independent) ---------- */
+:root {
+  /* Candy. Six hues, identical in both themes, always black-labelled.
+     Pink and orange sit close at this saturation on purpose — status is
+     carried by a glyph shape as well as a hue, never by hue alone. */
+  --hc-bubblegum: #ffb3c7;
+  --hc-mint: #a8f0d0;
+  --hc-butter: #ffefa8;
+  --hc-coral: #ffaf9e;
+  --hc-sky: #a8d8ff;
+  --hc-lilac: #d9c2ff;
+
+  /* Pressed variants. A hard-shadow control cannot lift on hover, so it
+     darkens instead — these are the candy hues at ~92% lightness. */
+  --hc-bubblegum-deep: #f79ab2;
+  --hc-mint-deep: #8ee3bd;
+  --hc-butter-deep: #f7e28c;
+  --hc-coral-deep: #f79a86;
+  --hc-sky-deep: #8ec8f7;
+  --hc-lilac-deep: #c7a9f7;
+
+  /* Haze — the neutrals, biased toward lilac. A neutral grey here reads
+     as unconsidered next to six candy hues; these carry the same violet
+     cast as the ground so greys and pastels belong to one family. */
+  --hc-haze-0: #ffffff;
+  --hc-haze-50: #faf8ff;
+  --hc-haze-100: #f4f0ff;
+  --hc-haze-200: #e6e0f5;
+  --hc-haze-300: #cfc7e0;
+  --hc-haze-400: #9a93ad;
+  --hc-haze-500: #6e6880;
+  --hc-haze-600: #4a4458;
+  --hc-haze-700: #332e40;
+  --hc-haze-800: #211e2a;
+  --hc-haze-900: #16141c;
+  --hc-haze-950: #0e0d13;
+
+  --hc-black: #000000;
+  --hc-white: #ffffff;
+
+  /* ---------- Type ---------- */
+  /* Space Mono does the UI, the display and the data — its wide, slightly
+     goofy letterforms are the only face that matches pastel-plus-black.
+     Karla carries prose, because a monospace at paragraph length is a
+     genuine reading cost and the spec editor is read, not scanned. */
+  --hc-font-display: "Space Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --hc-font-ui: "Space Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --hc-font-prose: "Karla", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --hc-font-data: "Space Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --hc-text-display-xl: 44px; --hc-lh-display-xl: 1.05; --hc-ls-display-xl: -.04em;
+  --hc-text-display-l: 32px;  --hc-lh-display-l: 1.08;  --hc-ls-display-l: -.035em;
+  --hc-text-display-m: 23px;  --hc-lh-display-m: 1.15;  --hc-ls-display-m: -.03em;
+  --hc-text-display-s: 18px;  --hc-lh-display-s: 1.25;  --hc-ls-display-s: -.02em;
+  --hc-text-prose-l: 17px;    --hc-lh-prose-l: 1.65;
+  --hc-text-prose: 15.5px;    --hc-lh-prose: 1.65;
+  --hc-text-body: 14px;       --hc-lh-body: 1.55;
+  --hc-text-label: 13px;      --hc-lh-label: 1.4;
+  --hc-text-data: 12.5px;     --hc-lh-data: 1.4;
+  --hc-text-micro: 11px;      --hc-lh-micro: 1.3;   --hc-ls-micro: .11em;
+
+  --hc-measure-prose: 66ch;
+  --hc-measure-dense: 58ch;
+
+  /* ---------- Space (4pt) ---------- */
+  --hc-space-1: 4px;  --hc-space-2: 8px;  --hc-space-3: 12px;
+  --hc-space-4: 16px; --hc-space-5: 20px; --hc-space-6: 24px;
+  --hc-space-8: 32px; --hc-space-10: 40px; --hc-space-14: 56px;
+  --hc-space-20: 80px;
+
+  /* ---------- Border ---------- */
+  /* 2px is the system's signature. 1px is for rules INSIDE an outlined
+     object, where a second 2px would read as a nested box. */
+  --hc-border: 2px;
+  --hc-border-hair: 1px;
+
+  /* ---------- Radius ---------- */
+  /* Zero. A pastel with a rounded corner is a marshmallow. The token
+     exists so the value is stated once and cannot drift. */
+  --hc-radius: 0px;
+
+  /* ---------- Elevation ---------- */
+  /* Hard offsets only, never blurred, always at 45 degrees. Three levels;
+     the colour comes from --hc-shadow so dark can keep them visible. */
+  --hc-shadow-1: 2px 2px 0 var(--hc-shadow);
+  --hc-shadow-2: 4px 4px 0 var(--hc-shadow);
+  --hc-shadow-3: 7px 7px 0 var(--hc-shadow);
+
+  /* ---------- Motion ---------- */
+  /* Snappy and near-instant. A neubrutalist control does not ease in; it
+     arrives. Transforms move by whole pixels so nothing looks soft. */
+  --hc-dur-fast: 90ms;
+  --hc-dur-base: 140ms;
+  --hc-dur-slow: 200ms;
+  --hc-ease: cubic-bezier(.2, 0, .1, 1);
+}
+
+/* ---------- 2. SEMANTIC — LIGHT (the bare :root default) ---------- */
+:root,
+[data-theme="light"] {
+  --hc-bg-base: var(--hc-haze-100);
+  --hc-bg-raised: var(--hc-haze-0);
+  --hc-bg-inset: var(--hc-haze-50);
+  --hc-bg-sunken: var(--hc-haze-200);
+
+  --hc-outline: var(--hc-black);
+  --hc-outline-soft: var(--hc-haze-300);
+  --hc-shadow: var(--hc-black);
+
+  --hc-text: var(--hc-black);
+  --hc-text-muted: var(--hc-haze-600);
+  --hc-text-faint: var(--hc-haze-500);
+  --hc-text-on-fill: var(--hc-black);
+
+  --hc-accent: var(--hc-bubblegum);
+  --hc-accent-deep: var(--hc-bubblegum-deep);
+
+  --hc-pass: var(--hc-mint);
+  --hc-hold: var(--hc-butter);
+  --hc-fail: var(--hc-coral);
+  --hc-info: var(--hc-sky);
+  --hc-queued: var(--hc-haze-200);
+
+  /* The focus ring is never a candy hue — it has to be unmistakable on
+     top of one. Solid outline colour, offset so the 2px border still reads. */
+  --hc-focus: var(--hc-outline);
+
+  color-scheme: light;
+}
+
+/* Both explicit stamps are written WITHOUT a :root prefix on purpose. HardCandyRoot
+   stamps data-theme on a div so a subtree can differ from the document (a side-by-side
+   preview, a dark panel in a light app), and a :root-only selector would silently do
+   nothing there. Precedence still resolves correctly in all four combinations because
+   the media query targets :root and therefore outranks nothing it should not:
+     OS dark, unstamped        -> media rule on :root            -> dark
+     OS dark, stamped light    -> [data-theme="light"] on :root  -> light
+     OS light, stamped dark    -> [data-theme="dark"], later in source order -> dark
+     subtree stamped either    -> the div's own rule wins locally
+*/
+/* ---------- 3. SEMANTIC — DARK ---------- */
+/* Not the light theme inverted. The candy fills hold their exact values and
+   keep their black labels; the outline flips to near-white and the grounds
+   drop to haze-900. Hard shadows stay black, which is why the ground is
+   #16141C and not #000 — a black shadow needs something to fall on. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --hc-bg-base: var(--hc-haze-900);
+    --hc-bg-raised: var(--hc-haze-800);
+    --hc-bg-inset: var(--hc-haze-950);
+    --hc-bg-sunken: var(--hc-haze-950);
+
+    --hc-outline: var(--hc-haze-100);
+    --hc-outline-soft: var(--hc-haze-700);
+    --hc-shadow: var(--hc-black);
+
+    --hc-text: var(--hc-haze-100);
+    --hc-text-muted: var(--hc-haze-300);
+    --hc-text-faint: var(--hc-haze-400);
+    --hc-text-on-fill: var(--hc-black);
+
+    --hc-queued: var(--hc-haze-700);
+    --hc-focus: var(--hc-outline);
+
+    color-scheme: dark;
+  }
+}
+
+[data-theme="dark"] {
+  --hc-bg-base: var(--hc-haze-900);
+  --hc-bg-raised: var(--hc-haze-800);
+  --hc-bg-inset: var(--hc-haze-950);
+  --hc-bg-sunken: var(--hc-haze-950);
+
+  --hc-outline: var(--hc-haze-100);
+  --hc-outline-soft: var(--hc-haze-700);
+  --hc-shadow: var(--hc-black);
+
+  --hc-text: var(--hc-haze-100);
+  --hc-text-muted: var(--hc-haze-300);
+  --hc-text-faint: var(--hc-haze-400);
+  --hc-text-on-fill: var(--hc-black);
+
+  --hc-queued: var(--hc-haze-700);
+  --hc-focus: var(--hc-outline);
+
+  color-scheme: dark;
+}
+
+/* =============================================================
+   CONTRAST AUDIT — measured, not estimated
+
+   LIGHT  text #000 on #F4F0FF ................ 18.75:1  AAA
+          muted #4A4458 on #F4F0FF ............  8.30:1  AAA
+          faint #6E6880 on #F4F0FF ............  4.74:1  AA  (tightest pair)
+          faint #6E6880 on #FFFFFF ............  5.31:1  AA
+
+   DARK   text #F4F0FF on #16141C ............. 16.30:1  AAA
+          muted #CFC7E0 on #16141C ............ 11.21:1  AAA
+          faint #9A93AD on #16141C ............  6.21:1  AA
+          faint #9A93AD on #211E2A ............  5.57:1  AA
+
+   BOTH   black on butter  #FFEFA8 ............ 18.16:1  AAA
+          black on mint    #A8F0D0 ............ 16.04:1  AAA
+          black on sky     #A8D8FF ............ 13.93:1  AAA
+          black on lilac   #D9C2FF ............ 13.11:1  AAA
+          black on bubblegum #FFB3C7 .......... 12.52:1  AAA
+          black on coral   #FFAF9E ............ 11.88:1  AAA
+
+   FAILS  white on bubblegum ..................  1.68:1  never
+          a candy hue as TEXT on either ground — the fills are
+          fills; text is --hc-text or a black label on a fill.
+   ============================================================= */
+
+/* =============================================================
+   HARD CANDY — component styles
+   Consumes the tokens in tokens.css. The two are concatenated into a single
+   self-contained dist/styles.css by scripts/copy-css.mjs — do not add an
+   @import for tokens here, the build asserts against it.
+
+   Conventions worth knowing before editing:
+
+   1. Every raised object is `--hc-border` solid `--hc-outline` with a
+      hard `--hc-shadow-*`. No blurred shadow exists in this system.
+   2. Pressable things PRESS: they translate by exactly the shadow
+      offset and drop to the next shadow down, so the object appears
+      to move onto the page. Never a scale, never an opacity fade.
+   3. Fills are candy; labels on fills are `--hc-text-on-fill` (black).
+      Nothing on a fill ever takes `--hc-text`, which flips per theme.
+   4. Radius is `--hc-radius`, which is 0. It is referenced rather
+      than written so a future theme can change it in one place.
+   5. Focus is a solid offset ring in `--hc-focus`, never a glow — it
+      has to survive sitting on top of a pastel.
+   ============================================================= */
+
+/* ---------- root ---------- */
+.hc-root {
+  background: var(--hc-bg-base);
+  color: var(--hc-text);
+  font-family: var(--hc-font-ui);
+  font-size: var(--hc-text-body);
+  line-height: var(--hc-lh-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+.hc-root *,
+.hc-root *::before,
+.hc-root *::after { box-sizing: border-box; }
+
+/* One focus treatment for the whole system. */
+.hc-root :focus-visible {
+  outline: var(--hc-border) solid var(--hc-focus);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hc-root *, .hc-root *::before, .hc-root *::after {
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* ---------- typography ---------- */
+.hc-heading {
+  font-family: var(--hc-font-display);
+  font-weight: 700;
+  color: var(--hc-text);
+  margin: 0;
+  text-wrap: balance;
+}
+.hc-heading--xl { font-size: var(--hc-text-display-xl); line-height: var(--hc-lh-display-xl); letter-spacing: var(--hc-ls-display-xl); }
+.hc-heading--l  { font-size: var(--hc-text-display-l);  line-height: var(--hc-lh-display-l);  letter-spacing: var(--hc-ls-display-l); }
+.hc-heading--m  { font-size: var(--hc-text-display-m);  line-height: var(--hc-lh-display-m);  letter-spacing: var(--hc-ls-display-m); }
+.hc-heading--s  { font-size: var(--hc-text-display-s);  line-height: var(--hc-lh-display-s);  letter-spacing: var(--hc-ls-display-s); }
+
+/* font-family is set here rather than inherited: a Text used outside .hc-root
+   (a preview card, a portal, someone else's page) fell back to browser serif.
+   The prose and data variants override it below. */
+.hc-text { margin: 0; color: var(--hc-text); font-family: var(--hc-font-ui); }
+/* Prose switches to Karla and caps its measure. Space Mono is fine for a
+   label and punishing for a paragraph. */
+.hc-text--prose   { font-family: var(--hc-font-prose); font-size: var(--hc-text-prose);   line-height: var(--hc-lh-prose);   max-width: var(--hc-measure-prose); }
+.hc-text--prose-l { font-family: var(--hc-font-prose); font-size: var(--hc-text-prose-l); line-height: var(--hc-lh-prose-l); max-width: var(--hc-measure-prose); }
+.hc-text--body    { font-size: var(--hc-text-body);  line-height: var(--hc-lh-body); }
+.hc-text--label   { font-size: var(--hc-text-label); line-height: var(--hc-lh-label); }
+.hc-text--data    { font-family: var(--hc-font-data); font-size: var(--hc-text-data); line-height: var(--hc-lh-data); font-variant-numeric: tabular-nums; }
+.hc-text--micro   { font-size: var(--hc-text-micro); line-height: var(--hc-lh-micro); letter-spacing: var(--hc-ls-micro); text-transform: uppercase; }
+.hc-text--muted { color: var(--hc-text-muted); }
+.hc-text--faint { color: var(--hc-text-faint); }
+
+/* ---------- button ---------- */
+.hc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--hc-space-2);
+  font-family: var(--hc-font-ui);
+  font-size: var(--hc-text-label);
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: 9px var(--hc-space-4);
+  border: var(--hc-border) solid var(--hc-outline);
+  border-radius: var(--hc-radius);
+  background: var(--hc-bg-raised);
+  color: var(--hc-text);
+  box-shadow: var(--hc-shadow-2);
+  cursor: pointer;
+  transition: transform var(--hc-dur-fast) var(--hc-ease),
+              box-shadow var(--hc-dur-fast) var(--hc-ease),
+              background-color var(--hc-dur-fast) var(--hc-ease);
+}
+/* The press. Translate by the shadow offset and drop a level, so the
+   button physically lands on the page. */
+.hc-btn:active:not(:disabled) { transform: translate(3px, 3px); box-shadow: var(--hc-shadow-1); }
+.hc-btn:disabled { cursor: not-allowed; opacity: .45; box-shadow: var(--hc-shadow-1); }
+
+.hc-btn--primary   { background: var(--hc-accent);  color: var(--hc-text-on-fill); }
+.hc-btn--primary:hover:not(:disabled) { background: var(--hc-accent-deep); }
+.hc-btn--secondary { background: var(--hc-bg-raised); color: var(--hc-text); }
+.hc-btn--secondary:hover:not(:disabled) { background: var(--hc-bg-sunken); }
+.hc-btn--danger    { background: var(--hc-fail);    color: var(--hc-text-on-fill); }
+.hc-btn--danger:hover:not(:disabled) { background: var(--hc-coral-deep); }
+/* Ghost is the only control without an outline or a shadow, which is what
+   makes it read as the quiet option in a system this loud. */
+.hc-btn--ghost {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  color: var(--hc-text-muted);
+}
+.hc-btn--ghost:hover:not(:disabled) { background: var(--hc-bg-sunken); color: var(--hc-text); }
+.hc-btn--ghost:active:not(:disabled) { transform: none; box-shadow: none; }
+
+.hc-btn--sm { font-size: var(--hc-text-micro); padding: 6px var(--hc-space-3); box-shadow: var(--hc-shadow-1); }
+.hc-btn--sm:active:not(:disabled) { transform: translate(2px, 2px); box-shadow: none; }
+.hc-btn--lg { font-size: var(--hc-text-body); padding: 13px var(--hc-space-5); box-shadow: var(--hc-shadow-3); }
+.hc-btn--lg:active:not(:disabled) { transform: translate(4px, 4px); box-shadow: var(--hc-shadow-2); }
+.hc-btn--block { width: 100%; }
+
+/* ---------- icon button ---------- */
+.hc-iconbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: var(--hc-border) solid var(--hc-outline);
+  border-radius: var(--hc-radius);
+  background: var(--hc-bg-raised);
+  color: var(--hc-text);
+  box-shadow: var(--hc-shadow-1);
+  cursor: pointer;
+  transition: transform var(--hc-dur-fast) var(--hc-ease), box-shadow var(--hc-dur-fast) var(--hc-ease);
+}
+.hc-iconbtn:hover:not(:disabled) { background: var(--hc-bg-sunken); }
+.hc-iconbtn:active:not(:disabled) { transform: translate(2px, 2px); box-shadow: none; }
+.hc-iconbtn:disabled { cursor: not-allowed; opacity: .45; }
+.hc-iconbtn--bare { border-color: transparent; box-shadow: none; color: var(--hc-text-muted); }
+.hc-iconbtn--bare:hover:not(:disabled) { color: var(--hc-text); }
+.hc-iconbtn--bare:active:not(:disabled) { transform: none; }
+
+/* ---------- segmented control ---------- */
+.hc-seg {
+  display: inline-flex;
+  border: var(--hc-border) solid var(--hc-outline);
+  border-radius: var(--hc-radius);
+  background: var(--hc-bg-raised);
+  box-shadow: var(--hc-shadow-1);
+  overflow: hidden;
+}
+.hc-seg__opt {
+  font-family: var(--hc-font-ui);
+  font-size: var(--hc-text-micro);
+  letter-spacing: var(--hc-ls-micro);
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 7px var(--hc-space-3);
+  border: 0;
+  /* A hairline between options; a second 2px would read as separate boxes. */
+  border-right: var(--hc-border-hair) solid var(--hc-outline-soft);
+  background: transparent;
+  color: var(--hc-text-muted);
+  cursor: pointer;
+  transition: background-color var(--hc-dur-fast) var(--hc-ease);
+}
+.hc-seg__opt:last-child { border-right: 0; }
+.hc-seg__opt:hover:not(:disabled) { background: var(--hc-bg-sunken); color: var(--hc-text); }
+.hc-seg__opt.is-active { background: var(--hc-accent); color: var(--hc-text-on-fill); }
+.hc-seg__opt:disabled { cursor: not-allowed; opacity: .45; }
+
+/* ---------- field / inputs ---------- */
+.hc-field { display: flex; flex-direction: column; gap: var(--hc-space-2); }
+.hc-field__label {
+  font-family: var(--hc-font-ui);
+  font-size: var(--hc-text-micro);
+  letter-spacing: var(--hc-ls-micro);
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hc-text);
+}
+.hc-field__req { color: var(--hc-text-muted); }
+.hc-field__hint  { font-size: var(--hc-text-data); line-height: var(--hc-lh-data); color: var(--hc-text-faint); }
+/* The error is a filled chip rather than red text: this system has no red,
+   and a coral fill with black type carries more urgency than a hue would. */
+.hc-field__error {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hc-space-2);
+  align-self: flex-start;
+  font-size: var(--hc-text-data);
+  font-weight: 700;
+  padding: 3px var(--hc-space-2);
+  border: var(--hc-border-hair) solid var(--hc-outline);
+  background: var(--hc-fail);
+  color: var(--hc-text-on-fill);
+}
+
+.hc-input, .hc-textarea, .hc-select {
+  width: 100%;
+  font-family: var(--hc-font-ui);
+  font-size: var(--hc-text-label);
+  padding: 9px var(--hc-space-3);
+  border: var(--hc-border) solid var(--hc-outline);
+  border-radius: var(--hc-radius);
+  background: var(--hc-bg-inset);
+  color: var(--hc-text);
+  box-shadow: var(--hc-shadow-1) inset;
+  transition: background-color var(--hc-dur-fast) var(--hc-ease);
+}
+.hc-input::placeholder, .hc-textarea::placeholder { color: var(--hc-text-faint); }
+.hc-input:hover:not(:disabled), .hc-textarea:hover:not(:disabled), .hc-select:hover:not(:disabled) { background: var(--hc-bg-raised); }
+.hc-input:disabled, .hc-textarea:disabled, .hc-select:disabled { cursor: not-allowed; opacity: .55; }
+.hc-input.is-invalid, .hc-textarea.is-invalid, .hc-select.is-invalid { background: var(--hc-fail); color: var(--hc-text-on-fill); }
+.hc-input.is-invalid::placeholder { color: var(--hc-haze-600); }
+.hc-textarea { min-height: 96px; resize: vertical; line-height: var(--hc-lh-body); }
+.hc-input--mono, .hc-textarea--mono { font-family: var(--hc-font-data); font-size: var(--hc-text-data); }
+.hc-select { appearance: none; cursor: pointer; padding-right: var(--hc-space-8); }
+.hc-select-wrap { position: relative; display: block; }
+.hc-select-wrap__caret {
+  position: absolute;
+  right: var(--hc-space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--hc-text);
+}
+
+/* ---------- checkbox ---------- */
+/* Drawn rather than native, because a native control cannot take a 2px
+   outline and a hard shadow. The input stays in the DOM for a11y. */
+.hc-check { display: inline-flex; align-items: flex-start; gap: var(--hc-space-3); cursor: pointer; }
+.hc-check__input {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0);
+  white-space: nowrap; border: 0;
+}
+.hc-check__box {
+  flex: none;
+  width: 20px; height: 20px;
+  margin-top: 1px;
+  display: grid;
+  place-items: center;
+  border: var(--hc-border) solid var(--hc-outline);
+  border-radius: var(--hc-radius);
+  background: var(--hc-bg-raised);
+  box-shadow: var(--hc-shadow-1);
+  color: var(--hc-text-on-fill);
+  transition: background-color var(--hc-dur-fast) var(--hc-ease);
+}
+.hc-check__input:checked + .hc-check__box { background: var(--hc-accent); }
+.hc-check__input:focus-visible + .hc-check__box { outline: var(--hc-border) solid var(--hc-focus); outline-offset: 3px; }
+.hc-check__input:disabled + .hc-check__box { opacity: .45; }
+.hc-check__body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.hc-check__label { font-size: var(--hc-text-label); font-weight: 700; color: var(--hc-text); }
+.hc-check__hint { font-size: var(--hc-text-data); line-height: var(--hc-lh-data); color: var(--hc-text-faint); }
+.hc-check.is-disabled { cursor: not-allowed; }
+
+/* ---------- switch ---------- */
+.hc-switch { display: inline-flex; align-items: center; gap: var(--hc-space-3); cursor: pointer; }
+.hc-switch__track {
+  flex: none;
+  position: relative;
+  width: 44px; height: 24px;
+  border: var(--hc-border) solid var(--hc-outline);
+  border-radius: var(--hc-radius);
+  background: var(--hc-bg-sunken);
+  box-shadow: var(--hc-shadow-1);
+  transition: background-color var(--hc-dur-fast) var(--hc-ease);
+}
+.hc-switch__knob {
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 16px; height: 16px;
+  border: var(--hc-border-hair) solid var(--hc-outline);
+  background: var(--hc-bg-raised);
+  /* Steps, not a slide. The knob snaps between two positions. */
+  transition: transform var(--hc-dur-fast) steps(2, end);
+}
+.hc-switch__input { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); border: 0; }
+.hc-switch__input:checked + .hc-switch__track { background: var(--hc-accent); }
+.hc-switch__input:checked + .hc-switch__track .hc-switch__knob { transform: translateX(20px); }
+.hc-switch__input:focus-visible + .hc-switch__track { outline: var(--hc-border) solid var(--hc-focus); outline-offset: 3px; }
+.hc-switch__input:disabled + .hc-switch__track { opacity: .45; }
+.hc-switch__label { font-size: var(--hc-text-label); font-weight: 700; }
+
+/* ---------- status pill ---------- */
+.hc-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hc-space-2);
+  font-family: var(--hc-font-ui);
+  font-size: var(--hc-text-micro);
+  letter-spacing: var(--hc-ls-micro);
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 3px var(--hc-space-2);
+  border: var(--hc-border) solid var(--hc-outline);
+  border-radius: var(--hc-radius);
+  background: var(--hc-queued);
+  color: var(--hc-text);
+  white-space: nowrap;
+}
+/* Each status gets a fill AND a glyph, so the set survives greyscale. */
+.hc-pill--pass    { background: var(--hc-pass);   color: var(--hc-text-on-fill); }
+.hc-pill--hold    { background: var(--hc-hold);   color: var(--hc-text-on-fill); }
+.hc-pill--fail    { background: var(--hc-fail);   color: var(--hc-text-on-fill); }
+.hc-pill--running { background: var(--hc-accent); color: var(--hc-text-on-fill); }
+.hc-pill--info    { background: var(--hc-info);   color: var(--hc-text-on-fill); }
+.hc-pill--queued  { background: var(--hc-queued); color: var(--hc-text); }
+.hc-pill__glyph { flex: none; display: block; }
+
+/* ---------- severity strip ---------- */
+.hc-strip {
+  display: block;
+  width: 6px;
+  border: var(--hc-border-hair) solid var(--hc-outline);
+  background: var(--hc-queued);
+}
+.hc-strip--pass { background: var(--hc-pass); }
+.hc-strip--hold { background: var(--hc-hold); }
+.hc-strip--fail { background: var(--hc-fail); }
+.hc-strip--running { background: var(--hc-accent); }
+.hc-strip--queued { background: var(--hc-queued); }
+
+/* ---------- gate meter ---------- */
+/* A segment per check, not a percentage. "2 of 3 pass" is countable. */
+.hc-meter { display: flex; gap: var(--hc-space-1); }
+.hc-meter__seg {
+  flex: 1;
+  height: 12px;
+  border: var(--hc-border-hair) solid var(--hc-outline);
+  background: var(--hc-bg-sunken);
+}
+.hc-meter__seg.is-pass { background: var(--hc-pass); }
+.hc-meter__seg.is-fail { background: var(--hc-fail); }
+.hc-meter__seg.is-hold { background: var(--hc-hold); }
+
+/* ---------- progress ---------- */
+.hc-progress {
+  height: 16px;
+  border: var(--hc-border) solid var(--hc-outline);
+  border-radius: var(--hc-radius);
+  background: var(--hc-bg-sunken);
+  overflow: hidden;
+}
+.hc-progress__fill {
+  height: 100%;
+  background: var(--hc-accent);
+  border-right: var(--hc-border) solid var(--hc-outline);
+  transition: width var(--hc-dur-slow) var(--hc-ease);
+}
+.hc-progress__fill--indeterminate {
+  width: 35% !important;
+  border-left: var(--hc-border) solid var(--hc-outline);
+  animation: hc-slide 1.1s steps(6, end) infinite;
+}
+@keyframes hc-slide { from { transform: translateX(-100%); } to { transform: translateX(300%); } }
+
+/* ---------- spinner ---------- */
+/* Stepped, not smooth. A machine redraws; it does not ease. */
+.hc-spinner {
+  display: inline-block;
+  width: 14px; height: 14px;
+  border: 3px solid var(--hc-outline);
+  border-right-color: transparent;
+  animation: hc-spin .8s steps(8, end) infinite;
+}
+@keyframes hc-spin { to { transform: rotate(360deg); } }
+
+/* ---------- badge ---------- */
+.hc-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  font-family: var(--hc-font-data);
+  font-size: var(--hc-text-micro);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  padding: 2px var(--hc-space-2);
+  border: var(--hc-border-hair) solid var(--hc-outline);
+  border-radius: var(--hc-radius);
+  background: var(--hc-bg-sunken);
+  color: var(--hc-text);
+}
+.hc-badge--accent { background: var(--hc-accent); color: var(--hc-text-on-fill); }
+
+/* ---------- panel ---------- */
+.hc-panel {
+  border: var(--hc-border) solid var(--hc-outline);
+  border-radius: var(--hc-radius);
+  background: var(--hc-bg-raised);
+  box-shadow: var(--hc-shadow-2);
+}
+.hc-panel__head {
+  display: flex;
+  align-items: center;
+  gap: var(--hc-space-3);
+  padding: var(--hc-space-3) var(--hc-space-4);
+  border-bottom: var(--hc-border) solid var(--hc-outline);
+  background: var(--hc-bg-sunken);
+}
+.hc-panel__title { flex: 1; min-width: 0; font-family: var(--hc-font-display); font-weight: 700; font-size: var(--hc-text-display-s); letter-spacing: var(--hc-ls-display-s); color: var(--hc-text); }
+.hc-panel__body { padding: var(--hc-space-4); }
+.hc-panel__foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--hc-space-2);
+  padding: var(--hc-space-3) var(--hc-space-4);
+  border-top: var(--hc-border) solid var(--hc-outline);
+  background: var(--hc-bg-sunken);
+}
+.hc-panel--flat { box-shadow: none; }
+
+/* ---------- card ---------- */
+.hc-card {
+  border: var(--hc-border) solid var(--hc-outline);
+  border-radius: var(--hc-radius);
+  background: var(--hc-bg-raised);
+  box-shadow: var(--hc-shadow-1);
+  padding: var(--hc-space-4);
+}
+.hc-card--tinted { background: var(--hc-bg-inset); }
+.hc-card--interactive { cursor: pointer; transition: transform var(--hc-dur-fast) var(--hc-ease), box-shadow var(--hc-dur-fast) var(--hc-ease); }
+.hc-card--interactive:hover { transform: translate(-1px, -1px); box-shadow: var(--hc-shadow-2); }
+.hc-card--interactive:active { transform: translate(2px, 2px); box-shadow: none; }
+
+/* ---------- modal ---------- */
+.hc-modal__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: var(--hc-space-6);
+  /* A flat wash, not a blur. Blur is a soft effect and this system has none. */
+  background: color-mix(in srgb, var(--hc-haze-900) 55%, transparent);
+}
+.hc-modal__dialog {
+  width: 100%;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  border: var(--hc-border) solid var(--hc-outline);
+  border-radius: var(--hc-radius);
+  background: var(--hc-bg-raised);
+  box-shadow: var(--hc-shadow-3);
+  overflow: hidden;
+}
+.hc-modal__head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--hc-space-3);
+  padding: var(--hc-space-4);
+  border-bottom: var(--hc-border) solid var(--hc-outline);
+  background: var(--hc-accent);
+}
+.hc-modal__titles { flex: 1; min-width: 0; }
+.hc-modal__title { font-family: var(--hc-font-display); font-weight: 700; font-size: var(--hc-text-display-s); letter-spacing: var(--hc-ls-display-s); color: var(--hc-text-on-fill); margin: 0; }
+.hc-modal__subtitle { font-size: var(--hc-text-data); line-height: var(--hc-lh-data); color: var(--hc-haze-700); margin: 3px 0 0; }
+.hc-modal__body { padding: var(--hc-space-4); overflow-y: auto; flex: 1; min-height: 0; }
+.hc-modal__foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--hc-space-2);
+  padding: var(--hc-space-3) var(--hc-space-4);
+  border-top: var(--hc-border) solid var(--hc-outline);
+  background: var(--hc-bg-sunken);
+}
+
+/* ---------- toast ---------- */
+.hc-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--hc-space-3);
+  max-width: 400px;
+  padding: var(--hc-space-3) var(--hc-space-4);
+  border: var(--hc-border) solid var(--hc-outline);
+  border-radius: var(--hc-radius);
+  background: var(--hc-bg-raised);
+  box-shadow: var(--hc-shadow-2);
+}
+.hc-toast__strip { align-self: stretch; }
+.hc-toast__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.hc-toast__title { font-size: var(--hc-text-label); font-weight: 700; color: var(--hc-text); }
+.hc-toast__detail { font-size: var(--hc-text-data); line-height: var(--hc-lh-data); color: var(--hc-text-muted); }
+
+/* ---------- empty state ---------- */
+.hc-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--hc-space-3);
+  text-align: center;
+  padding: var(--hc-space-8) var(--hc-space-6);
+  /* Dashed is what tells an empty container apart from a broken one. */
+  border: var(--hc-border) dashed var(--hc-outline-soft);
+  border-radius: var(--hc-radius);
+  background: var(--hc-bg-inset);
+}
+.hc-empty__title { font-family: var(--hc-font-display); font-weight: 700; font-size: var(--hc-text-display-s); letter-spacing: var(--hc-ls-display-s); color: var(--hc-text); margin: 0; }
+.hc-empty__body { font-family: var(--hc-font-prose); font-size: var(--hc-text-body); line-height: var(--hc-lh-prose); color: var(--hc-text-muted); max-width: 42ch; margin: 0; }
+
+/* ---------- table ---------- */
+.hc-table-wrap { overflow-x: auto; border: var(--hc-border) solid var(--hc-outline); background: var(--hc-bg-raised); }
+.hc-table { width: 100%; border-collapse: collapse; font-size: var(--hc-text-label); }
+.hc-table th {
+  text-align: left;
+  font-family: var(--hc-font-ui);
+  font-size: var(--hc-text-micro);
+  letter-spacing: var(--hc-ls-micro);
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hc-text);
+  background: var(--hc-bg-sunken);
+  padding: var(--hc-space-2) var(--hc-space-3);
+  border-bottom: var(--hc-border) solid var(--hc-outline);
+  white-space: nowrap;
+}
+.hc-table td {
+  padding: var(--hc-space-2) var(--hc-space-3);
+  border-bottom: var(--hc-border-hair) solid var(--hc-outline-soft);
+  color: var(--hc-text);
+  vertical-align: middle;
+}
+.hc-table tbody tr:last-child td { border-bottom: 0; }
+.hc-table__num { font-family: var(--hc-font-data); font-variant-numeric: tabular-nums; text-align: right; }
+.hc-table tbody tr.is-selected td { background: var(--hc-accent); color: var(--hc-text-on-fill); }
+
+/* ---------- step list ---------- */
+.hc-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.hc-steps__item {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  gap: var(--hc-space-3);
+  align-items: center;
+  padding: var(--hc-space-2) 0;
+  font-size: var(--hc-text-label);
+  color: var(--hc-text-muted);
+}
+.hc-steps__num { font-family: var(--hc-font-data); font-size: var(--hc-text-micro); font-variant-numeric: tabular-nums; color: var(--hc-text-faint); }
+.hc-steps__glyph {
+  flex: none;
+  width: 18px; height: 18px;
+  display: grid;
+  place-items: center;
+  border: var(--hc-border) solid var(--hc-outline);
+  background: var(--hc-bg-raised);
+  color: var(--hc-text-on-fill);
+}
+.hc-steps__label { min-width: 0; }
+.hc-steps__status { font-family: var(--hc-font-ui); font-size: var(--hc-text-micro); letter-spacing: var(--hc-ls-micro); text-transform: uppercase; font-weight: 700; white-space: nowrap; }
+
+.hc-steps__item.is-done { color: var(--hc-text); }
+.hc-steps__item.is-done .hc-steps__glyph { background: var(--hc-pass); }
+.hc-steps__item.is-failed .hc-steps__glyph { background: var(--hc-fail); }
+/* The running row is the one filled row, and it bleeds to the panel edge.
+   Its text is --hc-text-on-fill because it now sits ON a candy fill. */
+.hc-steps__item.is-running {
+  background: var(--hc-accent);
+  color: var(--hc-text-on-fill);
+  font-weight: 700;
+  margin: 0 calc(-1 * var(--hc-space-4));
+  padding-left: var(--hc-space-4);
+  padding-right: var(--hc-space-4);
+  border-top: var(--hc-border) solid var(--hc-outline);
+  border-bottom: var(--hc-border) solid var(--hc-outline);
+}
+.hc-steps__item.is-running .hc-steps__num,
+.hc-steps__item.is-running .hc-steps__status { color: var(--hc-text-on-fill); }
+.hc-steps__item.is-running .hc-steps__glyph { background: var(--hc-bg-raised); color: var(--hc-text); }
+
+/* ---------- code ---------- */
+.hc-code {
+  margin: 0;
+  padding: var(--hc-space-3);
+  border: var(--hc-border) solid var(--hc-outline);
+  border-radius: var(--hc-radius);
+  background: var(--hc-bg-inset);
+  color: var(--hc-text);
+  font-family: var(--hc-font-data);
+  font-size: var(--hc-text-data);
+  line-height: 1.6;
+  overflow-x: auto;
+  white-space: pre;
+}
+.hc-code__caption {
+  display: block;
+  font-family: var(--hc-font-ui);
+  font-size: var(--hc-text-micro);
+  letter-spacing: var(--hc-ls-micro);
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: var(--hc-space-2) var(--hc-space-3);
+  border: var(--hc-border) solid var(--hc-outline);
+  border-bottom: 0;
+  background: var(--hc-bg-sunken);
+  color: var(--hc-text);
+}
+.hc-inline-code {
+  font-family: var(--hc-font-data);
+  font-size: .92em;
+  padding: 1px 5px;
+  border: var(--hc-border-hair) solid var(--hc-outline);
+  background: var(--hc-bg-inset);
+  color: var(--hc-text);
+}
+
+/* ---------- diff ---------- */
+.hc-diff {
+  border: var(--hc-border) solid var(--hc-outline);
+  border-radius: var(--hc-radius);
+  background: var(--hc-bg-raised);
+  font-family: var(--hc-font-data);
+  font-size: var(--hc-text-data);
+  line-height: 1.6;
+  overflow-x: auto;
+}
+.hc-diff__row { display: flex; gap: var(--hc-space-3); padding: 2px var(--hc-space-3); white-space: pre; }
+.hc-diff__gutter { flex: none; width: 34px; text-align: right; color: var(--hc-text-faint); font-variant-numeric: tabular-nums; }
+.hc-diff__sign { flex: none; width: 10px; font-weight: 700; }
+.hc-diff__row.is-add { background: var(--hc-mint); color: var(--hc-text-on-fill); }
+.hc-diff__row.is-add .hc-diff__gutter { color: var(--hc-haze-600); }
+.hc-diff__row.is-del { background: var(--hc-fail); color: var(--hc-text-on-fill); }
+.hc-diff__row.is-del .hc-diff__gutter { color: var(--hc-haze-600); }
+
+/* ---------- tabs ---------- */
+.hc-tabs { display: flex; gap: 0; border-bottom: var(--hc-border) solid var(--hc-outline); }
+.hc-tabs__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hc-space-2);
+  font-family: var(--hc-font-ui);
+  font-size: var(--hc-text-label);
+  font-weight: 700;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  padding: var(--hc-space-2) var(--hc-space-4);
+  border: var(--hc-border) solid transparent;
+  border-bottom: 0;
+  background: transparent;
+  color: var(--hc-text-muted);
+  cursor: pointer;
+  /* The active tab is a tab: outlined on three sides and lifted 2px so it
+     breaks the rule it sits on. */
+  margin-bottom: calc(-1 * var(--hc-border));
+  transition: color var(--hc-dur-fast) var(--hc-ease);
+}
+.hc-tabs__tab:hover:not(:disabled) { color: var(--hc-text); }
+.hc-tabs__tab.is-active {
+  border-color: var(--hc-outline);
+  background: var(--hc-accent);
+  color: var(--hc-text-on-fill);
+  padding-bottom: calc(var(--hc-space-2) + var(--hc-border));
+}
+.hc-tabs__tab:disabled { cursor: not-allowed; opacity: .45; }
+
+/* ---------- nav bar ---------- */
+.hc-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--hc-space-4);
+  padding: var(--hc-space-3) var(--hc-space-4);
+  border-bottom: var(--hc-border) solid var(--hc-outline);
+  background: var(--hc-bg-raised);
+}
+.hc-nav__brand { display: flex; align-items: center; gap: var(--hc-space-2); flex: none; }
+.hc-nav__wordmark { font-family: var(--hc-font-display); font-weight: 700; font-size: var(--hc-text-display-s); letter-spacing: -.03em; color: var(--hc-text); }
+.hc-nav__links { display: flex; align-items: center; gap: var(--hc-space-1); flex: 1; min-width: 0; }
+.hc-nav__link {
+  font-family: var(--hc-font-ui);
+  font-size: var(--hc-text-label);
+  font-weight: 700;
+  padding: 5px var(--hc-space-3);
+  border: var(--hc-border) solid transparent;
+  background: transparent;
+  color: var(--hc-text-muted);
+  cursor: pointer;
+  text-decoration: none;
+}
+.hc-nav__link:hover { color: var(--hc-text); }
+.hc-nav__link.is-active { border-color: var(--hc-outline); background: var(--hc-accent); color: var(--hc-text-on-fill); }
+.hc-nav__actions { display: flex; align-items: center; gap: var(--hc-space-2); flex: none; }
+
+/* ---------- mark ---------- */
+.hc-mark { display: block; flex: none; }
