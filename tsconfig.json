@@ -20,6 +20,12 @@
           "@accounts/*": [
             "./Modules/Accounts/resources/*"
           ],
+          "@academic/*": [
+            "./Modules/Academic/resources/*"
+          ],
+          "@students/*": [
+            "./Modules/Students/resources/*"
+          ],
           "@admin/*": [
             "./vendor/protibimbok/laramod-admin/resources/*"
           ]

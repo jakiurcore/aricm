@@ -7,6 +7,7 @@ export class ApiError extends Error {
         public status: number,
         message: string,
         public errors: Record<string, string[]> = {},
+        public body: any = null,
     ) {
         super(message);
     }
@@ -44,7 +45,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-        throw new ApiError(response.status, data.message ?? 'Request failed', data.errors ?? {});
+        throw new ApiError(response.status, data.message ?? 'Request failed', data.errors ?? {}, data);
     }
 
     return data as T;

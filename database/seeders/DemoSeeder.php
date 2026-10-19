@@ -3,7 +3,9 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Modules\Academic\Database\Seeders\DemoAcademicSeeder;
 use Modules\Accounts\Models\User;
+use Modules\Students\Database\Seeders\DemoStudentSeeder;
 
 class DemoSeeder extends Seeder
 {
@@ -16,5 +18,8 @@ class DemoSeeder extends Seeder
             ['email' => 'admin@example.com'],
             ['name' => 'সুপার অ্যাডমিন', 'password' => 'password', 'is_active' => true],
         )->assignRole('super_admin');
+
+        $this->call(DemoAcademicSeeder::class);
+        $this->call(DemoStudentSeeder::class);
     }
 }
