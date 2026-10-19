@@ -26,6 +26,9 @@
           "@students/*": [
             "./Modules/Students/resources/*"
           ],
+          "@exams/*": [
+            "./Modules/Exams/resources/*"
+          ],
           "@admin/*": [
             "./vendor/protibimbok/laramod-admin/resources/*"
           ]

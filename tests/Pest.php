@@ -5,8 +5,12 @@ use Illuminate\Http\UploadedFile;
 use Modules\Academic\Models\AcademicSession;
 use Modules\Academic\Models\SchoolClass;
 use Modules\Academic\Models\Section;
+use Modules\Academic\Models\Subject;
 use Modules\Accounts\Database\Seeders\RolesAndPermissionsSeeder;
 use Modules\Accounts\Models\User;
+use Modules\Exams\Models\Exam;
+use Modules\Exams\Models\ExamRoutine;
+use Modules\Exams\Models\ExamSubject;
 use Tests\TestCase;
 
 /*
@@ -94,4 +98,25 @@ function placement(): array
 function tinyPng(string $name = 'photo.png'): UploadedFile
 {
     return UploadedFile::fake()->createWithContent($name, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='));
+}
+
+/**
+ * An exam for the placement's class with one configured subject and a routine row.
+ *
+ * @param  array{session: AcademicSession, class: SchoolClass, section: Section}  $placement
+ */
+function examFor(array $placement, bool $released = true, bool $withRoutine = true): Exam
+{
+    $exam = Exam::factory()->create(['session_id' => $placement['session']->id, 'admit_card_released' => $released]);
+    $exam->classes()->attach($placement['class']->id);
+
+    $subject = Subject::factory()->create();
+    $placement['class']->subjects()->attach($subject->id, ['sort_order' => 1]);
+    ExamSubject::create(['exam_id' => $exam->id, 'class_id' => $placement['class']->id, 'subject_id' => $subject->id, 'full_marks' => 100, 'pass_marks' => 33, 'sort_order' => 1]);
+
+    if ($withRoutine) {
+        ExamRoutine::create(['exam_id' => $exam->id, 'class_id' => $placement['class']->id, 'subject_id' => $subject->id, 'exam_date' => '2026-06-02', 'start_time' => '10:00', 'end_time' => '12:00']);
+    }
+
+    return $exam;
 }
