@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="assets/logo.jpeg">
+  <link rel="stylesheet" href="madrasa-theme.css">
+</helmet>
+
+<div data-theme="light" style="min-height: 100vh; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.7;">
+  <div style="max-width: 1200px; margin: 0 auto; padding: 32px 16px 64px; display: grid; gap: 48px;">
+    <header style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+      <img src="assets/logo.jpeg" alt="" style="width: 72px; height: 72px; border-radius: 50%; background: #fff; border: 1px solid var(--line);">
+      <div style="flex: 1; min-width: 240px; display: grid;">
+        <h1 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: clamp(28px, 4vw, 40px); line-height: 1.3;">ডিজাইন সিস্টেম</h1>
+        <span style="color: var(--muted);">আর রহমান ইন্টারন্যাশনাল ক্যাডেট মাদরাসা · tokens in <code>madrasa-theme.css</code> + <code>tailwind.config.js</code></span>
+      </div>
+      <nav style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <a href="Madrasa Website.dc.html" style="height: 44px; padding: 0 16px; border-radius: 999px; background: var(--green-700); color: #fff; font-weight: 700; display: flex; align-items: center; text-decoration: none;">ওয়েবসাইট</a>
+        <a href="Student Portal.dc.html" style="height: 44px; padding: 0 16px; border-radius: 999px; border: 2px solid var(--navy-800); color: var(--navy-800); font-weight: 700; display: flex; align-items: center; text-decoration: none;">পোর্টাল</a>
+        <a href="Admin Panel.dc.html" style="height: 44px; padding: 0 16px; border-radius: 999px; border: 2px solid var(--navy-800); color: var(--navy-800); font-weight: 700; display: flex; align-items: center; text-decoration: none;">অ্যাডমিন</a>
+        <a href="Print Documents.dc.html" style="height: 44px; padding: 0 16px; border-radius: 999px; border: 2px solid var(--navy-800); color: var(--navy-800); font-weight: 700; display: flex; align-items: center; text-decoration: none;">প্রিন্ট</a>
+      </nav>
+    </header>
+
+    <section style="display: grid; gap: 16px;">
+      <h2 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: 28px;">রং — লাইট ও ডার্ক</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr)); gap: 16px;">
+        <sc-for list="{{ themes }}" as="th" hint-placeholder-count="2">
+          <div data-theme="{{ th.id }}" style="padding: 18px; border-radius: 20px; background: var(--bg); color: var(--ink); border: 1px solid var(--line); display: grid; gap: 12px;">
+            <strong>{{ th.label }}</strong>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px;">
+              <sc-for list="{{ swatches }}" as="s" hint-placeholder-count="16">
+                <div style="display: grid; gap: 4px;"><span style="height: 56px; border-radius: 12px; background: var({{ s.v }}); border: 1px solid var(--line);"></span><span style="font-size: 13px; font-weight: 600; line-height: 1.3;">{{ s.n }}</span><code style="font-size: 11px; color: var(--muted);">{{ s.v }}</code></div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section style="display: grid; gap: 16px;">
+      <h2 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: 28px;">টাইপোগ্রাফি</h2>
+      <div style="padding: 20px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 14px;">
+        <div style="display: grid; gap: 2px;"><span style="font-size: 13px; color: var(--muted);">Display · Noto Serif Bengali 56/1.2</span><span style="font-family: var(--font-head); font-size: clamp(34px, 6vw, 56px); line-height: 1.2; color: var(--heading);">শিশুর মেধা বিকাশে</span></div>
+        <div style="display: grid; gap: 2px;"><span style="font-size: 13px; color: var(--muted);">H2 · Noto Serif Bengali 38/1.3</span><span style="font-family: var(--font-head); font-size: 38px; line-height: 1.3; color: var(--heading);">সর্বশেষ নোটিশ</span></div>
+        <div style="display: grid; gap: 2px;"><span style="font-size: 13px; color: var(--muted);">H3 · Noto Serif Bengali 24/1.45</span><span style="font-family: var(--font-head); font-size: 24px; color: var(--heading);">কিডস বিভাগ</span></div>
+        <div style="display: grid; gap: 2px;"><span style="font-size: 13px; color: var(--muted);">Body · Noto Sans Bengali 16/1.7</span><span style="font-size: 16px; max-width: 66ch;">হিফজুল কুরআন, সাধারণ শিক্ষা ও ক্যাডেট শৃঙ্খলা — এক ছাদের নিচে। বাংলা লেখার জন্য লাইন-হাইট ১.৭।</span></div>
+        <div style="display: grid; gap: 2px;"><span style="font-size: 13px; color: var(--muted);">English · Poppins 16</span><span style="font-family: Poppins; font-size: 16px;">AR Rahman International Cadet Madrasa</span></div>
+        <div style="display: grid; gap: 2px;"><span style="font-size: 13px; color: var(--muted);">Arabic · Amiri 28</span><span style="font-family: var(--font-ar); font-size: 28px;" dir="rtl">الرحمن انترناشونال كاديت مدرسة</span></div>
+        <div style="display: grid; gap: 2px;"><span style="font-size: 13px; color: var(--muted);">Numerals</span><span style="font-size: 20px; font-weight: 600;">০১২৩৪৫৬৭৮৯ · 0123456789</span></div>
+      </div>
+    </section>
+
+    <section style="display: grid; gap: 16px;">
+      <h2 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: 28px;">রেডিয়াস ও শ্যাডো</h2>
+      <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+        <sc-for list="{{ radii }}" as="r" hint-placeholder-count="4"><div style="width: 120px; height: 88px; border-radius: {{ r.v }}; background: var(--surface); border: 1px solid var(--line); box-shadow: var({{ r.sh }}); display: grid; place-items: center; text-align: center; font-size: 13px; line-height: 1.4;"><span><strong>{{ r.n }}</strong><br>{{ r.sh }}</span></div></sc-for>
+      </div>
+    </section>
+
+    <section style="display: grid; gap: 16px;">
+      <h2 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: 28px;">কম্পোনেন্ট</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 16px; align-items: start;">
+        <div style="padding: 20px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 12px;">
+          <strong>বাটন · ৪৪px+</strong>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button style="height: 48px; padding: 0 22px; border: 0; border-radius: 999px; background: var(--red-600); color: #fff; font-weight: 700; cursor: pointer;">ভর্তি চলছে</button>
+            <button style="height: 48px; padding: 0 22px; border: 0; border-radius: 999px; background: var(--green-700); color: #fff; font-weight: 700; cursor: pointer;">ফলাফল দেখুন</button>
+            <button style="height: 48px; padding: 0 22px; border-radius: 999px; border: 2px solid var(--navy-800); background: transparent; color: var(--navy-800); font-weight: 700; cursor: pointer;">লগইন</button>
+            <button style="height: 48px; padding: 0 18px; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--surface); font-weight: 600; cursor: pointer;">বাতিল</button>
+            <button disabled style="height: 48px; padding: 0 22px; border: 0; border-radius: 999px; background: var(--surface-2); color: var(--faint); font-weight: 700; cursor: not-allowed;">নিষ্ক্রিয়</button>
+          </div>
+        </div>
+        <div style="padding: 20px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 12px;">
+          <strong>ব্যাজ ও স্ট্যাটাস</strong>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; font-size: 14px; font-weight: 700;">
+            <span style="padding: 2px 12px; border-radius: 999px; background: var(--red-600); color: #fff;">নতুন</span>
+            <span style="padding: 2px 12px; border-radius: 999px; background: var(--yellow-400); color: #1a1a1a;">★ স্থাপিত ২০২৪</span>
+            <span style="padding: 2px 12px; border-radius: 999px; background: var(--success-bg); color: var(--success);">✓ পরিশোধিত</span>
+            <span style="padding: 2px 12px; border-radius: 999px; background: var(--danger-bg); color: var(--danger);">! বকেয়া</span>
+            <span style="padding: 2px 12px; border-radius: 999px; background: var(--warn-bg); color: var(--warn);">⏳ প্রকাশিত হয়নি</span>
+            <span style="padding: 2px 12px; border-radius: 999px; background: var(--info-bg); color: var(--info);">আসন্ন</span>
+          </div>
+        </div>
+        <div style="padding: 20px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 12px;">
+          <strong>ইনপুট</strong>
+          <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 600;">শিক্ষার্থী আইডি<input placeholder="20240101" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface);"></label>
+          <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 600;">মোবাইল নম্বর<input value="0171" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--danger); background: var(--surface);"><span style="color: var(--danger); font-size: 13px; font-weight: 500;">সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন</span></label>
+        </div>
+        <div style="padding: 20px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 12px;">
+          <strong>নোটিশ কার্ড</strong>
+          <div style="display: grid; grid-template-columns: 64px 1fr auto; gap: 14px; align-items: center; padding: 14px; border-radius: 16px; background: var(--yellow-50); border: 1px solid var(--yellow-400);">
+            <span style="display: grid; text-align: center; line-height: 1.45; padding: 8px 0; border-radius: 12px; background: var(--green-50); color: var(--green-700);"><span style="font-family: var(--font-head); font-size: 24px;">১৮</span><span style="font-size: 12px; font-weight: 700;">অক্টোবর</span></span>
+            <span style="font-weight: 600; line-height: 1.5;">২০২৬–২৭ শিক্ষাবর্ষে ভর্তি চলছে</span>
+            <span style="width: 40px; height: 40px; border-radius: 12px; background: var(--red-50); color: var(--danger); display: grid; place-items: center; font-size: 11px; font-weight: 800;">PDF</span>
+          </div>
+        </div>
+        <div style="padding: 20px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 12px;">
+          <strong>স্টেট: লোডিং · খালি · ত্রুটি</strong>
+          <div style="height: 56px; border-radius: 14px; background: linear-gradient(90deg, var(--surface-2) 0, var(--line) 50%, var(--surface-2) 100%); background-size: 800px 100%; animation: arm-shimmer 1.2s linear infinite;"></div>
+          <div style="padding: 20px; border-radius: 16px; border: 2px dashed var(--line-strong); text-align: center; color: var(--muted);">📭 কোনো নোটিশ পাওয়া যায়নি</div>
+          <div style="padding: 16px; border-radius: 16px; background: var(--danger-bg); color: var(--danger); text-align: center; font-weight: 600;">⚠ তথ্য লোড করা যায়নি · আবার চেষ্টা করুন</div>
+        </div>
+        <div style="padding: 20px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 12px;">
+          <strong>মোবাইল বটম নেভ</strong>
+          <div style="display: grid; grid-template-columns: repeat(5, 1fr); border-radius: 16px; border: 1px solid var(--line); padding: 6px 4px;">
+            <sc-for list="{{ bnav }}" as="b" hint-placeholder-count="5"><span style="min-height: 56px; display: grid; place-items: center; font-size: 12px; font-weight: 700; color: {{ b.fg }};"><span style="width: 44px; height: 28px; border-radius: 999px; display: grid; place-items: center; background: {{ b.bg }};">{{ b.i }}</span>{{ b.l }}</span></sc-for>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const sw = [['Green 700 · primary', '--green-700'], ['Green 500', '--green-500'], ['Green 50', '--green-50'], ['Red 600 · CTA', '--red-600'], ['Red 50', '--red-50'], ['Navy 800 · heading', '--navy-800'], ['Navy 50', '--navy-50'], ['Yellow 400 · highlight', '--yellow-400'], ['Yellow 50', '--yellow-50'], ['Background', '--bg'], ['Surface', '--surface'], ['Surface 2', '--surface-2'], ['Ink', '--ink'], ['Muted', '--muted'], ['Line', '--line'], ['Success', '--success'], ['Danger', '--danger'], ['Warn', '--warn']];
+    return {
+      themes: [{ id: 'light', label: 'Light' }, { id: 'dark', label: 'Dark' }],
+      swatches: sw.map(([n, v]) => ({ n, v })),
+      radii: [['8px · sm', '8px', '--shadow-sm'], ['12px · md', '12px', '--shadow-sm'], ['16px · xl', '16px', '--shadow-md'], ['20px · 2xl', '20px', '--shadow-lg']].map(([n, v, sh]) => ({ n, v, sh })),
+      bnav: [['⌂', 'হোম', 1], ['🏅', 'ফলাফল', 0], ['🗓', 'রুটিন', 0], ['📢', 'নোটিশ', 0], ['👤', 'প্রোফাইল', 0]].map(([i, l, a]) => ({ i, l, fg: a ? 'var(--green-700)' : 'var(--muted)', bg: a ? 'var(--green-100)' : 'transparent' })),
+    };
+  }
+}
+</script>
+</body>
+</html>

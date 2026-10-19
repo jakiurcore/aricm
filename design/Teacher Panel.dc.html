@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>শিক্ষক প্যানেল — আর রহমান ইন্টারন্যাশনাল ক্যাডেট মাদরাসা</title>
+  <link rel="icon" href="assets/logo.jpeg">
+  <link rel="stylesheet" href="madrasa-theme.css">
+  <script src="madrasa-data.js"></script>
+  <script src="diary-data.js"></script>
+  <script src="./image-slot.js"></script>
+</helmet>
+
+<div data-theme="{{ theme }}" data-lang="bn" style="min-height: 100vh; background: var(--surface-2); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.7; overflow-x: auto;">
+  <div data-screen-label="Teacher panel" style="position: relative; height: 100vh; width: {{ frameW }}; margin: 0 auto; background: var(--bg); display: flex; overflow: hidden; box-shadow: var(--shadow-lg);">
+
+    <!-- AUTH -->
+    <sc-if value="{{ auth.any }}" hint-placeholder-val="{{ true }}">
+      <div data-screen-label="Teacher login" style="flex: 1; overflow-y: auto; display: grid; place-items: center; padding: 24px 16px; background-color: var(--green-50); background-image: url('data:image/svg+xml;utf8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22%3E%3Cg fill=%22none%22 stroke=%22%230B6B3A%22 stroke-opacity=%22.10%22 stroke-width=%221.2%22%3E%3Crect x=%2220%22 y=%2220%22 width=%2224%22 height=%2224%22/%3E%3Crect x=%2220%22 y=%2220%22 width=%2224%22 height=%2224%22 transform=%22rotate(45 32 32)%22/%3E%3C/g%3E%3C/svg%3E');">
+        <div style="width: 100%; max-width: 420px; display: grid; gap: 16px;">
+          <a href="Madrasa Website.dc.html" style="font-weight: 600; text-decoration: none;">← ওয়েবসাইট</a>
+          <div style="padding: 28px 24px; border-radius: 24px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-lg); display: grid; gap: 16px;">
+            <div style="display: grid; justify-items: center; gap: 6px; text-align: center;">
+              <img src="assets/logo.jpeg" alt="" style="width: 84px; height: 84px; border-radius: 50%; background: #fff;">
+              <strong style="font-family: var(--font-head); color: var(--heading); font-size: 18px; line-height: 1.4;">আর রহমান ইন্টারন্যাশনাল ক্যাডেট মাদরাসা</strong>
+              <span style="padding: 2px 12px; border-radius: 999px; background: var(--navy-50); color: var(--navy-800); font-weight: 700; font-size: 14px;">{{ auth.title }}</span>
+            </div>
+            <sc-if value="{{ auth.login }}" hint-placeholder-val="{{ true }}">
+              <div style="display: grid; gap: 12px;">
+                <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 600;">ইমেইল বা মোবাইল নম্বর<input value="{{ f.user }}" onChange="{{ onUser }}" placeholder="01XXXXXXXXX" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface);"></label>
+                <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 600;">পাসওয়ার্ড<input type="password" value="{{ f.pw }}" onChange="{{ onPw }}" placeholder="••••••" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface);"></label>
+                <sc-if value="{{ err.on }}" hint-placeholder-val="{{ false }}"><div role="alert" style="padding: 10px 14px; border-radius: 12px; background: var(--danger-bg); color: var(--danger); font-weight: 600; font-size: 14px;">{{ err.msg }}</div></sc-if>
+                <button onClick="{{ doLogin }}" style="height: 52px; border: 0; border-radius: 999px; background: var(--green-700); color: #fff; font-weight: 700; font-size: 17px; cursor: pointer;">{{ loginBtn }}</button>
+                <span style="font-size: 13px; color: var(--muted); text-align: center;">ডেমো: 01711000001 · পাসওয়ার্ড 123456 (প্রথম লগইন)</span>
+              </div>
+            </sc-if>
+            <sc-if value="{{ auth.change }}" hint-placeholder-val="{{ false }}">
+              <div style="display: grid; gap: 12px;">
+                <div style="padding: 12px 14px; border-radius: 12px; background: var(--warn-bg); color: var(--warn); font-weight: 600; font-size: 14px;">প্রথমবার লগইন — নিরাপত্তার জন্য পাসওয়ার্ড পরিবর্তন করুন।</div>
+                <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 600;">নতুন পাসওয়ার্ড<input type="password" value="{{ f.np }}" onChange="{{ onNp }}" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface);"></label>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;"><sc-for list="{{ strength }}" as="s" hint-placeholder-count="4"><span style="height: 6px; border-radius: 999px; background: {{ s }};"></span></sc-for></div>
+                <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 600;">পাসওয়ার্ড নিশ্চিত করুন<input type="password" value="{{ f.cp }}" onChange="{{ onCp }}" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface);"></label>
+                <sc-if value="{{ err.on }}" hint-placeholder-val="{{ false }}"><div role="alert" style="padding: 10px 14px; border-radius: 12px; background: var(--danger-bg); color: var(--danger); font-weight: 600; font-size: 14px;">{{ err.msg }}</div></sc-if>
+                <button onClick="{{ doChange }}" style="height: 52px; border: 0; border-radius: 999px; background: var(--green-700); color: #fff; font-weight: 700; font-size: 17px; cursor: pointer;">সংরক্ষণ করে এগিয়ে যান</button>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- APP -->
+    <sc-if value="{{ inApp }}" hint-placeholder-val="{{ false }}">
+      <sc-if value="{{ wide }}" hint-placeholder-val="{{ false }}">
+        <aside style="width: 248px; flex: none; height: 100%; background: var(--green-900); color: #E6F2EA; display: flex; flex-direction: column; padding: 16px 12px; gap: 4px; overflow-y: auto;">
+          <div style="display: flex; gap: 10px; align-items: center; padding: 4px 8px 4px;">
+            <img src="assets/logo.jpeg" alt="" style="width: 44px; height: 44px; border-radius: 50%; background: #fff;">
+            <span style="font-family: var(--font-head); font-size: 15px; line-height: 1.35; color: #fff;">আর রহমান ক্যাডেট মাদরাসা</span>
+          </div>
+          <span style="margin: 0 8px 14px; padding: 2px 10px; border-radius: 999px; background: rgba(255,210,31,.16); color: #FFD21F; font-size: 13px; font-weight: 700; justify-self: start; align-self: flex-start;">শিক্ষক প্যানেল</span>
+          <sc-for list="{{ side }}" as="m" hint-placeholder-count="6">
+            <button onClick="{{ m.go }}" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border: 0; border-radius: 12px; cursor: pointer; text-align: left; font-weight: 600; background: {{ m.bg }}; color: {{ m.fg }};"><span style="width: 22px; text-align: center;">{{ m.icon }}</span>{{ m.label }}</button>
+          </sc-for>
+          <button onClick="{{ logout }}" style="margin-top: auto; display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border: 1px solid rgba(255,255,255,.2); border-radius: 12px; cursor: pointer; background: transparent; color: #fff; font-weight: 600;">⎋ লগআউট</button>
+        </aside>
+      </sc-if>
+
+      <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; height: 100%;">
+        <header style="flex: none; background: var(--surface); border-bottom: 1px solid var(--line); padding: 10px 16px; display: flex; align-items: center; gap: 12px;">
+          <sc-if value="{{ showBack }}" hint-placeholder-val="{{ false }}"><button onClick="{{ goHome }}" aria-label="ফিরে যান" style="width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; font-size: 18px;">←</button></sc-if>
+          <sc-if value="{{ showLogo }}" hint-placeholder-val="{{ true }}"><img src="assets/logo.jpeg" alt="" style="width: 40px; height: 40px; border-radius: 50%; background: #fff;"></sc-if>
+          <strong style="flex: 1; min-width: 0; font-family: var(--font-head); color: var(--heading); font-size: 20px; line-height: 1.35;">{{ screenTitle }}</strong>
+          <button onClick="{{ toggleTheme }}" aria-label="থিম" style="width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); cursor: pointer;">{{ themeIcon }}</button>
+        </header>
+
+        <main style="flex: 1; overflow-y: auto; padding: 20px 16px 120px;">
+          <div style="max-width: 1120px; margin: 0 auto; display: grid; gap: 16px; align-content: start;">
+
+            <sc-if value="{{ ds.loading }}" hint-placeholder-val="{{ false }}">
+              <div style="display: grid; gap: 12px;"><sc-for list="{{ skeleton }}" as="k" hint-placeholder-count="4"><div style="height: 104px; border-radius: 20px; background: linear-gradient(90deg, var(--surface-2) 0, var(--line) 50%, var(--surface-2) 100%); background-size: 800px 100%; animation: arm-shimmer 1.2s linear infinite;"></div></sc-for></div>
+            </sc-if>
+            <sc-if value="{{ ds.error }}" hint-placeholder-val="{{ false }}">
+              <div role="alert" style="padding: 32px 20px; border-radius: 20px; background: var(--danger-bg); text-align: center; display: grid; gap: 8px; justify-items: center;"><span style="font-size: 32px;">⚠</span><strong style="color: var(--danger); font-size: 18px;">ডায়েরি লোড করা যায়নি</strong><span>ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন। লেখা খসড়া ফোনে সংরক্ষিত আছে।</span><button onClick="{{ retry }}" style="height: 44px; padding: 0 18px; border-radius: 999px; border: 0; background: var(--danger); color: #fff; font-weight: 700; cursor: pointer;">আবার চেষ্টা করুন</button></div>
+            </sc-if>
+
+            <!-- HOME -->
+            <sc-if value="{{ v.home }}" hint-placeholder-val="{{ true }}">
+              <div data-screen-label="Teacher home" style="display: grid; gap: 16px;">
+                <div style="border-radius: 24px; padding: 20px; background: linear-gradient(135deg, var(--green-700), var(--green-900)); color: #fff; display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+                  <div style="width: 72px; height: 72px; border-radius: 50%; overflow: hidden; border: 3px solid #fff; background: rgba(255,255,255,.15); flex: none;"><image-slot id="teacher-photo" shape="circle" placeholder="ছবি"></image-slot></div>
+                  <div style="flex: 1; min-width: 200px; display: grid; line-height: 1.45;">
+                    <span style="font-size: 15px; opacity: .9;">আস্সালামু আলাইকুম,</span>
+                    <strong style="font-family: var(--font-head); font-size: 22px;">{{ me.name }}</strong>
+                    <span style="font-size: 14px; opacity: .9;">{{ me.desig }}</span>
+                  </div>
+                  <div style="display: grid; gap: 6px; flex: 1 1 220px;">
+                    <span style="padding: 8px 12px; border-radius: 14px; background: rgba(255,255,255,.12); font-size: 14px; line-height: 1.45;">আজ<br><strong style="font-size: 16px;">{{ home.today }}</strong></span>
+                    <span style="padding: 8px 12px; border-radius: 14px; background: #FFD21F; color: #17212B; font-size: 14px; line-height: 1.45;">পরবর্তী ক্লাস দিবস<br><strong style="font-size: 16px;">{{ home.next }}</strong></span>
+                  </div>
+                </div>
+
+                <sc-if value="{{ home.empty }}" hint-placeholder-val="{{ false }}">
+                  <div style="padding: 28px 20px; border-radius: 20px; border: 2px dashed var(--line-strong); background: var(--surface); text-align: center; display: grid; gap: 8px; justify-items: center;">
+                    <span style="font-size: 34px;">📓</span>
+                    <strong style="font-size: 18px;">আজ এখনো কোনো ডায়েরি লেখা হয়নি</strong>
+                    <span style="color: var(--muted); max-width: 420px;">প্রতিটি ক্লাস শেষে ২ মিনিটে ডায়েরি লিখে প্রকাশ করুন। অভিভাবকরা সাথে সাথে দেখতে পাবেন।</span>
+                    <button onClick="{{ newEntry }}" style="height: 48px; padding: 0 22px; border-radius: 999px; border: 0; background: var(--green-700); color: #fff; font-weight: 700; cursor: pointer;">+ প্রথম ডায়েরি লিখুন</button>
+                  </div>
+                </sc-if>
+
+                <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+                  <h2 style="margin: 0; font-family: var(--font-head); color: var(--heading); font-size: 20px;">আজকের ডায়েরি</h2>
+                  <span style="color: var(--muted); font-size: 14px; font-weight: 600;">{{ home.summary }}</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 12px;">
+                  <sc-for list="{{ cards }}" as="c" hint-placeholder-count="4">
+                    <button onClick="{{ c.open }}" style="text-align: left; padding: 16px; border-radius: 20px; border: 1px solid var(--line); border-top: 4px solid {{ c.fg }}; background: var(--surface); box-shadow: var(--shadow-sm); cursor: pointer; display: grid; gap: 8px; color: var(--ink);">
+                      <span style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                        <span style="padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; white-space: nowrap; background: {{ c.bg }}; color: {{ c.fg }};">{{ c.icon }} {{ c.chip }}</span>
+                        <sc-if value="{{ c.ct }}" hint-placeholder-val="{{ false }}"><span style="padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; white-space: nowrap; background: var(--navy-50); color: var(--navy-800);">★ শ্রেণি শিক্ষক</span></sc-if>
+                      </span>
+                      <strong style="font-size: 18px; line-height: 1.45;">{{ c.label }}</strong>
+                      <span style="color: var(--muted); font-size: 14px; line-height: 1.5;">{{ c.meta }}</span>
+                      <span style="justify-self: start; height: 40px; padding: 0 16px; border-radius: 999px; display: flex; align-items: center; white-space: nowrap; font-weight: 700; font-size: 15px; background: {{ c.btnBg }}; color: {{ c.btnFg }};">{{ c.btn }}</span>
+                    </button>
+                  </sc-for>
+                </div>
+
+                <button onClick="{{ goCt }}" style="text-align: left; padding: 18px; border-radius: 20px; border: 1px solid var(--navy-800); background: var(--navy-50); cursor: pointer; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; color: var(--ink);">
+                  <span style="width: 48px; height: 48px; border-radius: 14px; background: var(--navy-800); color: #fff; display: grid; place-items: center; font-size: 20px; flex: none;">★</span>
+                  <span style="flex: 1; min-width: 200px; display: grid; line-height: 1.5;">
+                    <strong style="font-size: 17px; color: var(--navy-800);">শ্রেণি শিক্ষক: {{ ct.label }}</strong>
+                    <span style="font-size: 14px;">{{ ct.short }}</span>
+                  </span>
+                  <span style="font-weight: 700; color: var(--navy-800);">পূর্ণ দিনের ডায়েরি →</span>
+                </button>
+              </div>
+            </sc-if>
+
+            <!-- WRITE -->
+            <sc-if value="{{ v.write }}" hint-placeholder-val="{{ false }}">
+              <div data-screen-label="Write diary" style="display: grid; gap: 14px;">
+                <div style="display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+                  <span style="display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 700; white-space: nowrap; background: {{ save.bg }}; color: {{ save.fg }};">{{ save.label }}</span>
+                  <button onClick="{{ copyPrev }}" style="height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--surface); font-weight: 600; font-size: 14px; cursor: pointer; white-space: nowrap;">⟲ আগের দিনের এন্ট্রি থেকে কপি</button>
+                </div>
+
+                <div style="padding: 14px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 12px;">
+                  <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 700;">তারিখ<input type="date" value="{{ d.date }}" onChange="{{ onDate }}" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface); width: 100%;"></label>
+                  <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 700;">শ্রেণি ও শাখা<select value="{{ d.key }}" onChange="{{ onKey }}" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface); width: 100%;"><sc-for list="{{ keyOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select></label>
+                  <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 700;">বিষয়<select value="{{ d.subj }}" onChange="{{ onSubj }}" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface); width: 100%;"><sc-for list="{{ subjOpts }}" as="o" hint-placeholder-count="2"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select></label>
+                  <sc-if value="{{ d.dateNote.on }}" hint-placeholder-val="{{ false }}"><span style="grid-column: 1 / -1; padding: 8px 12px; border-radius: 12px; background: var(--warn-bg); color: var(--warn); font-size: 14px; font-weight: 600;">{{ d.dateNote.msg }}</span></sc-if>
+                </div>
+
+                <div style="display: grid; grid-template-columns: {{ writeCols }}; gap: 14px; align-items: start;">
+                  <div style="display: grid; gap: 12px; min-width: 0;">
+                    <sc-for list="{{ fields }}" as="fl" hint-placeholder-count="4">
+                      <div style="padding: 14px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 10px;">
+                        <label for="{{ fl.key }}" style="display: flex; gap: 10px; align-items: center; font-weight: 700; font-size: 16px;"><span style="width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; background: {{ fl.iconBg }}; color: {{ fl.iconFg }}; font-size: 15px;">{{ fl.icon }}</span>{{ fl.label }}</label>
+                        <textarea id="{{ fl.key }}" value="{{ fl.value }}" onChange="{{ fl.onChange }}" placeholder="{{ fl.ph }}" rows="3" style="width: 100%; min-height: 84px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface); resize: vertical; line-height: 1.6;"></textarea>
+                        <sc-if value="{{ fl.isHw }}" hint-placeholder-val="{{ false }}">
+                          <label style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 14px; font-weight: 600;">জমার তারিখ
+                            <input type="date" value="{{ d.due }}" onChange="{{ onDue }}" style="height: 44px; padding: 0 10px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface);">
+                            <span style="padding: 2px 10px; border-radius: 999px; background: var(--yellow-50); color: var(--warn); font-size: 13px; font-weight: 700;">{{ d.dueLabel }}</span>
+                          </label>
+                        </sc-if>
+                        <div style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; flex-wrap: {{ chipWrap }};">
+                          <sc-for list="{{ fl.chips }}" as="ch" hint-placeholder-count="5">
+                            <button onClick="{{ ch.go }}" style="flex: none; min-height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid {{ ch.bd }}; background: {{ ch.bg }}; color: var(--ink); font-size: 14px; cursor: pointer; white-space: nowrap;">{{ ch.label }}</button>
+                          </sc-for>
+                          <button onClick="{{ fl.toggleAdd }}" style="flex: none; min-height: 36px; padding: 0 12px; border-radius: 999px; border: 1px dashed var(--green-700); background: transparent; color: var(--green-700); font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap;">＋ নিজের বাক্য</button>
+                        </div>
+                        <sc-if value="{{ fl.addOpen }}" hint-placeholder-val="{{ false }}">
+                          <div style="display: flex; gap: 8px;">
+                            <input value="{{ phraseIn }}" onChange="{{ onPhraseIn }}" placeholder="যেমন: খাতা জমা দেবে" style="flex: 1; min-width: 0; height: 44px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface);">
+                            <button onClick="{{ savePhrase }}" style="height: 44px; padding: 0 16px; border-radius: 12px; border: 0; background: var(--green-700); color: #fff; font-weight: 700; cursor: pointer;">সংরক্ষণ</button>
+                          </div>
+                        </sc-if>
+                      </div>
+                    </sc-for>
+                  </div>
+
+                  <div style="display: grid; gap: 12px; min-width: 0;">
+                    <div style="padding: 14px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 10px;">
+                      <strong style="font-size: 16px;">📎 সংযুক্তি</strong>
+                      <span style="color: var(--muted); font-size: 13px;">বইয়ের পৃষ্ঠা বা ওয়ার্কশিট · সর্বোচ্চ {{ maxMB }} MB</span>
+                      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <label style="min-height: 52px; border-radius: 14px; border: 1px solid var(--line-strong); background: var(--surface-2); display: grid; place-items: center; font-weight: 700; cursor: pointer; text-align: center; padding: 6px;"><input type="file" accept="image/*" capture="environment" onChange="{{ pickImg }}" style="display: none; min-height: 0;">📷 ছবি তুলুন</label>
+                        <label style="min-height: 52px; border-radius: 14px; border: 1px solid var(--line-strong); background: var(--surface-2); display: grid; place-items: center; font-weight: 700; cursor: pointer; text-align: center; padding: 6px;"><input type="file" accept="application/pdf,image/*" onChange="{{ pickPdf }}" style="display: none; min-height: 0;">📄 PDF / ফাইল</label>
+                      </div>
+                      <sc-if value="{{ hasThumbs }}" hint-placeholder-val="{{ false }}">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px;">
+                          <sc-for list="{{ thumbs }}" as="th" hint-placeholder-count="1">
+                            <div style="position: relative; aspect-ratio: 1; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: var(--surface-2); display: grid; place-items: center;">
+                              <sc-if value="{{ th.isImg }}" hint-placeholder-val="{{ false }}"><span role="img" aria-label="{{ th.name }}" style="position: absolute; inset: 0; background: center / cover no-repeat url({{ th.url }});"></span></sc-if>
+                              <sc-if value="{{ th.isTile }}" hint-placeholder-val="{{ true }}"><span style="display: grid; justify-items: center; gap: 2px; padding: 6px; text-align: center;"><strong style="font-size: 15px; color: {{ th.fg }};">{{ th.icon }}</strong><span style="font-size: 11px; color: var(--muted); line-height: 1.3; word-break: break-all;">{{ th.name }}</span></span></sc-if>
+                              <button onClick="{{ th.remove }}" aria-label="সরান" style="position: absolute; top: 4px; right: 4px; width: 28px; height: 28px; min-height: 0; border-radius: 999px; border: 0; background: rgba(23,33,43,.75); color: #fff; cursor: pointer; font-size: 14px; line-height: 1;">✕</button>
+                            </div>
+                          </sc-for>
+                        </div>
+                      </sc-if>
+                    </div>
+
+                    <sc-if value="{{ alsoAny }}" hint-placeholder-val="{{ true }}">
+                      <div style="padding: 14px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 10px;">
+                        <strong style="font-size: 16px;">⇉ অন্য শাখাতেও প্রকাশ করুন</strong>
+                        <span style="color: var(--muted); font-size: 13px;">একই লেখা নির্বাচিত শাখাগুলোতেও প্রকাশ হবে</span>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                          <sc-for list="{{ alsoOpts }}" as="o" hint-placeholder-count="2">
+                            <button onClick="{{ o.go }}" style="min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid {{ o.bd }}; background: {{ o.bg }}; color: {{ o.fg }}; font-weight: 700; font-size: 14px; cursor: pointer;">{{ o.mark }} {{ o.label }}</button>
+                          </sc-for>
+                        </div>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ err.on }}" hint-placeholder-val="{{ false }}"><div role="alert" style="padding: 12px 14px; border-radius: 14px; background: var(--danger-bg); color: var(--danger); font-weight: 600;">{{ err.msg }}</div></sc-if>
+                    <span style="color: var(--muted); font-size: 13px; line-height: 1.55;">প্রকাশের পর আজ রাত {{ editUntil }} পর্যন্ত সম্পাদনা করা যাবে।</span>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- REMARKS -->
+            <sc-if value="{{ v.remarks }}" hint-placeholder-val="{{ false }}">
+              <div data-screen-label="Student remarks" style="display: grid; gap: 14px;">
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: end;">
+                  <label style="flex: 1 1 220px; display: grid; gap: 4px; font-size: 14px; font-weight: 700;">শ্রেণি ও শাখা<select value="{{ rm.key }}" onChange="{{ onRmKey }}" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface); width: 100%;"><sc-for list="{{ keyOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select></label>
+                  <button onClick="{{ toggleBulk }}" style="height: 48px; padding: 0 16px; border-radius: 12px; border: 1px solid {{ rm.bulkBd }}; background: {{ rm.bulkBg }}; color: {{ rm.bulkFg }}; font-weight: 700; cursor: pointer; white-space: nowrap;">{{ rm.bulkLabel }}</button>
+                </div>
+                <span style="color: var(--muted); font-size: 14px;">{{ rm.hint }}</span>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 8px;">
+                  <sc-for list="{{ rm.rows }}" as="r" hint-placeholder-count="8">
+                    <button onClick="{{ r.tap }}" style="display: flex; gap: 12px; align-items: center; min-height: 64px; padding: 10px 12px; border-radius: 16px; border: 1px solid {{ r.bd }}; background: {{ r.bg }}; cursor: pointer; text-align: left; color: var(--ink);">
+                      <sc-if value="{{ r.bulk }}" hint-placeholder-val="{{ false }}"><span style="width: 24px; height: 24px; flex: none; border-radius: 7px; border: 2px solid {{ r.boxBd }}; background: {{ r.boxBg }}; color: #fff; display: grid; place-items: center; font-size: 14px; font-weight: 700;">{{ r.check }}</span></sc-if>
+                      <span style="width: 44px; height: 44px; flex: none; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 18px; background: {{ r.avBg }}; color: {{ r.avFg }};">{{ r.init }}</span>
+                      <span style="flex: 1; min-width: 0; display: grid; line-height: 1.4;">
+                        <strong style="font-size: 16px;">{{ r.name }}</strong>
+                        <span style="color: var(--muted); font-size: 13px;">{{ r.roll }}</span>
+                      </span>
+                      <span style="display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; max-width: 45%;">
+                        <sc-for list="{{ r.tags }}" as="tg" hint-placeholder-count="0"><span style="padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; background: {{ tg.bg }}; color: {{ tg.fg }}; white-space: nowrap;">{{ tg.label }}</span></sc-for>
+                      </span>
+                    </button>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- HISTORY -->
+            <sc-if value="{{ v.history }}" hint-placeholder-val="{{ false }}">
+              <div data-screen-label="Diary history" style="display: grid; gap: 14px;">
+                <div style="padding: 14px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 10px; align-items: end;">
+                  <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 700;">তারিখ<input type="date" value="{{ h.date }}" onChange="{{ onHDate }}" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface); width: 100%;"></label>
+                  <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 700;">শ্রেণি<select value="{{ h.key }}" onChange="{{ onHKey }}" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface); width: 100%;"><option value="">সব শ্রেণি</option><sc-for list="{{ keyOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select></label>
+                  <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 700;">বিষয়<select value="{{ h.subj }}" onChange="{{ onHSubj }}" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface); width: 100%;"><option value="">সব বিষয়</option><option value="math">গণিত</option><option value="general">সাধারণ নোট</option></select></label>
+                  <button onClick="{{ clearH }}" style="height: 48px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface-2); font-weight: 600; cursor: pointer;">ফিল্টার মুছুন</button>
+                </div>
+                <span style="color: var(--muted); font-size: 14px; font-weight: 600;">{{ h.count }}</span>
+                <sc-if value="{{ h.empty }}" hint-placeholder-val="{{ false }}">
+                  <div style="padding: 36px 20px; border-radius: 20px; border: 2px dashed var(--line-strong); text-align: center; display: grid; gap: 6px;"><span style="font-size: 32px;">🗂</span><strong style="font-size: 18px;">কোনো এন্ট্রি পাওয়া যায়নি</strong><span style="color: var(--muted);">ফিল্টার পরিবর্তন করুন অথবা নতুন ডায়েরি লিখুন।</span></div>
+                </sc-if>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 10px;">
+                  <sc-for list="{{ h.list }}" as="e" hint-placeholder-count="5">
+                    <div style="padding: 14px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 12px;">
+                      <span style="display: grid; align-content: center; text-align: center; line-height: 1.35; padding: 8px 0; border-radius: 14px; background: var(--green-50); color: var(--green-700); align-self: start;"><strong style="font-family: var(--font-head); font-size: 20px;">{{ e.dd }}</strong><span style="font-size: 12px; font-weight: 700;">{{ e.mm }}</span></span>
+                      <div style="display: grid; gap: 6px; min-width: 0;">
+                        <span style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;"><strong style="font-size: 16px; line-height: 1.4;">{{ e.label }}</strong><span style="padding: 1px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: {{ e.bg }}; color: {{ e.fg }};">{{ e.chip }}</span></span>
+                        <span style="color: var(--muted); font-size: 14px; line-height: 1.5; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ e.excerpt }}</span>
+                        <span style="font-size: 13px; color: var(--muted);">{{ e.metaTime }}</span>
+                        <sc-if value="{{ e.pub }}" hint-placeholder-val="{{ true }}">
+                          <div style="display: grid; gap: 4px;">
+                            <span style="height: 8px; border-radius: 999px; background: var(--surface-2); overflow: hidden;"><span style="display: block; height: 100%; width: {{ e.pct }}; background: var(--green-500); border-radius: 999px;"></span></span>
+                            <span style="font-size: 13px; font-weight: 700; color: var(--green-700);">👁 {{ e.ack }}</span>
+                          </div>
+                        </sc-if>
+                        <span style="display: flex; gap: 8px; flex-wrap: wrap;">
+                          <sc-if value="{{ e.editable }}" hint-placeholder-val="{{ true }}"><button onClick="{{ e.edit }}" style="height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--green-700); background: transparent; color: var(--green-700); font-weight: 700; cursor: pointer;">✎ সম্পাদনা</button></sc-if>
+                          <sc-if value="{{ e.locked }}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; color: var(--faint); font-weight: 600;">🔒 সম্পাদনার সময় শেষ</span></sc-if>
+                        </span>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- CLASS TEACHER -->
+            <sc-if value="{{ v.ct }}" hint-placeholder-val="{{ false }}">
+              <div data-screen-label="Class teacher view" style="display: grid; gap: 14px;">
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: end; justify-content: space-between;">
+                  <span style="display: grid; line-height: 1.45;"><span style="font-size: 13px; font-weight: 700; color: var(--navy-800);">★ শ্রেণি শিক্ষক</span><strong style="font-size: 20px; font-family: var(--font-head); color: var(--heading);">{{ ct.label }}</strong></span>
+                  <label style="display: grid; gap: 4px; font-size: 14px; font-weight: 700;">তারিখ<input type="date" value="{{ ct.date }}" onChange="{{ onCtDate }}" style="height: 48px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface);"></label>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                  <div style="padding: 14px; border-radius: 16px; background: var(--green-700); color: #fff; display: grid;"><span style="font-size: 13px; opacity: .9;">বিষয়ে লেখা হয়েছে</span><strong style="font-family: var(--font-head); font-size: 26px; line-height: 1.35;">{{ ct.written }}</strong></div>
+                  <div style="padding: 14px; border-radius: 16px; background: var(--navy-50); display: grid;"><span style="font-size: 13px; color: var(--muted);">অভিভাবক দেখেছেন</span><strong style="font-family: var(--font-head); font-size: 26px; line-height: 1.35; color: var(--navy-800);">{{ ct.seen }}</strong></div>
+                  <div style="padding: 14px; border-radius: 16px; background: var(--danger-bg); display: grid;"><span style="font-size: 13px; color: var(--danger);">ডায়েরি নেই</span><strong style="font-family: var(--font-head); font-size: 26px; line-height: 1.35; color: var(--danger);">{{ ct.missingN }}</strong></div>
+                </div>
+                <sc-if value="{{ ct.none }}" hint-placeholder-val="{{ false }}">
+                  <div style="padding: 28px 20px; border-radius: 20px; border: 2px dashed var(--line-strong); text-align: center; display: grid; gap: 6px;"><span style="font-size: 32px;">📓</span><strong style="font-size: 18px;">এই দিনে এখনো কোনো ডায়েরি লেখা হয়নি</strong><span style="color: var(--muted);">বিষয় শিক্ষকদের মনে করিয়ে দিতে নিচের তালিকা ব্যবহার করুন।</span></div>
+                </sc-if>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 12px; align-items: start;">
+                  <div style="border-radius: 20px; background: var(--surface); border: 1px solid var(--line); overflow: hidden;">
+                    <div style="padding: 12px 16px; background: var(--danger-bg); color: var(--danger); font-weight: 700; display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; align-items: center;"><span>যে বিষয়ে ডায়েরি নেই</span><button onClick="{{ remindAll }}" style="height: 36px; min-height: 0; padding: 0 12px; border-radius: 999px; border: 0; background: var(--danger); color: #fff; font-weight: 700; font-size: 13px; cursor: pointer;">সবাইকে মনে করিয়ে দিন</button></div>
+                    <sc-for list="{{ ct.missing }}" as="m" hint-placeholder-count="2"><div style="display: flex; gap: 10px; align-items: center; padding: 10px 16px; border-top: 1px solid var(--line);"><span style="flex: 1; display: grid; line-height: 1.4;"><strong>{{ m.subj }}</strong><span style="color: var(--muted); font-size: 13px;">{{ m.teacher }}</span></span><span style="padding: 1px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: {{ m.bg }}; color: {{ m.fg }};">{{ m.state }}</span></div></sc-for>
+                    <sc-if value="{{ ct.allDone }}" hint-placeholder-val="{{ false }}"><div style="padding: 14px 16px; color: var(--success); font-weight: 600;">✓ সব বিষয়ে ডায়েরি লেখা হয়েছে</div></sc-if>
+                  </div>
+                  <div style="border-radius: 20px; background: var(--surface); border: 1px solid var(--line); overflow: hidden;">
+                    <div style="padding: 12px 16px; background: var(--warn-bg); color: var(--warn); font-weight: 700; display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; align-items: center;"><span>যে অভিভাবকরা দেখেননি ({{ ct.notSeenN }})</span><button onClick="{{ smsAll }}" style="height: 36px; min-height: 0; padding: 0 12px; border-radius: 999px; border: 0; background: var(--navy-800); color: #fff; font-weight: 700; font-size: 13px; cursor: pointer;">SMS পাঠান</button></div>
+                    <sc-for list="{{ ct.notSeen }}" as="g" hint-placeholder-count="5"><div style="display: flex; gap: 10px; align-items: center; padding: 8px 16px; border-top: 1px solid var(--line);"><span style="width: 36px; text-align: center; font-weight: 700; color: var(--muted); font-size: 14px;">{{ g.roll }}</span><span style="flex: 1;">{{ g.name }}</span></div></sc-for>
+                  </div>
+                </div>
+                <h3 style="margin: 4px 0 0; font-family: var(--font-head); color: var(--heading); font-size: 18px;">পূর্ণ দিনের ডায়েরি</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 12px; align-items: start;">
+                  <sc-for list="{{ ct.cards }}" as="c" hint-placeholder-count="4">
+                    <div style="padding: 16px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 10px;">
+                      <div style="display: flex; gap: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap;"><strong style="font-size: 17px; color: var(--green-700);">{{ c.subj }}</strong><sc-if value="{{ c.draft }}" hint-placeholder-val="{{ false }}"><span style="padding: 1px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: var(--warn-bg); color: var(--warn);">◐ খসড়া — অভিভাবকরা দেখছেন না</span></sc-if></div>
+                      <sc-for list="{{ c.rows }}" as="r" hint-placeholder-count="3"><div style="display: grid; gap: 2px;"><span style="font-size: 13px; font-weight: 700; color: var(--muted);">{{ r.k }}</span><span style="line-height: 1.6;">{{ r.v }}</span><sc-if value="{{ r.hasDue }}" hint-placeholder-val="{{ false }}"><span style="justify-self: start; padding: 1px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: var(--yellow-50); color: var(--warn);">জমা: {{ r.due }}</span></sc-if></div></sc-for>
+                      <span style="font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 8px;">{{ c.meta }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- PROFILE -->
+            <sc-if value="{{ v.profile }}" hint-placeholder-val="{{ false }}">
+              <div data-screen-label="Teacher profile" style="display: grid; gap: 14px;">
+                <div style="padding: 20px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+                  <div style="width: 96px; height: 96px; border-radius: 50%; overflow: hidden; background: var(--surface-2); flex: none;"><image-slot id="teacher-photo" shape="circle" placeholder="ছবি"></image-slot></div>
+                  <div style="display: grid; line-height: 1.5;"><strong style="font-family: var(--font-head); color: var(--heading); font-size: 22px;">{{ me.name }}</strong><span style="color: var(--muted);">{{ me.desig }}</span></div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 14px; align-items: start;">
+                  <div style="border-radius: 20px; background: var(--surface); border: 1px solid var(--line); overflow: hidden;">
+                    <h3 style="margin: 0; padding: 14px 18px; font-size: 17px; background: var(--surface-2);">ব্যক্তিগত তথ্য</h3>
+                    <sc-for list="{{ me.rows }}" as="r" hint-placeholder-count="4"><div style="display: grid; grid-template-columns: minmax(100px, 38%) 1fr; gap: 10px; padding: 10px 18px; border-top: 1px solid var(--line);"><span style="color: var(--muted);">{{ r.k }}</span><span style="font-weight: 600; word-break: break-word;">{{ r.v }}</span></div></sc-for>
+                    <div style="display: flex; gap: 8px; padding: 12px 18px; border-top: 1px solid var(--line); flex-wrap: wrap;">
+                      <button onClick="{{ goChangePw }}" style="height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--surface); font-weight: 600; cursor: pointer;">🔑 পাসওয়ার্ড পরিবর্তন</button>
+                      <button onClick="{{ logout }}" style="height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--red-600); background: var(--red-50); color: var(--danger); font-weight: 700; cursor: pointer;">⎋ লগআউট</button>
+                    </div>
+                  </div>
+                  <div style="border-radius: 20px; background: var(--surface); border: 1px solid var(--line); overflow: hidden;">
+                    <h3 style="margin: 0; padding: 14px 18px; font-size: 17px; background: var(--surface-2); display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap;">আমার দায়িত্ব <span style="font-size: 12px; padding: 2px 10px; border-radius: 999px; background: var(--info-bg); color: var(--info); font-weight: 600; align-self: center;">🔒 শুধু দেখার জন্য</span></h3>
+                    <sc-for list="{{ me.assign }}" as="a" hint-placeholder-count="4"><div style="display: flex; gap: 8px; align-items: center; padding: 10px 18px; border-top: 1px solid var(--line); flex-wrap: wrap;"><span style="flex: 1; font-weight: 600;">{{ a.label }}</span><sc-if value="{{ a.ct }}" hint-placeholder-val="{{ false }}"><span style="padding: 1px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: var(--navy-50); color: var(--navy-800);">★ শ্রেণি শিক্ষক</span></sc-if></div></sc-for>
+                  </div>
+                  <div style="border-radius: 20px; background: var(--surface); border: 1px solid var(--line); overflow: hidden;">
+                    <h3 style="margin: 0; padding: 14px 18px; font-size: 17px; background: var(--surface-2);">📢 নোটিশ</h3>
+                    <sc-for list="{{ notices }}" as="nt" hint-placeholder-count="4"><div style="display: grid; grid-template-columns: 52px 1fr; gap: 12px; align-items: center; padding: 10px 18px; border-top: 1px solid var(--line);"><span style="display: grid; text-align: center; line-height: 1.4; padding: 6px 0; border-radius: 12px; background: var(--green-50); color: var(--green-700);"><strong style="font-family: var(--font-head); font-size: 18px;">{{ nt.d }}</strong><span style="font-size: 11px; font-weight: 700;">{{ nt.m }}</span></span><span style="font-weight: 600; line-height: 1.5;">{{ nt.title }}</span></div></sc-for>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </main>
+
+        <sc-if value="{{ v.write }}" hint-placeholder-val="{{ false }}">
+          <div style="flex: none; display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px; padding: 10px 16px; background: var(--surface); border-top: 1px solid var(--line); box-shadow: 0 -6px 20px rgba(0,0,0,.06);">
+            <button onClick="{{ saveDraft }}" style="height: 52px; border-radius: 999px; border: 2px solid var(--green-700); background: var(--surface); color: var(--green-700); font-weight: 700; font-size: 16px; cursor: pointer;">খসড়া সংরক্ষণ</button>
+            <button onClick="{{ publish }}" style="height: 52px; border-radius: 999px; border: 0; background: var(--green-700); color: #fff; font-weight: 700; font-size: 16px; cursor: pointer;">{{ publishLabel }}</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ rm.bar }}" hint-placeholder-val="{{ false }}">
+          <div style="flex: none; display: flex; gap: 10px; align-items: center; padding: 10px 16px; background: var(--surface); border-top: 1px solid var(--line); box-shadow: 0 -6px 20px rgba(0,0,0,.06); flex-wrap: wrap;">
+            <span style="flex: 1; font-weight: 700; min-width: 120px;">{{ rm.selLabel }}</span>
+            <button onClick="{{ bulkApply }}" style="height: 48px; padding: 0 18px; border-radius: 999px; border: 0; background: var(--warn); color: #fff; font-weight: 700; cursor: pointer;">! বাড়ির কাজ আনেনি</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ narrow }}" hint-placeholder-val="{{ true }}">
+          <nav style="flex: none; background: var(--surface); border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(5, 1fr); padding: 6px 4px calc(6px + env(safe-area-inset-bottom));">
+            <sc-for list="{{ bottom }}" as="b" hint-placeholder-count="5">
+              <button onClick="{{ b.go }}" style="min-height: 56px; border: 0; background: transparent; cursor: pointer; display: grid; place-items: center; gap: 0; font-size: 12px; font-weight: 700; color: {{ b.fg }};"><span style="width: 44px; height: 28px; border-radius: 999px; display: grid; place-items: center; font-size: 17px; background: {{ b.bg }};">{{ b.icon }}</span>{{ b.label }}</button>
+            </sc-for>
+          </nav>
+        </sc-if>
+      </div>
+
+      <sc-if value="{{ fabOn }}" hint-placeholder-val="{{ true }}">
+        <button onClick="{{ newEntry }}" style="position: absolute; right: 16px; bottom: {{ fabBottom }}; z-index: 25; height: 56px; padding: 0 22px; border-radius: 999px; border: 0; background: var(--red-600); color: #fff; font-weight: 700; font-size: 17px; box-shadow: 0 10px 24px rgba(214,32,42,.35); cursor: pointer; white-space: nowrap;">+ ডায়েরি লিখুন</button>
+      </sc-if>
+
+      <sc-if value="{{ sheet.on }}" hint-placeholder-val="{{ false }}">
+        <div style="position: absolute; inset: 0; z-index: 60; background: rgba(10,20,15,.45); display: flex; align-items: {{ sheet.align }}; justify-content: center;">
+          <div role="dialog" aria-label="ব্যক্তিগত মন্তব্য" style="width: 100%; max-width: 520px; max-height: 88%; overflow-y: auto; background: var(--surface); border-radius: {{ sheet.radius }}; padding: 18px 18px 22px; display: grid; gap: 14px; box-shadow: var(--shadow-lg);">
+            <div style="display: flex; gap: 12px; align-items: center;">
+              <span style="width: 48px; height: 48px; flex: none; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 20px; background: var(--green-100); color: var(--green-700);">{{ sheet.init }}</span>
+              <span style="flex: 1; display: grid; line-height: 1.4;"><strong style="font-size: 18px;">{{ sheet.name }}</strong><span style="color: var(--muted); font-size: 14px;">{{ sheet.meta }}</span></span>
+              <button onClick="{{ closeSheet }}" aria-label="বন্ধ" style="width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); cursor: pointer;">✕</button>
+            </div>
+            <div style="display: grid; gap: 6px;">
+              <span style="font-weight: 700; font-size: 14px;">মন্তব্যের ধরন</span>
+              <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                <sc-for list="{{ sheet.types }}" as="ty" hint-placeholder-count="5">
+                  <button onClick="{{ ty.go }}" style="min-height: 44px; padding: 0 14px; border-radius: 999px; border: 2px solid {{ ty.bd }}; background: {{ ty.bg }}; color: {{ ty.fg }}; font-weight: 700; font-size: 14px; cursor: pointer;">{{ ty.icon }} {{ ty.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+            <label style="display: grid; gap: 4px; font-weight: 700; font-size: 14px;">মন্তব্য (ঐচ্ছিক)<textarea value="{{ sheet.text }}" onChange="{{ onRmText }}" rows="3" placeholder="অভিভাবকের জন্য সংক্ষিপ্ত মন্তব্য লিখুন" style="width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface); line-height: 1.6;"></textarea></label>
+            <sc-if value="{{ sheet.hasPrev }}" hint-placeholder-val="{{ false }}">
+              <div style="display: grid; gap: 6px;">
+                <span style="font-weight: 700; font-size: 14px; color: var(--muted);">আগের মন্তব্য</span>
+                <sc-for list="{{ sheet.prev }}" as="p" hint-placeholder-count="1"><div style="padding: 8px 12px; border-radius: 12px; background: {{ p.bg }}; color: var(--ink); font-size: 14px; line-height: 1.5;"><strong style="color: {{ p.fg }};">{{ p.label }}</strong> · {{ p.when }}<br>{{ p.text }}</div></sc-for>
+              </div>
+            </sc-if>
+            <button onClick="{{ saveRemark }}" style="height: 52px; border-radius: 999px; border: 0; background: var(--green-700); color: #fff; font-weight: 700; font-size: 16px; cursor: pointer;">মন্তব্য সংরক্ষণ</button>
+          </div>
+        </div>
+      </sc-if>
+    </sc-if>
+
+    <sc-if value="{{ toastOn }}" hint-placeholder-val="{{ false }}">
+      <div role="status" style="position: absolute; left: 50%; bottom: 140px; transform: translateX(-50%); z-index: 80; max-width: calc(100% - 32px); padding: 12px 20px; border-radius: 999px; background: var(--ink); color: var(--bg); font-weight: 600; box-shadow: var(--shadow-lg); text-align: center;">{{ toast }}</div>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;start&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;login&quot;, &quot;app&quot;], &quot;default&quot;: &quot;login&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Flow&quot;}, &quot;view&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;home&quot;, &quot;write&quot;, &quot;remarks&quot;, &quot;history&quot;, &quot;ct&quot;, &quot;profile&quot;], &quot;default&quot;: &quot;home&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Flow&quot;}, &quot;frame&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;auto&quot;, &quot;375&quot;, &quot;768&quot;, &quot;1440&quot;], &quot;default&quot;: &quot;auto&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Preview&quot;}, &quot;dataState&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;ready&quot;, &quot;loading&quot;, &quot;empty&quot;, &quot;error&quot;], &quot;default&quot;: &quot;ready&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;States&quot;}}">
+const FIELDS = [
+  { key: 'today', label: 'আজকের পাঠ', icon: '📖', ph: 'আজ ক্লাসে কী পড়ানো হলো', iconBg: 'var(--green-50)', iconFg: 'var(--green-700)' },
+  { key: 'next', label: 'আগামীকালের পড়া', icon: '→', ph: 'পরবর্তী ক্লাস দিবসের জন্য প্রস্তুতি', iconBg: 'var(--navy-50)', iconFg: 'var(--navy-800)' },
+  { key: 'hw', label: 'বাড়ির কাজ', icon: '✎', ph: 'বাড়ির কাজ লিখুন', iconBg: 'var(--yellow-50)', iconFg: 'var(--warn)' },
+  { key: 'note', label: 'বিশেষ নির্দেশনা', icon: '!', ph: 'যেমন: কাল জ্যামিতি বক্স আনবে', iconBg: 'var(--red-50)', iconFg: 'var(--danger)' },
+];
+const AV = [['var(--green-100)', 'var(--green-700)'], ['var(--navy-50)', 'var(--navy-800)'], ['var(--yellow-50)', 'var(--warn)'], ['var(--red-50)', 'var(--danger)']];
+const nowHM = () => { const d = new Date(); return `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`; };
+const LS = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || 'null'); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } };
+
+class Component extends DCLogic {
+  state = { theme: 'light', w: 1280, screen: 'login', view: 'home', f: { user: '', pw: '', np: '', cp: '' }, err: '', busy: false, toast: '',
+    entries: [], remarks: [], custom: [], draft: null, saveState: 'idle', savedAt: '', addFor: '', phraseIn: '',
+    rmKey: 'c5-A', sheet: '', rmType: 'praise', rmText: '', bulk: false, sel: [], hDate: '', hKey: '', hSubj: '', ctDate: '' };
+
+  componentDidMount() {
+    this.onR = () => this.setState({ w: window.innerWidth }); window.addEventListener('resize', this.onR); this.onR();
+    const boot = () => {
+      if (!window.DY || !window.MD) return setTimeout(boot, 40);
+      const start = this.props.start ?? 'login';
+      this.setState({ theme: MD.getTheme(), entries: LS('arm_diary_entries') || DY.entries.map(e => ({ ...e })), remarks: LS('arm_diary_remarks') || DY.remarks.slice(), custom: LS('arm_t_phrases') || [], ctDate: DY.today, screen: start === 'app' ? 'app' : 'login' },
+        () => { if (start === 'app') this.go(this.props.view ?? 'home'); });
+    };
+    boot();
+  }
+  componentDidUpdate(pp) {
+    if (pp.start !== this.props.start) this.setState({ screen: this.props.start === 'app' ? 'app' : 'login' });
+    if (pp.view !== this.props.view && this.state.screen === 'app') this.go(this.props.view ?? 'home');
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this.onR); clearTimeout(this.at); }
+  flash(m) { this.setState({ toast: m }); clearTimeout(this.tt); this.tt = setTimeout(() => this.setState({ toast: '' }), 2600); }
+  ents() { return (this.props.dataState ?? 'ready') === 'empty' ? this.state.entries.filter(e => e.date !== DY.today && e.teacher !== DY.me) : this.state.entries; }
+  go(v) { if (v === 'write') return this.openEditor({}); this.setState({ view: v, sheet: '', bulk: false, sel: [], err: '' }); }
+  find(date, c, s, sb) { return this.ents().find(e => e.date === date && e.cls === c && e.sec === s && e.subj === sb); }
+  openEditor(o) {
+    const a = DY.myAssignments[0];
+    const date = o.date || DY.today, c = o.cls || a.cls, s = o.sec || a.sec, sb = o.subj || a.subj;
+    const e = o.entry || this.find(date, c, s, sb);
+    const draft = e ? { id: e.id, date: e.date, cls: e.cls, sec: e.sec, subj: e.subj, today: e.today, next: e.next, hw: e.hw, due: e.due || DY.nextSchoolDay(e.date), note: e.note, attach: e.attach.slice(), also: [], status: e.status }
+      : { id: null, date, cls: c, sec: s, subj: sb, today: '', next: '', hw: '', due: DY.nextSchoolDay(date), note: '', attach: [], also: [], status: '' };
+    this.setState({ view: 'write', draft, saveState: e ? 'saved' : 'idle', savedAt: e ? e.time : '', err: '', addFor: '' });
+  }
+  setD(patch, quiet) {
+    this.setState({ draft: { ...this.state.draft, ...patch }, err: '', saveState: quiet ? this.state.saveState : 'saving' });
+    if (quiet) return;
+    clearTimeout(this.at);
+    this.at = setTimeout(() => { LS('arm_t_draft', this.state.draft); this.setState({ saveState: 'saved', savedAt: nowHM() }); }, 900);
+  }
+  loadCombo(patch) {
+    const d = { ...this.state.draft, ...patch };
+    const e = this.find(d.date, d.cls, d.sec, d.subj);
+    if (e) this.openEditor({ entry: e }); else this.setState({ draft: { ...d, id: null, status: '', also: [] } });
+  }
+  commit(status) {
+    const d = this.state.draft;
+    if (!d.today.trim() && !d.next.trim() && !d.hw.trim() && !d.note.trim()) return this.setState({ err: 'অন্তত একটি ঘরে কিছু লিখুন।' });
+    if (status === 'published' && d.date > DY.today && !DY.settings.futureVisible) { /* allowed; students see on that date */ }
+    const tm = nowHM();
+    const targets = [`${d.cls}-${d.sec}`, ...(status === 'published' ? d.also : [])];
+    let list = this.state.entries.slice();
+    targets.forEach(k => {
+      const [c, s] = k.split('-');
+      const ex = list.find(e => e.date === d.date && e.cls === c && e.sec === s && e.subj === d.subj);
+      const ne = { ...(ex || { id: 'n' + Date.now() + k, seen: 0, total: DY.classSize, teacher: DY.me }), date: d.date, cls: c, sec: s, subj: d.subj, status, time: tm,
+        today: d.today.trim(), next: d.next.trim(), hw: d.hw.trim(), due: d.hw.trim() ? d.due : '', note: d.note.trim(), attach: d.attach.map(a => ({ type: a.type, name: a.name, url: a.url })) };
+      list = ex ? list.map(e => e === ex ? ne : e) : [ne, ...list];
+    });
+    LS('arm_diary_entries', list.map(e => ({ ...e, attach: e.attach.map(a => ({ type: a.type, name: a.name })) })));
+    clearTimeout(this.at);
+    this.setState({ entries: list, view: 'home', draft: null });
+    this.flash(status === 'published' ? (targets.length > 1 ? `${DY.bn(targets.length)}টি শাখায় প্রকাশিত হয়েছে ✓` : 'ডায়েরি প্রকাশিত হয়েছে — অভিভাবকরা দেখতে পাবেন ✓') : 'খসড়া সংরক্ষিত হয়েছে');
+  }
+  pick(type) {
+    return e => {
+      const file = e.target.files && e.target.files[0]; e.target.value = '';
+      if (!file) return;
+      if (file.size > DY.settings.maxMB * 1048576) return this.flash(`ফাইলটি ${DY.bn(DY.settings.maxMB)} MB এর বেশি`);
+      const isImg = file.type.startsWith('image/');
+      this.setD({ attach: [...this.state.draft.attach, { type: isImg ? 'img' : 'pdf', name: file.name, url: isImg ? URL.createObjectURL(file) : '' }] });
+    };
+  }
+
+  renderVals() {
+    const D = window.DY;
+    if (!D || !window.MD) return { auth: {}, v: {}, ds: {}, err: {}, f: {}, me: {}, home: {}, ct: {}, d: { dateNote: {} }, save: {}, rm: {}, h: {}, sheet: {} };
+    const st = this.state, bn = D.bn;
+    const frame = this.props.frame ?? 'auto';
+    const W = frame === 'auto' ? st.w : Number(frame);
+    const wide = W >= 1024, inApp = st.screen === 'app';
+    const dsv = this.props.dataState ?? 'ready';
+    const ready = dsv === 'ready' || dsv === 'empty';
+    const ds = { loading: inApp && dsv === 'loading', error: inApp && dsv === 'error' };
+    const V = ['home', 'write', 'remarks', 'history', 'ct', 'profile'];
+    const v = Object.fromEntries(V.map(k => [k, inApp && ready && st.view === k && (k !== 'write' || !!st.draft)]));
+    const ents = this.ents();
+    const my = D.myAssignments, keyOf = a => `${a.cls}-${a.sec}`;
+    const keys = [...new Set(my.map(keyOf))];
+    const keyOpts = keys.map(k => ({ v: k, l: D.csLabel(...k.split('-')) }));
+    const status = e => !e ? { chip: 'বাকি', icon: '○', fg: 'var(--danger)', bg: 'var(--danger-bg)' } : e.status === 'draft' ? { chip: 'খসড়া', icon: '◐', fg: 'var(--warn)', bg: 'var(--warn-bg)' } : { chip: 'লেখা হয়েছে', icon: '✓', fg: 'var(--success)', bg: 'var(--success-bg)' };
+    const setF = k => e => this.setState({ f: { ...this.state.f, [k]: e.target.value }, err: '' });
+    const meT = D.teacher(D.me);
+    const ctA = my.find(a => a.ct), ctKey = keyOf(ctA);
+
+    // home
+    const cards = my.map(a => {
+      const e = this.find(D.today, a.cls, a.sec, a.subj), s = status(e);
+      return { ...s, label: `${D.csLabel(a.cls, a.sec)} – ${D.subj(a.subj).bn}`, ct: a.ct,
+        meta: !e ? 'আজ এখনো লেখা হয়নি' : e.status === 'draft' ? `খসড়া সংরক্ষিত · ${D.time(e.time)}` : `প্রকাশ ${D.time(e.time)} · ${bn(e.seen)}/${bn(e.total)} অভিভাবক দেখেছেন`,
+        btn: e ? '✎ সম্পাদনা' : '+ লিখুন', btnBg: e ? 'var(--surface-2)' : 'var(--green-700)', btnFg: e ? 'var(--ink)' : '#fff',
+        open: () => this.openEditor({ cls: a.cls, sec: a.sec, subj: a.subj }) };
+    });
+    const doneN = cards.filter(c => c.chip === 'লেখা হয়েছে').length;
+
+    // class teacher
+    const ctDate = st.ctDate || D.today;
+    const [cc, cs] = ctKey.split('-');
+    const dayE = ents.filter(e => e.date === ctDate && e.cls === cc && e.sec === cs);
+    const pubE = dayE.filter(e => e.status === 'published');
+    const missing = D.subjects.filter(sb => !pubE.some(e => e.subj === sb.id)).map(sb => {
+      const dr = dayE.find(e => e.subj === sb.id);
+      const tid = D.assign[`${cc}-${cs}-${sb.id}`];
+      return { subj: sb.bn, teacher: tid ? D.teacher(tid).name : 'শিক্ষক নির্ধারিত হয়নি', state: dr ? 'খসড়া' : 'বাকি', bg: dr ? 'var(--warn-bg)' : 'var(--danger-bg)', fg: dr ? 'var(--warn)' : 'var(--danger)' };
+    });
+    const writtenN = D.subjects.length - missing.length;
+    const notSeen = pubE.length ? D.notSeen : D.roster.slice(0, 0);
+    const order = [...D.subjects.map(s => s.id), 'general'];
+    const rowsOf = e => [['আজকের পাঠ', e.today], ['আগামীকালের পড়া', e.next], ['বাড়ির কাজ', e.hw], ['বিশেষ নির্দেশনা', e.note]].filter(r => r[1]).map(r => ({ k: r[0], v: r[1], hasDue: r[0] === 'বাড়ির কাজ' && !!e.due, due: e.due ? D.dateShort(e.due) : '' }))
+      .concat(e.attach.length ? [{ k: 'সংযুক্তি', v: e.attach.map(a => (a.type === 'pdf' ? '📄 ' : '🖼 ') + a.name).join(' · '), hasDue: false, due: '' }] : []);
+
+    // editor
+    const d = st.draft;
+    let editor = {};
+    if (d) {
+      const key = `${d.cls}-${d.sec}`;
+      const subjOpts = my.filter(a => keyOf(a) === key).map(a => ({ v: a.subj, l: D.subj(a.subj).bn })).concat(my.some(a => keyOf(a) === key && a.ct) ? [{ v: 'general', l: 'সাধারণ নোট' }] : []);
+      const allPh = [...D.phrases.map(p => ({ p, mine: false })), ...st.custom.map(p => ({ p, mine: true }))];
+      const off = D.isOff(d.date);
+      editor = {
+        d: { ...d, key, dueLabel: d.due === D.nextSchoolDay(d.date) ? 'পরবর্তী ক্লাস দিবস' : D.dayName(d.due),
+          dateNote: { on: off || d.date !== D.today, msg: off ? `${D.dayName(d.date)} ছুটির দিন — তবুও লিখতে চাইলে প্রকাশ করতে পারবেন।` : d.date < D.today ? 'আগের তারিখের এন্ট্রি — অভিভাবকরা ঐ দিনের পাতায় দেখবেন।' : 'আগামী তারিখের এন্ট্রি — ঐ দিনের আগে শিক্ষার্থীরা দেখতে পাবে না।' } },
+        keyOpts, subjOpts,
+        onDate: e => { const nd = e.target.value || D.today; this.loadCombo({ date: nd, due: D.nextSchoolDay(nd) }); },
+        onKey: e => { const [c, s] = e.target.value.split('-'); const first = my.find(a => keyOf(a) === e.target.value); this.loadCombo({ cls: c, sec: s, subj: first ? first.subj : d.subj }); },
+        onSubj: e => this.loadCombo({ subj: e.target.value }),
+        onDue: e => this.setD({ due: e.target.value }),
+        fields: FIELDS.map(F => ({ ...F, value: d[F.key], isHw: F.key === 'hw', addOpen: st.addFor === F.key,
+          onChange: e => this.setD({ [F.key]: e.target.value }),
+          toggleAdd: () => this.setState({ addFor: st.addFor === F.key ? '' : F.key, phraseIn: '' }),
+          chips: allPh.map(({ p, mine }) => ({ label: (mine ? '★ ' : '') + p, bg: mine ? 'var(--yellow-50)' : 'var(--surface-2)', bd: mine ? 'var(--yellow-400)' : 'var(--line)',
+            go: () => { const cur = this.state.draft[F.key]; this.setD({ [F.key]: cur ? cur.replace(/\s+$/, '') + (/[।.,]$/.test(cur.trim()) ? ' ' : '। ') + p : p }); } })) })),
+        chipWrap: W >= 768 ? 'wrap' : 'nowrap',
+        phraseIn: st.phraseIn, onPhraseIn: e => this.setState({ phraseIn: e.target.value }),
+        savePhrase: () => { const p = st.phraseIn.trim(); if (!p) return; const c = [...st.custom.filter(x => x !== p), p]; LS('arm_t_phrases', c); this.setState({ custom: c, phraseIn: '', addFor: '' }); this.flash('বাক্যটি সংরক্ষিত হয়েছে'); },
+        thumbs: d.attach.map((a, i) => ({ name: a.name, url: a.url || '', isImg: a.type === 'img' && !!a.url, isTile: !(a.type === 'img' && a.url), icon: a.type === 'pdf' ? 'PDF' : '🖼', fg: a.type === 'pdf' ? 'var(--danger)' : 'var(--green-700)',
+          remove: () => this.setD({ attach: this.state.draft.attach.filter((_, j) => j !== i) }) })),
+        hasThumbs: d.attach.length > 0,
+        alsoOpts: my.filter(a => a.subj === d.subj && keyOf(a) !== key).map(a => { const k = keyOf(a), on = d.also.includes(k); return { label: D.csLabel(a.cls, a.sec), mark: on ? '✓' : '+', bg: on ? 'var(--green-700)' : 'var(--surface)', fg: on ? '#fff' : 'var(--ink)', bd: on ? 'var(--green-700)' : 'var(--line-strong)',
+          go: () => this.setD({ also: on ? d.also.filter(x => x !== k) : [...d.also, k] }, true) }; }),
+        save: st.saveState === 'saving' ? { label: '● সংরক্ষণ হচ্ছে…', bg: 'var(--warn-bg)', fg: 'var(--warn)' } : st.saveState === 'saved' ? { label: `✓ স্বয়ংক্রিয় সংরক্ষিত · ${D.time(st.savedAt || nowHM())}`, bg: 'var(--success-bg)', fg: 'var(--success)' } : { label: '○ স্বয়ংক্রিয় সংরক্ষণ চালু', bg: 'var(--surface-2)', fg: 'var(--muted)' },
+        copyPrev: () => {
+          const prev = this.state.entries.filter(e => e.cls === d.cls && e.sec === d.sec && e.subj === d.subj && e.date < d.date && e.status === 'published').sort((a, b) => b.date.localeCompare(a.date))[0];
+          if (!prev) return this.flash('আগের কোনো এন্ট্রি পাওয়া যায়নি');
+          this.setD({ today: prev.today, next: prev.next, hw: prev.hw, note: prev.note });
+          this.flash(`${D.dateShort(prev.date)} এর এন্ট্রি থেকে কপি হয়েছে — প্রয়োজনমতো বদলে নিন`);
+        },
+        publishLabel: d.also.length ? `প্রকাশ করুন (${bn(d.also.length + 1)} শাখা)` : (d.status === 'published' ? 'হালনাগাদ প্রকাশ' : 'প্রকাশ করুন'),
+        saveDraft: () => this.commit('draft'), publish: () => this.commit('published'),
+      };
+      editor.alsoAny = editor.alsoOpts.length > 0;
+    }
+
+    // remarks
+    const todayRm = st.remarks.filter(r => r.date === D.today);
+    const rmRows = D.roster.map((r, i) => {
+      const on = st.sel.includes(r.id), tags = todayRm.filter(x => x.stuId === r.id).map(x => { const ty = D.remarkTypes.find(t => t.id === x.type); return { label: ty.bn, bg: ty.bg, fg: ty.fg }; });
+      return { name: r.name, roll: `রোল ${bn(r.roll)}`, init: D.initials(r.name), avBg: AV[i % 4][0], avFg: AV[i % 4][1], tags, bulk: st.bulk, check: on ? '✓' : '',
+        boxBg: on ? 'var(--green-700)' : 'transparent', boxBd: on ? 'var(--green-700)' : 'var(--line-strong)', bg: on ? 'var(--green-50)' : 'var(--surface)', bd: on ? 'var(--green-700)' : 'var(--line)',
+        tap: () => st.bulk ? this.setState({ sel: on ? st.sel.filter(x => x !== r.id) : [...st.sel, r.id] }) : this.setState({ sheet: r.id, rmType: 'praise', rmText: '' }) };
+    });
+    const sStu = D.roster.find(r => r.id === st.sheet);
+
+    // history
+    const hList = ents.filter(e => e.teacher === D.me && (!st.hDate || e.date === st.hDate) && (!st.hKey || `${e.cls}-${e.sec}` === st.hKey) && (!st.hSubj || e.subj === st.hSubj))
+      .sort((a, b) => b.date.localeCompare(a.date) || b.time.localeCompare(a.time))
+      .map(e => { const s = status(e), dm = MD.dayM(e.date, 'bn'), pub = e.status === 'published'; return { ...s, dd: dm.d, mm: dm.m, label: `${D.csLabel(e.cls, e.sec)} – ${D.subj(e.subj).bn}`, excerpt: e.today || e.note || e.next,
+        metaTime: `${D.dayName(e.date)} · ${pub ? 'প্রকাশ' : 'সংরক্ষিত'} ${D.time(e.time)}`, pub, pct: Math.round(e.seen / e.total * 100) + '%', ack: `${bn(e.seen)}/${bn(e.total)} অভিভাবক দেখেছেন`,
+        editable: e.date === D.today, locked: e.date !== D.today, edit: () => this.openEditor({ entry: e }) }; });
+
+    const icons = { home: '⌂', write: '✎', remarks: '💬', history: '🗂', profile: '👤', ct: '★' };
+    const labels = { home: 'হোম', write: 'ডায়েরি', remarks: 'মন্তব্য', history: 'ইতিহাস', profile: 'প্রোফাইল', ct: 'শ্রেণি ডায়েরি' };
+    const titles = { home: 'আজকের ডায়েরি', write: d && d.id ? 'ডায়েরি সম্পাদনা' : 'ডায়েরি লিখুন', remarks: 'ব্যক্তিগত মন্তব্য', history: 'আমার ডায়েরি ইতিহাস', ct: 'শ্রেণি শিক্ষকের ডায়েরি', profile: 'প্রোফাইল' };
+    const cur = st.view;
+    const np = st.f.np; const score = (np.length >= 6) + /[0-9]/.test(np) + (np.length >= 10) + /[^A-Za-z0-9]/.test(np);
+
+    return {
+      theme: st.theme, frameW: frame === 'auto' ? '100%' : frame + 'px', wide, narrow: !wide, inApp,
+      themeIcon: st.theme === 'dark' ? '☀' : '☾', toggleTheme: () => { const x = st.theme === 'dark' ? 'light' : 'dark'; MD.setTheme(x); this.setState({ theme: x }); },
+      auth: { any: !inApp, login: st.screen === 'login', change: st.screen === 'change', title: st.screen === 'change' ? 'নতুন পাসওয়ার্ড দিন' : 'শিক্ষক লগইন' },
+      f: st.f, onUser: setF('user'), onPw: setF('pw'), onNp: setF('np'), onCp: setF('cp'),
+      err: { on: !!st.err, msg: st.err }, loginBtn: st.busy ? 'যাচাই করা হচ্ছে…' : 'লগইন করুন',
+      doLogin: () => { this.setState({ busy: true }); setTimeout(() => { const u = st.f.user.trim(); const ok = (u === '01711000001' || u === meT.email) && st.f.pw === '123456'; this.setState(ok ? { busy: false, screen: 'change', err: '' } : { busy: false, err: 'মোবাইল/ইমেইল বা পাসওয়ার্ড সঠিক নয়' }); }, 700); },
+      strength: [0, 1, 2, 3].map(i => i < score ? ['var(--red-600)', 'var(--yellow-400)', 'var(--green-500)', 'var(--green-700)'][score - 1] : 'var(--line)'),
+      doChange: () => { if (np.length < 6) return this.setState({ err: 'কমপক্ষে ৬ অক্ষর দিন' }); if (np !== st.f.cp) return this.setState({ err: 'দুটি পাসওয়ার্ড মেলেনি' }); this.setState({ screen: 'app', view: 'home', err: '' }); },
+      logout: () => this.setState({ screen: 'login', f: { user: '', pw: '', np: '', cp: '' } }),
+      goChangePw: () => this.setState({ screen: 'change', f: { ...st.f, np: '', cp: '' } }),
+      ds, v, skeleton: [1, 2, 3, 4], retry: () => this.flash('আবার লোড হচ্ছে…'),
+      screenTitle: titles[cur], showBack: inApp && !wide && (cur === 'write' || cur === 'ct'), showLogo: !wide && !(cur === 'write' || cur === 'ct'), goHome: () => this.go('home'),
+      side: ['home', 'write', 'remarks', 'history', 'ct', 'profile'].map(k => ({ label: labels[k], icon: icons[k], go: () => this.go(k), bg: cur === k ? 'rgba(255,255,255,.14)' : 'transparent', fg: cur === k ? '#FFD21F' : '#E6F2EA' })),
+      bottom: ['home', 'write', 'remarks', 'history', 'profile'].map(k => { const on = cur === k || (k === 'home' && cur === 'ct'); return { label: labels[k], icon: icons[k], go: () => this.go(k), fg: on ? 'var(--green-700)' : 'var(--muted)', bg: on ? 'var(--green-100)' : 'transparent' }; }),
+      fabOn: inApp && ready && (cur === 'home' || cur === 'history'), fabBottom: wide ? '24px' : '88px', newEntry: () => this.openEditor({}),
+      me: { name: meT.name, desig: meT.desig,
+        rows: [['শিক্ষক আইডি', 'T-' + bn('0001')], ['মোবাইল', bn(meT.phone)], ['ইমেইল', meT.email], ['যোগদানের তারিখ', D.date(meT.join)]].map(([k, v]) => ({ k, v })),
+        assign: my.map(a => ({ label: `${D.csLabel(a.cls, a.sec)} – ${D.subj(a.subj).bn}`, ct: a.ct })) },
+      home: { today: `${D.dayName(D.today)}, ${D.date(D.today)}`, next: `${D.dayName(D.nextSchoolDay(D.today))}, ${D.date(D.nextSchoolDay(D.today))}`, summary: `${bn(my.length)}টির মধ্যে ${bn(doneN)}টি প্রকাশিত`, empty: doneN === 0 && !cards.some(c => c.chip === 'খসড়া') },
+      cards, goCt: () => this.go('ct'),
+      ct: { label: D.csLabel(cc, cs), date: ctDate, onDate: null, short: `আজ ${bn(D.subjects.length)}টির মধ্যে ${bn(writtenN)}টি বিষয়ে ডায়েরি · ${bn(notSeen.length)} জন অভিভাবক এখনো দেখেননি`,
+        written: `${bn(writtenN)}/${bn(D.subjects.length)}`, seen: `${bn(pubE.length ? D.classSize - notSeen.length : 0)}/${bn(D.classSize)}`, missingN: bn(missing.length),
+        missing, allDone: missing.length === 0, notSeenN: bn(notSeen.length), notSeen: notSeen.map(r => ({ roll: bn(r.roll), name: r.name })), none: dayE.length === 0,
+        cards: dayE.slice().sort((a, b) => order.indexOf(a.subj) - order.indexOf(b.subj)).map(e => ({ subj: D.subj(e.subj).bn, draft: e.status === 'draft', rows: rowsOf(e), meta: `${D.teacher(e.teacher).name} · ${D.time(e.time)}${e.status === 'published' ? ` · 👁 ${bn(e.seen)}/${bn(e.total)}` : ''}` })) },
+      onCtDate: e => this.setState({ ctDate: e.target.value || D.today }),
+      remindAll: () => this.flash(`${bn(missing.length)} জন শিক্ষককে রিমাইন্ডার পাঠানো হয়েছে`), smsAll: () => this.flash(`${bn(notSeen.length)} জন অভিভাবককে SMS পাঠানো হয়েছে`),
+      writeCols: W >= 900 ? 'minmax(0, 1fr) 340px' : 'minmax(0, 1fr)',
+      d: { dateNote: {} }, ...editor, keyOpts, maxMB: bn(D.settings.maxMB), editUntil: '১১:৫৯', err: { on: !!st.err, msg: st.err },
+      rm: { key: st.rmKey, rows: rmRows, hint: st.bulk ? 'যাদের বাড়ির কাজ আনেনি তাদের নির্বাচন করুন' : 'মন্তব্য দিতে শিক্ষার্থীর নামে চাপুন', bulkLabel: st.bulk ? '✕ নির্বাচন বাতিল' : '☑ একসাথে নির্বাচন',
+        bulkBg: st.bulk ? 'var(--green-700)' : 'var(--surface)', bulkFg: st.bulk ? '#fff' : 'var(--ink)', bulkBd: st.bulk ? 'var(--green-700)' : 'var(--line-strong)',
+        bar: v.remarks && st.bulk, selLabel: `${bn(st.sel.length)} জন নির্বাচিত` },
+      onRmKey: e => this.setState({ rmKey: e.target.value, sel: [] }), toggleBulk: () => this.setState({ bulk: !st.bulk, sel: [] }),
+      bulkApply: () => {
+        if (!st.sel.length) return this.flash('আগে শিক্ষার্থী নির্বাচন করুন');
+        const add = st.sel.map((id, i) => ({ id: 'rb' + Date.now() + i, date: D.today, stuId: id, type: 'nohw', subj: 'math', teacher: D.me, text: '' }));
+        const rs = [...st.remarks, ...add]; LS('arm_diary_remarks', rs);
+        this.setState({ remarks: rs, sel: [], bulk: false }); this.flash(`${bn(add.length)} জনের জন্য “বাড়ির কাজ আনেনি” যুক্ত হয়েছে`);
+      },
+      sheet: sStu ? { on: true, name: sStu.name, init: D.initials(sStu.name), meta: `রোল ${bn(sStu.roll)} · ${D.csLabel(...st.rmKey.split('-'))}`, text: st.rmText, align: wide ? 'center' : 'flex-end', radius: wide ? '24px' : '24px 24px 0 0',
+        types: D.remarkTypes.map(t => { const on = st.rmType === t.id; return { label: t.bn, icon: t.icon, bg: on ? t.bg : 'var(--surface)', fg: on ? t.fg : 'var(--ink)', bd: on ? t.fg : 'var(--line)', go: () => this.setState({ rmType: t.id }) }; }),
+        prev: st.remarks.filter(r => r.stuId === sStu.id).slice(-3).reverse().map(r => { const t = D.remarkTypes.find(x => x.id === r.type); return { label: t.bn, bg: t.bg, fg: t.fg, when: D.dateShort(r.date), text: r.text || '—' }; }),
+        hasPrev: st.remarks.some(r => r.stuId === sStu.id) } : { on: false },
+      closeSheet: () => this.setState({ sheet: '' }), onRmText: e => this.setState({ rmText: e.target.value }),
+      saveRemark: () => { const rs = [...st.remarks, { id: 'r' + Date.now(), date: D.today, stuId: st.sheet, type: st.rmType, subj: 'math', teacher: D.me, text: st.rmText.trim() }]; LS('arm_diary_remarks', rs); this.setState({ remarks: rs, sheet: '' }); this.flash('মন্তব্য সংরক্ষিত — অভিভাবক ডায়েরিতে দেখবেন'); },
+      h: { date: st.hDate, key: st.hKey, subj: st.hSubj, list: hList, empty: hList.length === 0, count: `${bn(hList.length)}টি এন্ট্রি` },
+      onHDate: e => this.setState({ hDate: e.target.value }), onHKey: e => this.setState({ hKey: e.target.value }), onHSubj: e => this.setState({ hSubj: e.target.value }), clearH: () => this.setState({ hDate: '', hKey: '', hSubj: '' }),
+      notices: MD.notices.slice(0, 4).map(x => { const dm = MD.dayM(x.date, 'bn'); return { title: MD.t(x.title, 'bn'), d: dm.d, m: dm.m }; }),
+      toast: st.toast, toastOn: !!st.toast,
+    };
+  }
+}
+</script>
+</body>
+</html>
