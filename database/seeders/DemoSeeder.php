@@ -7,6 +7,7 @@ use Modules\Academic\Database\Seeders\DemoAcademicSeeder;
 use Modules\Accounts\Models\User;
 use Modules\Exams\Database\Seeders\DemoExamSeeder;
 use Modules\Fees\Database\Seeders\DemoFeesSeeder;
+use Modules\Notices\Database\Seeders\DemoNoticeSeeder;
 use Modules\Results\Database\Seeders\DemoResultSeeder;
 use Modules\Students\Database\Seeders\DemoStudentSeeder;
 
@@ -22,6 +23,7 @@ class DemoSeeder extends Seeder
             ['name' => 'সুপার অ্যাডমিন', 'password' => 'password', 'is_active' => true],
         )->assignRole('super_admin');
 
+        $this->call(DemoNoticeSeeder::class);
         $this->call(DemoAcademicSeeder::class);
         $this->call(DemoStudentSeeder::class);
         $this->call(DemoExamSeeder::class);

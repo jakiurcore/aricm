@@ -24,6 +24,7 @@ return [
         'page_of' => 'পৃষ্ঠা :page / :pages',
         'total' => 'মোট :count',
     ],
+    'content_group' => 'কনটেন্ট',
     'dashboard' => [
         'menu_group' => 'ওভারভিউ',
         'menu' => 'ড্যাশবোর্ড',

@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'menu' => 'Gallery',
+    'title' => 'Gallery',
+    'new' => 'New album',
+    'edit' => 'Edit album',
+    'title_bn' => 'Title (Bangla)',
+    'title_en' => 'Title (English)',
+    'description_bn' => 'Description (Bangla)',
+    'description_en' => 'Description (English)',
+    'album_date' => 'Date',
+    'is_published' => 'Published',
+    'sort_order' => 'Order',
+    'photos' => 'Photos',
+    'manage' => 'Manage photos',
+    'upload' => 'Upload photos (several at once)',
+    'uploading' => 'Uploading…',
+    'drag_hint' => 'Drag photos to reorder. Any photo can be the cover.',
+    'cover' => 'Make cover',
+    'is_cover' => 'Cover',
+    'caption' => 'Caption',
+    'back' => 'Albums',
+    'empty' => 'This album has no photos yet.',
+];

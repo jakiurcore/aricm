@@ -23,7 +23,7 @@ import { NativeSelect, type Option } from './NativeSelect';
 export interface FieldDef {
     name: string;
     label: string;
-    type: 'text' | 'textarea' | 'number' | 'date' | 'time' | 'email' | 'password' | 'select' | 'switch' | 'file' | 'checkboxes';
+    type: 'text' | 'textarea' | 'number' | 'date' | 'time' | 'email' | 'password' | 'select' | 'switch' | 'file' | 'checkboxes' | 'datetime-local';
     options?: Option[];
     placeholder?: string;
     hint?: string;
