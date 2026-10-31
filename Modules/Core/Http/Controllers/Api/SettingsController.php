@@ -6,6 +6,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Modules\Core\Http\Requests\UpdateSettingsRequest;
+use Modules\Core\Services\ImageUploader;
 use Modules\Core\Services\Settings;
 
 class SettingsController
@@ -25,17 +26,16 @@ class SettingsController
         return response()->json(['data' => $this->payload($settings)]);
     }
 
-    public function upload(Request $request, Settings $settings, string $key): JsonResponse
+    public function upload(Request $request, Settings $settings, ImageUploader $uploader, string $key): JsonResponse
     {
         abort_unless(in_array($key, self::FILES, true), 404);
 
         $request->validate(['file' => ['required', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048']]);
 
-        if ($old = $settings->get($key)) {
-            Storage::disk('public')->delete($old);
-        }
+        $old = $settings->get($key);
 
-        $settings->set($key, $request->file('file')->store('settings', 'public'));
+        $settings->set($key, $uploader->store($request->file('file'), 'settings', $key === 'logo' ? 1200 : 800));
+        $uploader->delete($old);
 
         return response()->json(['data' => $this->payload($settings)]);
     }

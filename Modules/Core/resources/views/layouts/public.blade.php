@@ -4,6 +4,15 @@
     $site = app(\Modules\Core\Services\PublicSite::class);
     $identity = $site->identity();
     $nav = $site->nav();
+    $footerNav = $site->footer_nav();
+    $officeHours = $identity['office_hours'];
+    $footerEmail = $identity['email'];
+    $socials = array_filter([
+        ['url' => $identity['facebook'], 'label' => 'Facebook', 'glyph' => 'f', 'style' => 'font-weight: 700; font-family: Poppins;'],
+        ['url' => $identity['youtube'], 'label' => 'YouTube', 'glyph' => '▶', 'style' => ''],
+        ['url' => $identity['instagram'], 'label' => 'Instagram', 'glyph' => 'ig', 'style' => 'font-weight: 700; font-family: Poppins; font-size: 14px;'],
+        ['url' => $identity['whatsapp'], 'label' => 'WhatsApp', 'glyph' => '✆', 'style' => ''],
+    ], fn (array $social): bool => filled($social['url']));
     $ticker = $site->ticker();
     $locale = app()->getLocale();
     $year = bn_digits(now()->format('Y'));
@@ -19,7 +28,6 @@
     };
     $teacherUrl = Route::has('teacher.home') ? route('teacher.home') : (Route::has('login') ? route('login') : url('/'));
     $loginUrl = Route::has('student.login') ? route('student.login') : url('/');
-    $heroPhone = $identity['phones'][0] ?? null;
 @endphp
 
 @push('meta')
@@ -87,7 +95,7 @@
         <div x-show="drawer" x-cloak x-transition.opacity.duration.200ms class="flex flex-col lg:hidden" style="display: none; position: fixed; inset: 0; z-index: 60; background: var(--green-700); color: #fff; overflow-y: auto;" role="dialog" aria-modal="true">
             <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,.2);">
                 <img src="{{ $identity['logo'] }}" alt="" style="width: 44px; height: 44px; border-radius: 50%; background: #fff; object-fit: contain;">
-                <span style="flex: 1; font-family: var(--f-head); font-size: 17px;">{{ __('core::nav.short_name') }}</span>
+                <span style="flex: 1; font-family: var(--f-head); font-size: 17px;">{{ $identity['short_name'] }}</span>
                 <button type="button" @click="drawer = false" aria-label="{{ __('core::nav.close') }}" style="width: 44px; height: 44px; border-radius: 12px; border: 1px solid rgba(255,255,255,.4); background: transparent; color: #fff; font-size: 20px; cursor: pointer;">✕</button>
             </div>
             <nav style="display: grid; padding: 8px;">
@@ -116,10 +124,13 @@
                     <img src="{{ $identity['logo'] }}" alt="" style="width: 72px; height: 72px; border-radius: 50%; background: #fff; object-fit: contain;">
                     <strong style="font-family: var(--f-head); font-size: 18px; color: #fff;">{{ $identity['name'] }}</strong>
                     <span style="font-size: 15px;">{{ $identity['address'] }}</span>
+                    @if ($officeHours)
+                        <span style="font-size: 14px; opacity: .85;">{{ $officeHours }}</span>
+                    @endif
                 </div>
                 <div style="display: grid; gap: 6px; align-content: start;">
                     <strong style="color: var(--yellow-400);">{{ __('core::nav.links') }}</strong>
-                    @foreach (array_slice($nav, 1, 6) as $item)
+                    @foreach ($footerNav as $item)
                         <a href="{{ $item['url'] }}" class="pub-footlink">{{ $item['label'] }}</a>
                     @endforeach
                 </div>
@@ -134,11 +145,16 @@
                     @foreach ($identity['phones'] as $phone)
                         <a href="tel:{{ $phone }}" style="color: #fff; font-weight: 600; text-decoration: underline; text-underline-offset: 3px;">☎ {{ bn_digits($phone) }}</a>
                     @endforeach
-                    <div style="display: flex; gap: 8px; margin-top: 6px;">
-                        <a href="{{ $identity['facebook'] ?: '#' }}" aria-label="Facebook" rel="noopener" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,.1); color: #fff; display: grid; place-items: center; text-decoration: none; font-weight: 700; font-family: Poppins;">f</a>
-                        <a href="{{ $identity['youtube'] ?: '#' }}" aria-label="YouTube" rel="noopener" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,.1); color: #fff; display: grid; place-items: center; text-decoration: none;">▶</a>
-                        <a href="{{ $heroPhone ? 'https://wa.me/88'.$heroPhone : '#' }}" aria-label="WhatsApp" rel="noopener" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,.1); color: #fff; display: grid; place-items: center; text-decoration: none;">✆</a>
-                    </div>
+                    @if ($footerEmail)
+                        <a href="mailto:{{ $footerEmail }}" style="color: #fff; font-size: 15px; text-underline-offset: 3px; overflow-wrap: anywhere;">✉ {{ $footerEmail }}</a>
+                    @endif
+                    @if ($socials)
+                        <div style="display: flex; gap: 8px; margin-top: 6px;">
+                            @foreach ($socials as $social)
+                                <a href="{{ $social['url'] }}" aria-label="{{ $social['label'] }}" rel="noopener" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,.1); color: #fff; display: grid; place-items: center; text-decoration: none; {{ $social['style'] }}">{{ $social['glyph'] }}</a>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
             </div>
             <div style="border-top: 1px solid rgba(255,255,255,.12); padding: 16px; text-align: center; font-size: 14px;">{{ __('core::nav.copyright', ['year' => $year, 'name' => $identity['name']]) }}</div>

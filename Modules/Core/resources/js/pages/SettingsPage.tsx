@@ -13,7 +13,9 @@ import { t } from '../i18n';
 
 type Settings = Record<string, any>;
 
-const text = (key: string) => t(`core::admin.settings.fields.${key}`);
+const text = (key: string, replacements?: Record<string, string | number>) => t(`core::admin.settings.fields.${key}`, replacements);
+
+const PHONE_SLOTS = 5;
 
 export function SettingsPage() {
     const [values, setValues] = useState<Settings | null>(null);
@@ -41,9 +43,9 @@ export function SettingsPage() {
 
     const set = (key: string, value: unknown) => setValues({ ...values, [key]: value });
 
-    const input = (key: string, props: { type?: string } = {}) => (
-        <Field label={text(key)} htmlFor={key} error={errors[key]?.[0]}>
-            <Input id={key} type={props.type} value={values[key] ?? ''} onChange={(event) => set(key, event.target.value)} />
+    const input = (key: string, props: { type?: string; hint?: string; step?: string } = {}) => (
+        <Field label={text(key)} htmlFor={key} hint={props.hint} error={errors[key]?.[0]}>
+            <Input id={key} type={props.type} step={props.step} inputMode={props.type === 'number' ? 'decimal' : undefined} value={values[key] ?? ''} onChange={(event) => set(key, event.target.value)} />
         </Field>
     );
 
@@ -122,18 +124,23 @@ export function SettingsPage() {
                 {input('institute_name_bn')}
                 {input('institute_name_en')}
                 {input('institute_name_ar')}
+                {input('institute_short_name_bn')}
+                {input('institute_short_name_en')}
                 {input('established_year', { type: 'number' })}
                 {input('tagline_bn')}
                 {input('tagline_en')}
                 {input('address_bn')}
                 {input('address_en')}
                 {input('email', { type: 'email' })}
-                <Field label={text('phone_1')} htmlFor="phone-1" error={errors['phones.0']?.[0]}>
-                    <Input id="phone-1" value={phones[0] ?? ''} onChange={(event) => setPhone(0, event.target.value)} />
-                </Field>
-                <Field label={text('phone_2')} htmlFor="phone-2" error={errors['phones.1']?.[0]}>
-                    <Input id="phone-2" value={phones[1] ?? ''} onChange={(event) => setPhone(1, event.target.value)} />
-                </Field>
+                {Array.from({ length: PHONE_SLOTS }, (_, index) => (
+                    <Field key={index} label={text('phone_n', { n: index + 1 })} htmlFor={`phone-${index + 1}`} hint={index === 0 ? text('phones_hint') : undefined} error={errors[`phones.${index}`]?.[0]}>
+                        <Input id={`phone-${index + 1}`} type="tel" value={phones[index] ?? ''} onChange={(event) => setPhone(index, event.target.value)} />
+                    </Field>
+                ))}
+                {input('office_hours_bn')}
+                {input('office_hours_en')}
+                {input('map_lat', { type: 'number', step: 'any', hint: text('map_hint') })}
+                {input('map_lng', { type: 'number', step: 'any' })}
             </Panel>
 
             <div className="grid gap-4">
@@ -141,6 +148,8 @@ export function SettingsPage() {
                     <PanelTitle>{t('core::admin.settings.sections.social')}</PanelTitle>
                     {input('social_facebook', { type: 'url' })}
                     {input('social_youtube', { type: 'url' })}
+                    {input('social_instagram', { type: 'url' })}
+                    {input('social_whatsapp', { hint: text('social_whatsapp_hint') })}
                 </Panel>
 
                 <Panel className="gap-2.5">
@@ -157,6 +166,8 @@ export function SettingsPage() {
                 {fileField('logo')}
                 {input('principal_name_bn')}
                 {input('principal_name_en')}
+                {input('principal_title_bn')}
+                {input('principal_title_en')}
                 {area('principal_message_bn')}
                 {area('principal_message_en')}
                 {fileField('principal_signature')}

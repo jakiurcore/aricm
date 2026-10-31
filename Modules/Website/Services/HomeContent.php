@@ -47,8 +47,8 @@ class HomeContent
      */
     public function map(): array
     {
-        $lat = (float) config('modules.website.map.lat');
-        $lng = (float) config('modules.website.map.lng');
+        $lat = (float) (setting('map_lat') ?: config('modules.website.map.lat'));
+        $lng = (float) (setting('map_lng') ?: config('modules.website.map.lng'));
         $box = sprintf('%F,%F,%F,%F', $lng - 0.01, $lat - 0.006, $lng + 0.01, $lat + 0.006);
 
         return [

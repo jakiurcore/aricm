@@ -12,36 +12,42 @@
     <div style="max-width: 1140px; margin: 0 auto; padding: 40px 16px 0; display: grid; gap: 32px;">
         <div style="display: grid; gap: 10px;">
             <span style="justify-self: start; padding: 4px 14px; border-radius: 999px; background: var(--red-600); color: #fff; font-weight: 700; font-size: 14px;">{{ ($settings->bannerEnabled() ? $settings->text('banner_title') : '') ?: __('core::nav.admission_open') }}</span>
-            <h1 class="pub-h1">{{ __('admission::messages.page_title', ['session' => $session]) }}</h1>
-            <p style="margin: 0; font-size: 18px; color: var(--muted); max-width: 66ch;">{{ __('admission::messages.intro', ['start' => $start ? bn_date($start) : '—', 'class_start' => $classStart ? bn_date($classStart) : '—']) }}</p>
+            <h1 class="pub-h1">{{ site_content()->text('admission.page_title', ['session' => $session]) }}</h1>
+            <p style="margin: 0; font-size: 18px; color: var(--muted); max-width: 66ch;">{{ site_content()->text('admission.intro', ['start' => $start ? bn_date($start) : '—', 'class_start' => $classStart ? bn_date($classStart) : '—']) }}</p>
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 20px; align-items: start;">
             <div style="display: grid; gap: 20px;">
                 <div class="pub-card" style="display: grid; gap: 12px;">
-                    <h2 style="margin: 0; font-family: var(--f-head); color: var(--heading); font-size: 22px;">{{ __('admission::messages.docs_title') }}</h2>
-                    @foreach (__('admission::messages.docs') as $doc)
-                        <div style="display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: start;"><span style="width: 28px; height: 28px; border-radius: 50%; background: var(--green-50); color: var(--green-700); display: grid; place-items: center; font-weight: 700;">✓</span><span>{{ $doc }}</span></div>
+                    <h2 style="margin: 0; font-family: var(--f-head); color: var(--heading); font-size: 22px;">{{ site_content()->text('admission.docs_title') }}</h2>
+                    @foreach (site_content()->items('admission_docs') as $doc)
+                        <div style="display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: start;"><span style="width: 28px; height: 28px; border-radius: 50%; background: var(--green-50); color: var(--green-700); display: grid; place-items: center; font-weight: 700;">✓</span><span>{{ $doc->title() }}</span></div>
                     @endforeach
                     @if ($settings->text('content'))
                         <p style="margin: 6px 0 0; padding-top: 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: 15px; white-space: pre-line;">{{ $settings->text('content') }}</p>
                     @endif
                 </div>
+                @if (site_content()->priceRows()->isNotEmpty())
                 <div style="border-radius: 20px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); overflow: hidden;">
-                    <h2 style="margin: 0; padding: 18px 22px 10px; font-family: var(--f-head); color: var(--heading); font-size: 22px;">{{ __('admission::messages.fees_title') }}</h2>
-                    <div style="display: grid; grid-template-columns: 1.4fr 1fr 1fr; padding: 10px 22px; background: var(--surface-2); font-size: 14px; font-weight: 700; color: var(--muted);"><span>{{ __('admission::messages.fee_item') }}</span><span>{{ __('admission::messages.kids') }}</span><span>{{ __('admission::messages.junior') }}</span></div>
-                    @foreach (__('admission::messages.fee_rows') as [$label, $kids, $junior])
-                        <div style="display: grid; grid-template-columns: 1.4fr 1fr 1fr; padding: 12px 22px; border-top: 1px solid var(--line);"><span>{{ $label }}</span><span style="font-weight: 600;">৳ {{ bn_number($kids) }}</span><span style="font-weight: 600;">৳ {{ bn_number($junior) }}</span></div>
+                    <h2 style="margin: 0; padding: 18px 22px 10px; font-family: var(--f-head); color: var(--heading); font-size: 22px;">{{ site_content()->text('admission.fees_title') }}</h2>
+                    @php
+                        $priceColumns = site_content()->priceColumns();
+                        $priceTemplate = 'grid-template-columns: 1.4fr'.str_repeat(' 1fr', max($priceColumns->count(), 1)).';';
+                    @endphp
+                    <div style="display: grid; {{ $priceTemplate }} padding: 10px 22px; background: var(--surface-2); font-size: 14px; font-weight: 700; color: var(--muted);"><span>{{ site_content()->text('admission.fee_item') }}</span>@foreach ($priceColumns as $column)<span>{{ $column->title() }}</span>@endforeach</div>
+                    @foreach (site_content()->priceRows() as $row)
+                        <div style="display: grid; {{ $priceTemplate }} padding: 12px 22px; border-top: 1px solid var(--line);"><span>{{ $row->label() }}@if ($row->note())<small style="display: block; color: var(--muted);">{{ $row->note() }}</small>@endif</span>@foreach ($priceColumns as $key => $column)<span style="font-weight: 600;">@if ($row->price($key) !== null)৳ {{ bn_number($row->price($key)) }}@else—@endif</span>@endforeach</div>
                     @endforeach
                 </div>
+                @endif
             </div>
 
             <div class="pub-card" style="box-shadow: var(--shadow-md); display: grid; gap: 14px;">
-                <h2 style="margin: 0; font-family: var(--f-head); color: var(--heading); font-size: 22px;">{{ __('admission::messages.inquiry_title') }}</h2>
+                <h2 style="margin: 0; font-family: var(--f-head); color: var(--heading); font-size: 22px;">{{ site_content()->text('admission.inquiry_title') }}</h2>
 
                 @if (session('inquiry_sent'))
                     <div role="status" style="padding: 28px 16px; border-radius: 16px; background: var(--success-bg); color: var(--success); text-align: center; display: grid; gap: 6px;">
-                        <span style="font-size: 36px;">✓</span><strong style="font-size: 18px;">{{ __('admission::messages.sent_title') }}</strong><span style="color: var(--ink);">{{ __('admission::messages.sent_body') }}</span>
+                        <span style="font-size: 36px;">✓</span><strong style="font-size: 18px;">{{ site_content()->text('admission.sent_title') }}</strong><span style="color: var(--ink);">{{ site_content()->text('admission.sent_body') }}</span>
                         <a href="{{ route('admission.public') }}" style="justify-self: center; margin-top: 6px; height: 44px; padding: 0 18px; border-radius: 999px; border: 2px solid var(--green-700); background: transparent; color: var(--green-700); font-weight: 700; display: inline-flex; align-items: center; text-decoration: none;">{{ __('admission::messages.send_another') }}</a>
                     </div>
                 @else

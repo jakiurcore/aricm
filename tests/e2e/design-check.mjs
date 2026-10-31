@@ -6,7 +6,7 @@
  *
  *   php artisan serve --port=8000 &                       # app with the demo data seeded (php artisan migrate:fresh --seed)
  *   pnpm build                                            # the bundle the pages load
- *   node tests/e2e/design-check.mjs [--base=http://127.0.0.1:8000] [--only=public,admin,teacher,portal]
+ *   node tests/e2e/design-check.mjs [--base=http://127.0.0.1:8000] [--only=public,admin,admin-website,teacher,portal]
  *
  * Playwright is not a project dependency: the script resolves it from NODE_PATH, e.g.
  *   NODE_PATH=$(mise where npm:playwright)/node_modules node tests/e2e/design-check.mjs
@@ -25,6 +25,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const args = Object.fromEntries(process.argv.slice(2).map((a) => a.replace(/^--/, '').split('=')));
 const base = args.base ?? 'http://127.0.0.1:8000';
 const only = (args.only ?? 'public,admin,teacher,portal').split(',');
+// 'admin-website' edits the demo database (texts, a price, a menu), so it only runs when asked for with --only.
 const shots = join(root, 'storage', 'e2e-screenshots');
 mkdirSync(shots, { recursive: true });
 
@@ -124,6 +125,127 @@ if (only.includes('admin')) {
     }
     await visit(browser, { name: 'admin-dashboard', path: '/admin/dashboard', theme: 'dark', login, expect: { skipBackground: true } });
     await visit(browser, { name: 'admin-dashboard', path: '/admin/dashboard', lang: 'en', login, expect: { skipBackground: true } });
+}
+
+/** A 1x1 PNG, enough for the upload endpoint (it re-encodes the picture). */
+const TINY_PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
+
+/** The Website admin page: edit a text, upload a picture, add/reorder/delete an item, a price, a section and a menu link. */
+async function websiteAdminFlow(browser, login, size) {
+    const context = await browser.newContext({ viewport: SIZES[size], locale: 'en-US', storageState: login.state });
+    await context.addCookies([{ name: 'locale', value: 'en', url: base }]);
+    const page = await context.newPage();
+    const problems = [];
+    page.on('console', (m) => m.type() === 'error' && !/favicon|fonts\.(googleapis|gstatic)/.test(m.text()) && problems.push(`console: ${m.text().slice(0, 160)}`));
+    page.on('pageerror', (e) => problems.push(`pageerror: ${e.message.slice(0, 160)}`));
+    page.on('response', (r) => r.status() >= 400 && r.url().includes('/api/') && problems.push(`HTTP ${r.status()}: ${r.url().slice(0, 100)}`));
+    const label = (what) => `admin-website [${size}] ${what}`;
+    const shot = (name) => page.screenshot({ path: join(shots, `admin-website-${name}_${size}.png`), fullPage: true });
+    const tab = (name) => page.getByRole('tab', { name });
+    const marker = `Hello ${size} ${Date.now() % 100000}`;
+
+    await page.goto(base + '/locale/en', { waitUntil: 'load' });
+    await page.goto(base + '/admin/website', { waitUntil: 'load' });
+    await page.getByText('Hero').first().waitFor();
+    record((await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)) <= 1, label('has no horizontal overflow'));
+    await shot('home');
+
+    // A text: edit, save, confirm it reloads from the server and shows on the public page.
+    const arabic = page.locator('input[id="hero.tag1-en"]');
+    await arabic.fill(marker);
+    record(await page.getByText('1 unsaved').isVisible(), label('shows the unsaved indicator'));
+    await page.getByRole('button', { name: 'Save changes' }).click();
+    await page.getByText('Saved', { exact: false }).first().waitFor({ timeout: 5000 }).catch(() => {});
+    await page.reload({ waitUntil: 'load' });
+    await page.locator('input[id="hero.tag1-en"]').waitFor();
+    record((await page.locator('input[id="hero.tag1-en"]').inputValue()) === marker, label('keeps a saved text after reload'));
+    const publicPage = await context.newPage();
+    await publicPage.goto(base + '/', { waitUntil: 'load' });
+    record((await publicPage.getByText(marker).count()) > 0, label('shows the edited text on the public site'));
+    await publicPage.close();
+
+    // A picture: upload, then reset to the default.
+    await page.locator('#img-hero_image').setInputFiles({ name: 'tiny.png', mimeType: 'image/png', buffer: TINY_PNG });
+    await page.getByText('Your picture is shown on the website.').waitFor({ timeout: 8000 }).then(() => record(true, label('uploads a picture')), () => record(false, label('uploads a picture')));
+    await page.getByRole('button', { name: 'Use the standard picture' }).click();
+    await page.getByText('The standard picture is shown', { exact: false }).waitFor({ timeout: 8000 }).then(() => record(true, label('resets a picture to the default')), () => record(false, label('resets a picture to the default')));
+
+    // An item: add, reorder, toggle, delete.
+    const rows = page.locator('[data-testid=item-programs]');
+    const before = await rows.count();
+    await page.getByRole('button', { name: 'Add' }).first().click();
+    await page.locator('#i-title_bn').fill('পরীক্ষামূলক পয়েন্ট');
+    await page.locator('#i-title_en').fill('Test point');
+    await page.getByRole('dialog').getByRole('button', { name: 'Save', exact: true }).click();
+    await page.waitForFunction((n) => document.querySelectorAll('[data-testid=item-programs]').length === n, before + 1, { timeout: 8000 }).then(() => record(true, label('adds an item')), () => record(false, label('adds an item')));
+    await rows.last().getByRole('button', { name: 'Move up' }).click();
+    await page.waitForTimeout(600);
+    record((await rows.nth(before - 1).innerText()).includes('Test point'), label('reorders an item'));
+    await rows.nth(before - 1).getByRole('switch').click();
+    await page.waitForTimeout(600);
+    record((await rows.nth(before - 1).innerText()).includes('Hidden'), label('hides an item'));
+    await rows.nth(before - 1).getByRole('button', { name: 'Delete' }).click();
+    await page.getByRole('alertdialog').getByRole('button', { name: 'Delete' }).click();
+    await page.waitForFunction((n) => document.querySelectorAll('[data-testid=item-programs]').length === n, before, { timeout: 8000 }).then(() => record(true, label('deletes an item')), () => record(false, label('deletes an item')));
+    await shot('home-lists');
+
+    // A price.
+    await tab('Admission and prices').click();
+    const price = page.getByLabel(/ - /).first();
+    await price.waitFor();
+    await price.fill(String(1000 + (Date.now() % 9000)));
+    await page.getByRole('button', { name: 'Save changes' }).last().click();
+    await page.waitForFunction(() => !document.body.innerText.includes('Not saved'), null, { timeout: 8000 }).then(() => record(true, label('saves a price')), () => record(false, label('saves a price')));
+    await shot('admission');
+
+    // A section toggle.
+    await tab('Menu and sections').click();
+    const section = page.locator('[data-testid=section-row]').first();
+    await section.getByRole('switch').click();
+    await page.getByRole('button', { name: 'Save changes' }).first().click();
+    await page.waitForTimeout(800);
+    record((await section.innerText()).includes('Hidden'), label('hides a home section'));
+    await section.getByRole('switch').click();
+    await page.getByRole('button', { name: 'Save changes' }).first().click();
+    await page.waitForTimeout(800);
+
+    // A menu link, then back to the standard menu.
+    await page.getByRole('button', { name: 'Customize menu' }).click();
+    await page.locator('[data-testid=menu-header]').first().waitFor();
+    await page.getByRole('button', { name: 'Add' }).last().click();
+    await page.locator('#m-bn').fill('পরীক্ষা');
+    await page.locator('#m-en').fill('Exam link');
+    await page.getByRole('dialog').getByRole('button', { name: 'Save', exact: true }).click();
+    await page.getByRole('button', { name: 'Save changes' }).last().click();
+    await page.getByText('Unsaved changes').waitFor({ state: 'hidden', timeout: 8000 });
+    const publicMenu = await context.newPage();
+    await publicMenu.goto(base + '/', { waitUntil: 'load' });
+    record((await publicMenu.getByText('Exam link').count()) > 0, label('shows the new menu link on the public site'));
+    await publicMenu.close();
+    await shot('menu');
+    await page.getByRole('button', { name: 'Restore standard menu' }).first().click();
+    await page.getByRole('alertdialog').getByRole('button', { name: 'Restore standard menu' }).click();
+    await page.getByText('The standard menu is in use').waitFor({ timeout: 8000 }).then(() => record(true, label('restores the standard menu')), () => record(false, label('restores the standard menu')));
+
+    // Put the edited text back so the demo data stays as it was.
+    await tab('Home').click();
+    await page.locator('input[id="hero.tag1-en"]').fill('');
+    await page.getByRole('button', { name: 'Save changes' }).first().click();
+    await page.waitForTimeout(800);
+
+    await page.goto(base + '/admin/settings', { waitUntil: 'load' });
+    await page.getByLabel('Phone 5').waitFor();
+    await shot('settings');
+
+    record(problems.length === 0, label('is free of console/network errors'), problems.slice(0, 3).join(' | '));
+    await context.close();
+}
+
+if (only.includes('admin-website')) {
+    const login = await signIn(browser, '/login', 'email', 'admin@example.com', 'password');
+    for (const size of ['desktop', 'phone']) {
+        await websiteAdminFlow(browser, login, size);
+    }
 }
 
 if (only.includes('teacher')) {

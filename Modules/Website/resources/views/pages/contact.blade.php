@@ -1,6 +1,6 @@
 @extends('core::layouts.public')
 
-@section('title', __('website::messages.contact.title'))
+@section('title', site_content()->text('contact.title'))
 
 @section('content')
     @php($identity = app(\Modules\Core\Services\PublicSite::class)->identity())

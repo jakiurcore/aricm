@@ -42,7 +42,8 @@
             "Modules\\": "Modules/"
         },
         "files": [
-            "Modules/Core/Support/helpers.php"
+            "Modules/Core/Support/helpers.php",
+            "Modules/Website/Support/helpers.php"
         ]
     },
     "autoload-dev": {
