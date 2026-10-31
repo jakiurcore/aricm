@@ -43,7 +43,7 @@ class ReportController
 
         return match ($report) {
             'cash-book' => $reports->cashBook(...$range()),
-            'monthly' => $reports->monthlyCollection(Carbon::createFromFormat('Y-m', $request->input('month', now()->format('Y-m')))->startOfMonth()),
+            'monthly' => $reports->monthlyCollection(Carbon::createFromFormat('!Y-m', $request->input('month', now()->format('Y-m')))->startOfMonth()),
             'head-wise' => $reports->headWise(...$range()),
             'dues' => $reports->dues($request->integer('class_id') ?: null, $request->filled('up_to') ? Carbon::parse($request->string('up_to')->toString()) : null),
             'collectors' => $reports->collectors(...$range()),

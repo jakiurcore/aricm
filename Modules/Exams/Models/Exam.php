@@ -13,8 +13,8 @@ use Modules\Academic\Models\AcademicSession;
 use Modules\Academic\Models\SchoolClass;
 use Modules\Exams\Database\Factories\ExamFactory;
 use Modules\Exams\Enums\ExamStatus;
-use Spatie\Activitylog\Models\Concerns\LogsActivity;
-use Spatie\Activitylog\Support\LogOptions;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 #[UseFactory(ExamFactory::class)]
 #[Fillable(['name_bn', 'name_en', 'session_id', 'start_date', 'end_date', 'status', 'admit_card_released', 'grading_scale_id', 'description'])]
@@ -66,6 +66,6 @@ class Exam extends Model
 
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults()->useLogName('exams')->logOnly(['name_bn', 'status', 'admit_card_released'])->logOnlyDirty()->dontLogEmptyChanges();
+        return LogOptions::defaults()->useLogName('exams')->logOnly(['name_bn', 'status', 'admit_card_released'])->logOnlyDirty()->dontSubmitEmptyLogs();
     }
 }

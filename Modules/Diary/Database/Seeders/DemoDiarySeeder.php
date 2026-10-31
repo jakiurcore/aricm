@@ -39,7 +39,7 @@ class DemoDiarySeeder extends Seeder
         }
 
         // One transaction and no revision log: this is bulk demo data, not teachers editing.
-        DB::transaction(fn () => activity()->withoutLogging(fn () => $this->seed($calendar, $academic)));
+        DB::transaction(fn () => activity()->withoutLogs(fn () => $this->seed($calendar, $academic)));
     }
 
     protected function seed(SchoolCalendar $calendar, AcademicDirectory $academic): void

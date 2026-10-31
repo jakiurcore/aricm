@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\Fees\Casts\MoneyCast;
 use Modules\Students\Enums\ResidencyType;
-use Spatie\Activitylog\Models\Concerns\LogsActivity;
-use Spatie\Activitylog\Support\LogOptions;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 #[Fillable(['session_id', 'class_id', 'fee_head_id', 'residency_type', 'amount'])]
 class FeeStructure extends Model
@@ -37,6 +37,6 @@ class FeeStructure extends Model
 
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults()->useLogName('fees')->logOnly(['session_id', 'class_id', 'fee_head_id', 'residency_type', 'amount'])->logOnlyDirty()->dontLogEmptyChanges();
+        return LogOptions::defaults()->useLogName('fees')->logOnly(['session_id', 'class_id', 'fee_head_id', 'residency_type', 'amount'])->logOnlyDirty()->dontSubmitEmptyLogs();
     }
 }

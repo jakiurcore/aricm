@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Fees\Database\Factories\FeeHeadFactory;
 use Modules\Fees\Enums\FeeHeadType;
-use Spatie\Activitylog\Models\Concerns\LogsActivity;
-use Spatie\Activitylog\Support\LogOptions;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 #[UseFactory(FeeHeadFactory::class)]
 #[Fillable(['name_bn', 'name_en', 'type', 'is_active', 'sort_order'])]
@@ -33,6 +33,6 @@ class FeeHead extends Model
 
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults()->useLogName('fees')->logOnly(['name_bn', 'type', 'is_active'])->logOnlyDirty()->dontLogEmptyChanges();
+        return LogOptions::defaults()->useLogName('fees')->logOnly(['name_bn', 'type', 'is_active'])->logOnlyDirty()->dontSubmitEmptyLogs();
     }
 }

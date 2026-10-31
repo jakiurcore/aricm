@@ -134,10 +134,10 @@ class FeesController
         $ids = array_map('intval', $data['invoice_ids'] ?? []);
 
         foreach ($data['advance_months'] ?? [] as $month) {
-            abort_unless(Carbon::createFromFormat('Y-m', $month)->startOfMonth()->gt(now()->startOfMonth()), 422);
+            abort_unless(Carbon::createFromFormat('!Y-m', $month)->startOfMonth()->gt(now()->startOfMonth()), 422);
         }
 
-        $months = array_map(fn (string $month): Carbon => Carbon::createFromFormat('Y-m', $month)->startOfMonth(), $data['advance_months'] ?? []);
+        $months = array_map(fn (string $month): Carbon => Carbon::createFromFormat('!Y-m', $month)->startOfMonth(), $data['advance_months'] ?? []);
 
         if ($months !== []) {
             $ids = [...$ids, ...$generator->ensureAdvanceMonths($student, $months)->pluck('id')->all()];

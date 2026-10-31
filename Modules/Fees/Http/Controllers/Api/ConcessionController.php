@@ -61,8 +61,8 @@ class ConcessionController
             'value' => $kind === ConcessionKind::Percent ? (int) round((float) $request->input('value')) : Money::taka($request->input('value'))->poisha,
             'reason_type' => $request->input('reason_type'),
             'note' => $request->input('note'),
-            'valid_from_month' => Carbon::createFromFormat('Y-m', $request->string('valid_from_month')->toString())->startOfMonth(),
-            'valid_to_month' => $request->filled('valid_to_month') ? Carbon::createFromFormat('Y-m', $request->string('valid_to_month')->toString())->startOfMonth() : null,
+            'valid_from_month' => Carbon::createFromFormat('!Y-m', $request->string('valid_from_month')->toString())->startOfMonth(),
+            'valid_to_month' => $request->filled('valid_to_month') ? Carbon::createFromFormat('!Y-m', $request->string('valid_to_month')->toString())->startOfMonth() : null,
         ];
     }
 

@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Route;
 use Modules\Academic\Models\AcademicSession;
 use Modules\Accounts\Models\User;
@@ -323,4 +324,16 @@ it('uses a chosen due date for monthly invoices and lists payments in bigger pag
     expect(FeeInvoice::first()->due_date->toDateString())->toBe('2026-03-25');
 
     $this->actingAs($admin)->getJson(route('fees.api.invoices.index', ['per_page' => 100]))->assertOk()->assertJsonPath('meta.per_page', 100);
+});
+
+it('reads a month such as 2026-06 as that month even on the 31st', function () {
+    Carbon::setTestNow('2026-10-31 10:00:00');
+    $p = placement();
+    feeSetup($p);
+    $student = enrolled($p);
+    $admin = userWithRole('admin');
+
+    $this->actingAs($admin)->postJson(route('fees.api.concessions.store'), ['student_id' => $student->id, 'kind' => 'fixed', 'value' => 10, 'reason_type' => 'merit', 'valid_from_month' => '2026-01', 'valid_to_month' => '2026-06'])->assertCreated();
+
+    expect(StudentConcession::first()->valid_to_month->format('Y-m'))->toBe('2026-06');
 });

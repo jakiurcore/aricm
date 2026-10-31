@@ -21,7 +21,7 @@ class GenerateMonthlyInvoicesCommand extends Command
             return self::SUCCESS;
         }
 
-        $month = $this->option('month') ? Carbon::createFromFormat('Y-m', $this->option('month'))->startOfMonth() : now()->startOfMonth();
+        $month = $this->option('month') ? Carbon::createFromFormat('!Y-m', $this->option('month'))->startOfMonth() : now()->startOfMonth();
         $summary = $generator->generateMonthly($month);
 
         $this->components->info("{$month->format('Y-m')}: {$summary->created} created, {$summary->skippedExisting} already billed, {$summary->skippedPreAdmission} before admission, {$summary->skippedNoFee} without a fee.");

@@ -16,8 +16,8 @@ use Modules\Fees\Enums\FeeHeadType;
 use Modules\Fees\Enums\InvoiceStatus;
 use Modules\Fees\Support\Money;
 use Modules\Students\Models\Student;
-use Spatie\Activitylog\Models\Concerns\LogsActivity;
-use Spatie\Activitylog\Support\LogOptions;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 #[UseFactory(FeeInvoiceFactory::class)]
 #[Fillable(['invoice_no', 'student_id', 'session_id', 'class_id', 'billing_month', 'exam_id', 'type', 'subtotal', 'discount', 'late_fine', 'total', 'paid', 'due', 'status', 'due_date', 'issued_at', 'waived_by', 'waive_reason'])]
@@ -94,6 +94,6 @@ class FeeInvoice extends Model
 
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults()->useLogName('fees')->logOnly(['status', 'late_fine', 'waive_reason'])->logOnlyDirty()->dontLogEmptyChanges();
+        return LogOptions::defaults()->useLogName('fees')->logOnly(['status', 'late_fine', 'waive_reason'])->logOnlyDirty()->dontSubmitEmptyLogs();
     }
 }

@@ -14,8 +14,8 @@ use Modules\Academic\Models\Subject;
 use Modules\Diary\Database\Factories\DiaryEntryFactory;
 use Modules\Diary\Enums\DiaryStatus;
 use Modules\Teachers\Models\Teacher;
-use Spatie\Activitylog\Models\Concerns\LogsActivity;
-use Spatie\Activitylog\Support\LogOptions;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
  * One teacher's diary for one subject (or the class teacher's general note) in one section on one day.
@@ -98,6 +98,6 @@ class DiaryEntry extends Model
             ->useLogName('diary')
             ->logOnly(['lesson', 'next_lesson', 'homework', 'note', 'homework_due_date', 'status'])
             ->logOnlyDirty()
-            ->dontLogEmptyChanges();
+            ->dontSubmitEmptyLogs();
     }
 }

@@ -2,6 +2,7 @@
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Laramod\Facades\Modules;
 use Modules\Accounts\Models\User;
 use Modules\Gallery\Models\Album;
 use Modules\Gallery\Models\Photo;
@@ -109,5 +110,5 @@ it('previews the latest photos on the homepage', function () {
     $album = Album::factory()->create();
     app(GalleryService::class)->addPhotos($album, [tinyPng('a.png'), tinyPng('b.png')]);
 
-    expect(Laramod\Facades\Modules::find('gallery')->homepageSections()[0]->data['photos'])->toHaveCount(2);
+    expect(Modules::find('gallery')->homepageSections()[0]->data['photos'])->toHaveCount(2);
 });

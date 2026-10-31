@@ -15,8 +15,8 @@ use Modules\Fees\Enums\PaymentChannel;
 use Modules\Fees\Enums\PaymentMethod;
 use Modules\Fees\Enums\PaymentStatus;
 use Modules\Students\Models\Student;
-use Spatie\Activitylog\Models\Concerns\LogsActivity;
-use Spatie\Activitylog\Support\LogOptions;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 #[UseFactory(PaymentFactory::class)]
 #[Fillable(['receipt_no', 'student_id', 'amount', 'method', 'channel', 'transaction_id', 'sender_number', 'screenshot_path', 'status', 'rejection_reason', 'gateway', 'gateway_payload', 'invoice_ids', 'note', 'paid_at', 'received_by', 'verified_by', 'verified_at', 'idempotency_key'])]
@@ -69,6 +69,6 @@ class Payment extends Model
 
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults()->useLogName('fees')->logOnly(['status', 'amount', 'method', 'receipt_no', 'rejection_reason'])->logOnlyDirty()->dontLogEmptyChanges();
+        return LogOptions::defaults()->useLogName('fees')->logOnly(['status', 'amount', 'method', 'receipt_no', 'rejection_reason'])->logOnlyDirty()->dontSubmitEmptyLogs();
     }
 }

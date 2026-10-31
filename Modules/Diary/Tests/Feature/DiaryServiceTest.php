@@ -99,7 +99,7 @@ it('lets the owner edit a published entry inside the edit window only, and logs 
 
     $edited = diary()->save($s['teacher']->user, diaryPayload($s, ['lesson' => 'সংশোধিত পড়া']));
     expect($edited->last_edited_at)->not->toBeNull()
-        ->and($entry->activitiesAsSubject()->count())->toBeGreaterThanOrEqual(2);
+        ->and($entry->activities()->count())->toBeGreaterThanOrEqual(2);
 
     Carbon::setTestNow('2026-10-24 10:00:00');   // 72 hours later, window is 48
     $s['teacher']->user->unsetRelation('roles');

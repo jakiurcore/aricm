@@ -111,8 +111,8 @@ class MonitorController
     {
         abort_unless($request->user()->can('diary.monitor'), 403);
 
-        $rows = $entry->activitiesAsSubject()->with('causer')->latest()->get()->map(fn ($activity): array => [
-            'id' => $activity->id, 'event' => $activity->event, 'at' => $activity->created_at->toIso8601String(), 'by' => $activity->causer?->name, 'changes' => $activity->attribute_changes?->toArray() ?? [],
+        $rows = $entry->activities()->with('causer')->latest()->get()->map(fn ($activity): array => [
+            'id' => $activity->id, 'event' => $activity->event, 'at' => $activity->created_at->toIso8601String(), 'by' => $activity->causer?->name, 'changes' => $activity->changes->toArray(),
         ]);
 
         return response()->json(['data' => $rows]);

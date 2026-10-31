@@ -19,8 +19,8 @@ use Modules\Students\Database\Factories\StudentFactory;
 use Modules\Students\Enums\Gender;
 use Modules\Students\Enums\ResidencyType;
 use Modules\Students\Enums\StudentStatus;
-use Spatie\Activitylog\Models\Concerns\LogsActivity;
-use Spatie\Activitylog\Support\LogOptions;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
  * A student. Also the authenticatable of the "student" guard (sign in with student_id + password).
@@ -95,6 +95,6 @@ class Student extends Authenticatable
             ->useLogName('students')
             ->logOnly(['student_id', 'name_bn', 'class_id', 'section_id', 'roll', 'status', 'residency_type'])
             ->logOnlyDirty()
-            ->dontLogEmptyChanges();
+            ->dontSubmitEmptyLogs();
     }
 }

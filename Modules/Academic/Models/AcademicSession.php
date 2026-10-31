@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Academic\Database\Factories\AcademicSessionFactory;
-use Spatie\Activitylog\Models\Concerns\LogsActivity;
-use Spatie\Activitylog\Support\LogOptions;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 #[UseFactory(AcademicSessionFactory::class)]
 #[Fillable(['name', 'start_date', 'end_date', 'is_current'])]
@@ -24,6 +24,6 @@ class AcademicSession extends Model
 
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults()->useLogName('academic')->logOnly(['name', 'is_current'])->logOnlyDirty()->dontLogEmptyChanges();
+        return LogOptions::defaults()->useLogName('academic')->logOnly(['name', 'is_current'])->logOnlyDirty()->dontSubmitEmptyLogs();
     }
 }

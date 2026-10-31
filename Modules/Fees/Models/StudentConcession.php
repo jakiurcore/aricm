@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\Fees\Enums\ConcessionKind;
 use Modules\Fees\Enums\ConcessionReason;
 use Modules\Students\Models\Student;
-use Spatie\Activitylog\Models\Concerns\LogsActivity;
-use Spatie\Activitylog\Support\LogOptions;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 #[Fillable(['student_id', 'fee_head_id', 'kind', 'value', 'reason_type', 'note', 'valid_from_month', 'valid_to_month', 'approved_by'])]
 class StudentConcession extends Model
@@ -42,6 +42,6 @@ class StudentConcession extends Model
 
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults()->useLogName('fees')->logOnly(['student_id', 'fee_head_id', 'kind', 'value', 'reason_type', 'valid_from_month', 'valid_to_month'])->logOnlyDirty()->dontLogEmptyChanges();
+        return LogOptions::defaults()->useLogName('fees')->logOnly(['student_id', 'fee_head_id', 'kind', 'value', 'reason_type', 'valid_from_month', 'valid_to_month'])->logOnlyDirty()->dontSubmitEmptyLogs();
     }
 }

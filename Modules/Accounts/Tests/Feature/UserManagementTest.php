@@ -67,6 +67,6 @@ it('logs user changes to the activity log', function () {
 
     $target->update(['name' => 'পরের']);
 
-    expect(Activity::where('log_name', 'accounts')->latest('id')->first()->attribute_changes->toArray())
+    expect(Activity::where('log_name', 'accounts')->latest('id')->first()->changes->toArray())
         ->toHaveKey('attributes.name', 'পরের');
 });
