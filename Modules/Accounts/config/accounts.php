@@ -12,4 +12,11 @@ return [
         'teacher' => '/teacher',
         'student' => '/portal',
     ],
+
+    // Read by `accounts:create-admin --if-none` on the first deploy, which only acts while there are no users.
+    // Set both in the sealed environment, deploy once, then remove them.
+    'initial_admin' => [
+        'email' => env('INITIAL_ADMIN_EMAIL'),
+        'password' => env('INITIAL_ADMIN_PASSWORD'),
+    ],
 ];

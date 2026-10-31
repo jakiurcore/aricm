@@ -24,16 +24,16 @@ class CreateAdminCommand extends Command
                 return self::SUCCESS;
             }
 
-            if (blank(env('INITIAL_ADMIN_EMAIL')) || blank(env('INITIAL_ADMIN_PASSWORD'))) {
+            if (blank(config('modules.accounts.initial_admin.email')) || blank(config('modules.accounts.initial_admin.password'))) {
                 $this->warn('No users yet and INITIAL_ADMIN_EMAIL / INITIAL_ADMIN_PASSWORD are not set: no admin created.');
 
                 return self::SUCCESS;
             }
         }
 
-        $email = (string) ($this->argument('email') ?: ($this->option('if-none') ? env('INITIAL_ADMIN_EMAIL') : ''));
+        $email = (string) ($this->argument('email') ?: ($this->option('if-none') ? config('modules.accounts.initial_admin.email') : ''));
         $role = (string) $this->option('role');
-        $password = $this->option('password') ?: ($this->option('if-none') ? env('INITIAL_ADMIN_PASSWORD') : $this->secret('Password (at least 8 characters)'));
+        $password = $this->option('password') ?: ($this->option('if-none') ? config('modules.accounts.initial_admin.password') : $this->secret('Password (at least 8 characters)'));
 
         $validator = Validator::make(
             ['email' => $email, 'password' => $password, 'role' => $role],

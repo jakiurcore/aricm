@@ -33,25 +33,17 @@ it('refuses a weak password, a bad email and an unknown role', function () {
     expect(User::count())->toBe(0);
 });
 
-it('creates the first admin from the environment only while there are no users', function () {
-    putenv('INITIAL_ADMIN_EMAIL=first@example.com');
-    putenv('INITIAL_ADMIN_PASSWORD=long-secret-1');
-    $_ENV['INITIAL_ADMIN_EMAIL'] = 'first@example.com';
-    $_ENV['INITIAL_ADMIN_PASSWORD'] = 'long-secret-1';
+it('creates the first admin from the configured initial values only while there are no users', function () {
+    config(['modules.accounts.initial_admin' => ['email' => 'first@example.com', 'password' => 'long-secret-1']]);
 
     $this->artisan('accounts:create-admin', ['--if-none' => true])->assertSuccessful();
     expect(User::where('email', 'first@example.com')->first()?->isSuperAdmin())->toBeTrue();
 
     // A second deploy must not reset the password or add anyone.
-    $_ENV['INITIAL_ADMIN_PASSWORD'] = 'changed-secret-2';
-    putenv('INITIAL_ADMIN_PASSWORD=changed-secret-2');
+    config(['modules.accounts.initial_admin.password' => 'changed-secret-2']);
     $this->artisan('accounts:create-admin', ['--if-none' => true])->assertSuccessful();
 
     expect(User::count())->toBe(1)->and(Hash::check('long-secret-1', User::first()->password))->toBeTrue();
-
-    putenv('INITIAL_ADMIN_EMAIL');
-    putenv('INITIAL_ADMIN_PASSWORD');
-    unset($_ENV['INITIAL_ADMIN_EMAIL'], $_ENV['INITIAL_ADMIN_PASSWORD']);
 });
 
 it('does nothing when there are no users and no initial admin values', function () {
