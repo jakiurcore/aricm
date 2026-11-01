@@ -1,40 +1,143 @@
 @php
     $identity = app(\Modules\Core\Services\PublicSite::class)->identity();
     $phone = $identity['phones'][0] ?? null;
+    $benefits = site_content()->items('programs');
+    $hasAdmission = Route::has('admission.public');
+
+    $admission = $hasAdmission ? app(\Modules\Admission\Services\AdmissionSettings::class) : null;
+    $bannerOn = $admission?->bannerEnabled() ?? false;
+    $admissionTitle = $bannerOn ? site_content()->text('hero.admission_title') : '';
+    $freeNote = $bannerOn ? $admission->text('free_class_note') : '';
+    $classStart = $bannerOn ? $admission->get('class_start') : null;
+    $showFree = filled($freeNote) || filled($classStart);
+
+    $founderName = site_content()->text('hero.founder_name');
+    $founderTitle = site_content()->text('hero.founder_title');
+    $showFounder = filled($founderName) || filled($founderTitle);
+
+    $arabic = site_content()->text('hero.arabic');
+    $pillTints = ['green', 'purple', 'yellow', 'navy'];
 @endphp
-<section class="pub-hero-pattern">
-    <div style="max-width: 1240px; margin: 0 auto; padding: 36px 16px 56px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: 40px; align-items: center;">
-        <div style="display: grid; gap: 18px; justify-items: start;">
-            <span style="font-family: var(--f-ar); font-size: 26px; line-height: 1.4; color: var(--green-700);" dir="rtl" lang="ar">{{ site_content()->text('hero.arabic') }}</span>
-            <h1 style="margin: 0; font-family: var(--f-head); font-weight: 600; color: var(--heading); font-size: clamp(34px, 6vw, 56px); line-height: 1.25; text-wrap: balance;">{{ $identity['tagline'] }}</h1>
-            <p style="margin: 0; font-size: 20px; font-weight: 600; color: var(--green-700);">{{ site_content()->text('hero.tag1') }}</p>
-            <p style="margin: 0; font-size: 17px; color: var(--muted); max-width: 40ch; text-wrap: pretty;">{{ site_content()->text('hero.body') }}</p>
-            <a href="#abacus" style="display: flex; align-items: center; gap: 12px; padding: 10px 16px 10px 10px; border-radius: 18px; border: 2px solid var(--yellow-400); background: var(--surface); box-shadow: var(--shadow-md); text-align: left; max-width: 460px; color: var(--ink); text-decoration: none;">
-                <span style="flex: none; width: 48px; height: 48px; border-radius: 14px; background: var(--yellow-400); display: grid; place-items: center; font-size: 24px;">🧮</span>
-                <span style="display: grid; line-height: 1.45; min-width: 0;">
-                    <span style="font-size: 12px; font-weight: 700; color: var(--red-600);">{{ site_content()->text('hero.abacus_tag') }}</span>
-                    <strong style="font-family: var(--f-head); font-size: 18px; color: var(--heading);">{{ site_content()->text('program.title') }}</strong>
-                    <span style="font-size: 14px; color: var(--muted);">{{ site_content()->text('hero.abacus_sub') }}</span>
-                </span>
-                <span style="flex: none; margin-left: auto; font-size: 20px; color: var(--green-700);">→</span>
-            </a>
-            <div style="display: flex; flex-wrap: wrap; gap: 12px;">
-                @if (Route::has('admission.public'))
-                    <a href="{{ route('admission.public') }}" style="height: 52px; padding: 0 26px; border: 0; border-radius: 999px; background: var(--red-600); color: #fff; font-weight: 700; font-size: 17px; display: flex; align-items: center; text-decoration: none; box-shadow: 0 8px 20px rgba(214,32,42,.25);">{{ site_content()->text('hero.apply') }}</a>
+<section class="pub-hero-pattern pub-hero" aria-labelledby="hero-title">
+    <div class="pub-hero-grid">
+        <div class="pub-hero-text">
+            @if (filled($arabic))
+                <span class="pub-hero-arabic" dir="rtl" lang="ar">{{ $arabic }}</span>
+            @endif
+            <h1 id="hero-title" class="pub-hero-title">{{ $identity['name'] }}</h1>
+
+            @if (filled($identity['program']))
+                <a @if ($benefits->isNotEmpty()) href="#abacus" @endif class="pub-hero-ribbon">
+                    <x-core::icon name="brain" size="20" badge ring />
+                    <span>{{ $identity['program'] }}</span>
+                </a>
+            @endif
+
+            @if (filled($identity['address']))
+                <p class="pub-hero-location"><x-core::icon name="pin" size="20" /><span>{{ $identity['address'] }}</span></p>
+            @endif
+
+            <p class="pub-hero-kicker">{{ site_content()->text('hero.tag1') }}</p>
+
+            @if (filled($admissionTitle) || $showFree)
+                <div class="pub-hero-promo">
+                    @if (filled($admissionTitle))
+                        <a href="{{ route('admission.public') }}" class="pub-hero-banner pub-shine">
+                            <x-core::icon name="bell" size="26" badge />
+                            <span class="pub-hero-banner-text">{{ $admissionTitle }}</span>
+                            <x-core::icon name="star" size="22" class="pub-hero-banner-star" />
+                        </a>
+                    @endif
+                    @if ($showFree)
+                        <div class="pub-hero-free">
+                            @if (filled($freeNote))
+                                <strong>{{ $freeNote }}</strong>
+                            @endif
+                            @if (filled($classStart))
+                                <span><x-core::icon name="calendar" size="18" /> {{ __('admission::messages.class_start') }}: {{ bn_date($classStart) }}</span>
+                            @endif
+                        </div>
+                    @endif
+                </div>
+            @endif
+
+            @if (filled(site_content()->text('hero.body')))
+                <p class="pub-hero-body">{{ site_content()->text('hero.body') }}</p>
+            @endif
+
+            <div class="pub-hero-cta">
+                @if ($hasAdmission)
+                    <a href="{{ route('admission.public') }}" class="pub-hero-apply">{{ site_content()->text('hero.apply') }} <x-core::icon name="arrow" size="20" /></a>
                 @endif
                 @if ($phone)
-                    <a href="tel:{{ $phone }}" style="height: 52px; padding: 0 22px; border-radius: 999px; border: 2px solid var(--navy-800); color: var(--navy-800); font-weight: 700; font-size: 17px; display: flex; align-items: center; text-decoration: none; background: var(--surface);">☎{{ site_content()->text('hero.call') }}</a>
+                    <a href="tel:{{ $phone }}" class="pub-hero-callbtn"><x-core::icon name="phone" size="20" /> {{ site_content()->text('hero.call') }}</a>
                 @endif
             </div>
-            <span style="font-size: 16px; font-weight: 600; color: var(--ink);">{{ site_content()->text('hero.tag2') }}</span>
+            <span class="pub-hero-invite">{{ site_content()->text('hero.tag2') }}</span>
         </div>
-        <div style="position: relative; padding: 18px 0 22px;">
-            <div style="aspect-ratio: 5 / 4; border-radius: 28px; overflow: hidden; box-shadow: var(--shadow-lg); background: var(--surface); border: 6px solid var(--surface);">
-                <img src="{{ site_content()->image('hero_image') }}" alt="{{ site_content()->text('hero.photo_alt') }}" style="width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 22px;">
+
+        @if (filled($identity['tagline']))
+            <p class="pub-hero-slogan">{{ $identity['tagline'] }}</p>
+        @endif
+
+        <div class="pub-hero-media">
+            <div class="pub-hero-photo">
+                <img src="{{ site_content()->image('hero_image') }}" alt="{{ site_content()->text('hero.photo_alt') }}" width="1000" height="700" fetchpriority="high">
+                <span class="pub-hero-chip pub-hero-chip-est"><x-core::icon name="star" size="16" /> {{ site_content()->text('hero.badge_est', ['year' => $identity['established']]) }}</span>
+                <span class="pub-hero-chip pub-hero-chip-hifz"><x-core::icon name="book" size="18" /> {{ site_content()->text('hero.badge_hifz') }}</span>
+                <span class="pub-hero-chip pub-hero-chip-cadet"><x-core::icon name="shield" size="16" /> {{ site_content()->text('hero.badge_cadet') }}</span>
             </div>
-            <span style="position: absolute; top: 0; right: 12px; padding: 6px 14px; border-radius: 999px; background: var(--yellow-400); color: #1a1a1a; font-weight: 700; font-size: 14px; box-shadow: var(--shadow-md); pointer-events: none;">★ {{ site_content()->text('hero.badge_est', ['year' => $identity['established']]) }}</span>
-            <span style="position: absolute; bottom: 0; left: 8px; padding: 8px 14px; border-radius: 16px; background: var(--surface); color: var(--green-700); font-weight: 700; font-size: 14px; box-shadow: var(--shadow-md); border: 1px solid var(--line); pointer-events: none;">📖 {{ site_content()->text('hero.badge_hifz') }}</span>
-            <span style="position: absolute; bottom: 44px; right: -4px; padding: 8px 14px; border-radius: 16px; background: var(--navy-800); color: #fff; font-weight: 700; font-size: 14px; box-shadow: var(--shadow-md); pointer-events: none;">{{ site_content()->text('hero.badge_cadet') }}</span>
+
+            @if ($benefits->isNotEmpty())
+                <div class="pub-hero-brain">
+                    <div class="pub-hero-brain-head">
+                        <span class="pub-hero-brain-tag">{{ site_content()->text('hero.abacus_tag') }}</span>
+                        <span class="pub-hero-brain-sub">{{ site_content()->text('hero.abacus_sub') }}</span>
+                    </div>
+                    <div class="pub-hero-brain-body">
+                        <x-core::brain-art class="pub-hero-brain-art" />
+                        <ul class="pub-hero-pills">
+                            @foreach ($benefits->take(4) as $index => $benefit)
+                                <li class="pub-hero-pill pub-hero-pill-{{ $pillTints[$index] ?? 'green' }}"><span class="pub-hero-pill-check"><x-core::icon name="check" size="16" /></span><span>{{ $benefit->title() }}</span></li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            @endif
         </div>
+
+        @if ($showFounder || $phone)
+            <div class="pub-hero-strip">
+                @if ($showFounder)
+                    <div class="pub-hero-founder">
+                        <img src="{{ site_content()->image('founder_photo') }}" alt="{{ $founderName }}" width="76" height="76" loading="lazy">
+                        <div>
+                            @if (filled(site_content()->text('hero.founder_label')))
+                                <span class="pub-hero-founder-label">{{ site_content()->text('hero.founder_label') }}</span>
+                            @endif
+                            @if (filled($founderName))
+                                <strong>{{ $founderName }}</strong>
+                            @endif
+                            @if (filled($founderTitle))
+                                <span class="pub-hero-founder-title">{{ $founderTitle }}</span>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+                @if ($phone)
+                    <a href="tel:{{ $phone }}" class="pub-hero-callpill pub-shine" aria-label="{{ site_content()->text('hero.call') }} {{ bn_digits($phone) }}">
+                        <x-core::icon name="phone" size="30" badge />
+                        <span><small>{{ site_content()->text('hero.call') }}</small><strong>{{ bn_digits($phone) }}</strong></span>
+                    </a>
+                @endif
+            </div>
+        @endif
     </div>
 </section>
+@if ($phone)
+    <a href="tel:{{ $phone }}" class="pub-callbar" aria-label="{{ site_content()->text('hero.call') }} {{ bn_digits($phone) }}">
+        <x-core::icon name="phone" size="22" />
+        <span>{{ site_content()->text('hero.call') }}</span>
+        <strong>{{ bn_digits($phone) }}</strong>
+    </a>
+@endif

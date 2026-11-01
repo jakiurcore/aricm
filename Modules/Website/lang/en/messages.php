@@ -3,22 +3,26 @@
 return [
     'hero' => [
         'arabic' => 'الرحمن انترناشونال كاديت مدرسة',
-        'tag1' => 'Building the foundation of talent from an early age',
+        'tag1' => 'Learn phonetics & abacus, become a genius',
         'tag2' => 'You are all warmly invited!',
         'body' => 'Hifz-ul-Quran, general education and cadet discipline — under one roof.',
         'apply' => 'Apply for admission',
         'call' => 'Call us',
-        'abacus_tag' => 'New · Featured program',
-        'abacus_sub' => 'Builds brain power, focus and fast calculation',
+        'abacus_tag' => 'Featured program',
+        'abacus_sub' => 'Builds memory, focus and fast calculation skills',
         'badge_est' => 'Est. :year',
         'badge_hifz' => 'Hifz + General',
         'badge_cadet' => 'Cadet discipline',
         'photo_alt' => 'Students at the madrasa',
+        'admission_title' => 'Admission is open',
+        'founder_label' => 'Founder & director:',
+        'founder_name' => 'Md. Ataur Rahman',
+        'founder_title' => 'Lecturer, Lengabazar Ideal College',
     ],
     'program' => [
         'kicker' => 'Featured program',
-        'title' => 'Abacus & Brain Gym Program',
-        'benefits' => ['Boosts brain power', 'Improves focus and concentration', 'Fast calculation and problem-solving', 'Builds confidence and success'],
+        'title' => 'Phonetics & Abacus Brain Development Program',
+        'benefits' => ['Better memory', 'Focus and concentration', 'Fast calculation and mental skill', 'Brain growth and confidence'],
     ],
     'phonetics' => [
         'title' => 'English Phonetics Program',
@@ -83,11 +87,11 @@ return [
     'academics' => [
         'title' => 'Academics',
         'programs' => [
-            ['📖', 'Hifz-ul-Quran', 'From Nazera to full Hifz, with tajweed and makhraj.'],
-            ['🏫', 'General education', 'Play to Class 8, following the national curriculum.'],
-            ['🧮', 'Abacus', 'Special training three days a week.'],
-            ['🔤', 'English phonetics', 'Sound-based method for reading and pronunciation.'],
-            ['🎖', 'Cadet training', 'PT, parade, leadership and self-defence.'],
+            ['book', 'Hifz-ul-Quran', 'From Nazera to full Hifz, with tajweed and makhraj.'],
+            ['school', 'General education', 'Play to Class 8, following the national curriculum.'],
+            ['abacus', 'Abacus', 'Special training three days a week.'],
+            ['phonetics', 'English phonetics', 'Sound-based method for reading and pronunciation.'],
+            ['medal', 'Cadet training', 'PT, parade, leadership and self-defence.'],
         ],
         'schedule_title' => 'Daily schedule',
         'schedule' => [

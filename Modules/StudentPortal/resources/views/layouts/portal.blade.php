@@ -54,11 +54,11 @@
             <aside class="pp-aside" style="position: sticky; top: 0; height: 100vh; background: var(--green-900); color: #E6F2EA; flex-direction: column; padding: 16px 12px; gap: 4px; overflow-y: auto;" aria-label="{{ __('student-portal::messages.menu') }}">
                 <a href="{{ route('portal.dashboard') }}" style="display: flex; gap: 10px; align-items: center; padding: 4px 8px 16px; text-decoration: none;">
                     <img src="{{ $identity['logo'] }}" alt="" style="width: 44px; height: 44px; border-radius: 50%; background: #fff; object-fit: cover;">
-                    <span class="pp-head" style="font-size: 15px; line-height: 1.35; color: #fff;">{{ $shortName }}</span>
+                    <span style="display: grid; line-height: 1.35;"><span class="pp-head" style="font-size: 15px; color: #fff;">{{ $shortName }}</span>@if ($identity['program'])<span style="font-size: 12px; color: #E6F2EA; opacity: .75;">{{ $identity['program'] }}</span>@endif</span>
                 </a>
                 @foreach ($navigation as $item)
                     <a href="{{ route($item['route']) }}" @if ($item['active']) aria-current="page" @endif style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 12px; text-decoration: none; font-weight: 600; background: {{ $item['active'] ? 'rgba(255,255,255,.14)' : 'transparent' }}; color: {{ $item['active'] ? '#FFD21F' : '#E6F2EA' }};">
-                        <span style="width: 22px; text-align: center;">{{ $item['icon'] }}</span><span style="flex: 1;">{{ __('student-portal::messages.nav.'.$item['key']) }}</span>
+                        <x-core::icon :name="$item['icon']" :size="22" style="width: 22px;" /><span style="flex: 1;">{{ __('student-portal::messages.nav.'.$item['key']) }}</span>
                         @if ($item['dot'])<span class="bg-red-600" style="width: 10px; height: 10px; border-radius: 50%;"></span>@endif
                     </a>
                 @endforeach
@@ -75,7 +75,7 @@
                         <a href="{{ route('core.locale', 'bn') }}" style="min-width: 40px; height: 34px; border-radius: 999px; font-weight: 700; font-size: 13px; text-decoration: none; display: grid; place-items: center; background: {{ app()->getLocale() === 'bn' ? 'var(--green-700)' : 'transparent' }}; color: {{ app()->getLocale() === 'bn' ? '#fff' : 'var(--ds-muted)' }};">বাং</a>
                         <a href="{{ route('core.locale', 'en') }}" class="pp-en" style="min-width: 40px; height: 34px; border-radius: 999px; font-weight: 700; font-size: 13px; text-decoration: none; display: grid; place-items: center; background: {{ app()->getLocale() === 'en' ? 'var(--green-700)' : 'transparent' }}; color: {{ app()->getLocale() === 'en' ? '#fff' : 'var(--ds-muted)' }};">EN</a>
                     </div>
-                    <button type="button" @click="toggleTheme()" aria-label="{{ __('student-portal::messages.theme') }}" style="width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);" x-text="dark ? '☀' : '☾'">☾</button>
+                    <button type="button" @click="toggleTheme()" aria-label="{{ __('student-portal::messages.theme') }}" class="pub-theme" :data-dark="dark" style="width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 0;"><x-core::icon name="moon" :size="22" class="pub-tg-moon" /><x-core::icon name="sun" :size="22" class="pub-tg-sun" /></button>
                 </header>
 
                 <main style="flex: 1; padding: 20px 16px 110px; max-width: 1100px; width: 100%; margin: 0 auto; display: grid; gap: 16px; align-content: start;">
@@ -87,7 +87,7 @@
         <nav class="pp-bottom" aria-label="{{ __('student-portal::messages.menu') }}" style="position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: var(--surface); border-top: 1px solid var(--line); box-shadow: 0 -6px 20px rgba(0,0,0,.06); grid-template-columns: repeat({{ count($bottomNavigation) }}, minmax(0, 1fr)); padding: 6px 2px calc(6px + env(safe-area-inset-bottom));">
             @foreach ($bottomNavigation as $item)
                 <a href="{{ route($item['route']) }}" @if ($item['active']) aria-current="page" @endif style="position: relative; min-height: 56px; display: grid; place-items: center; gap: 0; font-size: 11px; font-weight: 700; white-space: nowrap; text-decoration: none; line-height: 1.7; color: {{ $item['active'] ? 'var(--green-700)' : 'var(--ds-muted)' }};">
-                    <span style="position: relative; width: 40px; height: 28px; border-radius: 999px; display: grid; place-items: center; font-size: 17px; background: {{ $item['active'] ? 'var(--green-100)' : 'transparent' }};">{{ $item['icon'] }}@if ($item['dot'])<span class="bg-red-600" aria-label="{{ __('student-portal::messages.new') }}" style="position: absolute; top: 0; right: 6px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--surface);"></span>@endif</span>{{ __('student-portal::messages.nav.'.$item['key']) }}
+                    <span style="position: relative; width: 40px; height: 28px; border-radius: 999px; display: grid; place-items: center; font-size: 17px; background: {{ $item['active'] ? 'var(--green-100)' : 'transparent' }};"><x-core::icon :name="$item['icon']" :size="20" />@if ($item['dot'])<span class="bg-red-600" aria-label="{{ __('student-portal::messages.new') }}" style="position: absolute; top: 0; right: 6px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--surface);"></span>@endif</span>{{ __('student-portal::messages.nav.'.$item['key']) }}
                 </a>
             @endforeach
         </nav>

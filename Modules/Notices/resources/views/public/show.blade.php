@@ -5,7 +5,7 @@
 
 @section('content')
     <article style="max-width: 760px; margin: 0 auto; padding: 32px 16px 0; display: grid; gap: 18px;">
-        <a href="{{ route('notices.public.index') }}" class="pub-btn-back">← {{ __('notices::messages.back') }}</a>
+        <a href="{{ route('notices.public.index') }}" class="pub-btn-back"><x-core::icon name="arrow" size="18" style="transform: rotate(180deg);" /> {{ __('notices::messages.back') }}</a>
         <div style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 13px; font-weight: 700;">
             <span style="padding: 2px 10px; border-radius: 999px; background: var(--navy-50); color: var(--navy-800);">{{ $notice->category->label() }}</span>
             <span style="padding: 2px 10px; border-radius: 999px; background: var(--surface-2); color: var(--muted);">{{ __('notices::messages.published') }}: {{ bn_date($notice->shownAt()) }}</span>

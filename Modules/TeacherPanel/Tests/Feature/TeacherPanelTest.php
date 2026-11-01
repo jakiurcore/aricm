@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Hash;
+use Modules\Core\Services\PublicSite;
 use Modules\Core\Services\Settings;
 use Modules\Diary\Models\DiaryAcknowledgement;
 use Modules\Diary\Models\DiaryEntry;
@@ -216,4 +217,11 @@ it('shows the profile and changes the password only with the current one', funct
     $this->actingAs($user)->put(route('teacher.password.update'), ['current_password' => 'password', 'password' => 'newsecret', 'password_confirmation' => 'newsecret'])->assertRedirect(route('teacher.profile'));
 
     expect(Hash::check('newsecret', $user->fresh()->password))->toBeTrue();
+});
+
+it('shows the program line under the school name in the panel layout', function () {
+    $s = diarySetup();
+    $program = app(PublicSite::class)->identity()['program'];
+
+    $this->actingAs($s['teacher']->user)->get(route('teacher.home'))->assertOk()->assertSee($program)->assertSee('data-icon="pencil"', false);
 });

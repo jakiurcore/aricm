@@ -8,7 +8,7 @@
 
         <form method="GET" action="{{ route('notices.public.index') }}" role="search">
             @if ($category)<input type="hidden" name="category" value="{{ $category }}">@endif
-            <input type="search" name="q" value="{{ request('q') }}" placeholder="🔍  {{ __('notices::messages.search') }}" aria-label="{{ __('notices::messages.search') }}" style="width: 100%; height: 52px; padding: 0 16px; border-radius: 16px; border: 1px solid var(--line-strong); background: var(--surface); font-size: 16px;">
+            <input type="search" name="q" value="{{ request('q') }}" placeholder="{{ __('notices::messages.search') }}" aria-label="{{ __('notices::messages.search') }}" style="width: 100%; height: 52px; padding: 0 16px; border-radius: 16px; border: 1px solid var(--line-strong); background: var(--surface); font-size: 16px;">
         </form>
 
         <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;">
@@ -22,7 +22,7 @@
         </div>
 
         @if ($notices->isEmpty())
-            <div style="padding: 40px 20px; border-radius: 20px; border: 2px dashed var(--line-strong); text-align: center; display: grid; gap: 6px;"><span style="font-size: 32px;">📭</span><strong style="font-size: 18px;">{{ __('notices::messages.none') }}</strong><span style="color: var(--muted);">{{ __('notices::messages.none_body') }}</span></div>
+            <div style="padding: 40px 20px; border-radius: 20px; border: 2px dashed var(--line-strong); text-align: center; display: grid; gap: 6px;"><x-core::icon name="bell" size="32" badge /><strong style="font-size: 18px;">{{ __('notices::messages.none') }}</strong><span style="color: var(--muted);">{{ __('notices::messages.none_body') }}</span></div>
         @else
             <div style="display: grid; gap: 10px;">
                 @foreach ($notices as $notice)

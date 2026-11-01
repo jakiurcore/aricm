@@ -9,9 +9,9 @@
     $footerEmail = $identity['email'];
     $socials = array_filter([
         ['url' => $identity['facebook'], 'label' => 'Facebook', 'glyph' => 'f', 'style' => 'font-weight: 700; font-family: Poppins;'],
-        ['url' => $identity['youtube'], 'label' => 'YouTube', 'glyph' => '▶', 'style' => ''],
+        ['url' => $identity['youtube'], 'label' => 'YouTube', 'glyph' => 'play', 'style' => ''],
         ['url' => $identity['instagram'], 'label' => 'Instagram', 'glyph' => 'ig', 'style' => 'font-weight: 700; font-family: Poppins; font-size: 14px;'],
-        ['url' => $identity['whatsapp'], 'label' => 'WhatsApp', 'glyph' => '✆', 'style' => ''],
+        ['url' => $identity['whatsapp'], 'label' => 'WhatsApp', 'glyph' => 'phone', 'style' => ''],
     ], fn (array $social): bool => filled($social['url']));
     $ticker = $site->ticker();
     $locale = app()->getLocale();
@@ -60,10 +60,13 @@
 
         <header style="position: sticky; top: 0; z-index: 40; background: var(--surface); border-bottom: 1px solid var(--line); box-shadow: var(--shadow-sm);">
             <div style="max-width: 1240px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 12px;">
-                <a href="{{ $nav[0]['url'] ?? url('/') }}" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); min-width: 0; flex: 1;">
+                <a href="{{ $nav[0]['url'] ?? url('/') }}" aria-label="{{ $identity['name'] }}" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); min-width: 0; flex: 1;">
                     <img src="{{ $identity['logo'] }}" alt="" style="flex: none; width: 52px; height: 52px; border-radius: 50%; background: #fff; object-fit: contain; border: 1px solid var(--line);">
-                    <span style="min-width: 0; display: grid; line-height: 1.35;">
+                    <span class="pub-brand-text" style="min-width: 0; line-height: 1.35;">
                         <span style="font-family: var(--f-head); font-size: 17px; color: var(--heading); font-weight: 600; text-wrap: balance;">{{ $identity['name'] }}</span>
+                        @if ($identity['program'])
+                            <span class="pub-program">{{ $identity['program'] }}</span>
+                        @endif
                         <span style="font-size: 13px; color: var(--muted);">{{ __('core::nav.established_line', ['year' => $identity['established']]) }}</span>
                     </span>
                 </a>
@@ -72,7 +75,7 @@
                         <a href="{{ route('core.locale', 'bn') }}" @if ($locale === 'bn') aria-current="true" @endif style="min-width: 44px; height: 36px; display: grid; place-items: center; border-radius: 999px; text-decoration: none; font-weight: 700; font-size: 14px; background: {{ $locale === 'bn' ? 'var(--green-700)' : 'transparent' }}; color: {{ $locale === 'bn' ? '#fff' : 'var(--muted)' }};">বাং</a>
                         <a href="{{ route('core.locale', 'en') }}" @if ($locale === 'en') aria-current="true" @endif style="min-width: 44px; height: 36px; display: grid; place-items: center; border-radius: 999px; text-decoration: none; font-weight: 700; font-size: 14px; font-family: Poppins, sans-serif; background: {{ $locale === 'en' ? 'var(--green-700)' : 'transparent' }}; color: {{ $locale === 'en' ? '#fff' : 'var(--muted)' }};">EN</a>
                     </div>
-                    <button type="button" aria-label="{{ __('core::nav.theme') }}" @click="dark = !dark; document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light'); try { localStorage.setItem('arm_theme', dark ? 'dark' : 'light') } catch (e) {}" style="width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; font-size: 18px;" x-text="dark ? '☀' : '☾'">☾</button>
+                    <button type="button" aria-label="{{ __('core::nav.theme') }}" @click="dark = !dark; document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light'); try { localStorage.setItem('arm_theme', dark ? 'dark' : 'light') } catch (e) {}" class="pub-theme" :data-dark="dark" style="width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; padding: 0;"><x-core::icon name="moon" :size="22" class="pub-tg-moon" /><x-core::icon name="sun" :size="22" class="pub-tg-sun" /></button>
                     <div class="hidden lg:flex" style="gap: 8px;">
                         @if (Route::has('admission.public'))
                             <a href="{{ route('admission.public') }}" style="height: 44px; padding: 0 18px; border: 0; border-radius: 999px; background: var(--red-600); color: #fff; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(214,32,42,.25); text-decoration: none;"><span style="width: 8px; height: 8px; border-radius: 50%; background: var(--yellow-400);"></span>{{ __('core::nav.admission_open') }}</a>
@@ -95,7 +98,12 @@
         <div x-show="drawer" x-cloak x-transition.opacity.duration.200ms class="flex flex-col lg:hidden" style="display: none; position: fixed; inset: 0; z-index: 60; background: var(--green-700); color: #fff; overflow-y: auto;" role="dialog" aria-modal="true">
             <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,.2);">
                 <img src="{{ $identity['logo'] }}" alt="" style="width: 44px; height: 44px; border-radius: 50%; background: #fff; object-fit: contain;">
-                <span style="flex: 1; font-family: var(--f-head); font-size: 17px;">{{ $identity['short_name'] }}</span>
+                <span style="flex: 1; min-width: 0; display: grid; line-height: 1.35;">
+                    <span style="font-family: var(--f-head); font-size: 16px;">{{ $identity['name'] }}</span>
+                    @if ($identity['program'])
+                        <span style="font-size: 12.5px; opacity: .8;">{{ $identity['program'] }}</span>
+                    @endif
+                </span>
                 <button type="button" @click="drawer = false" aria-label="{{ __('core::nav.close') }}" style="width: 44px; height: 44px; border-radius: 12px; border: 1px solid rgba(255,255,255,.4); background: transparent; color: #fff; font-size: 20px; cursor: pointer;">✕</button>
             </div>
             <nav style="display: grid; padding: 8px;">
@@ -110,7 +118,7 @@
                 <a href="{{ $loginUrl }}" style="height: 52px; border-radius: 999px; background: #fff; color: var(--green-700); font-weight: 700; font-size: 17px; display: grid; place-items: center; text-decoration: none;">{{ __('core::nav.login') }}</a>
                 <div style="display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; padding-top: 8px;">
                     @foreach ($identity['phones'] as $phone)
-                        <a href="tel:{{ $phone }}" style="color: var(--yellow-400); font-weight: 600;">☎ {{ bn_digits($phone) }}</a>
+                        <a href="tel:{{ $phone }}" style="color: var(--yellow-400); font-weight: 600; display: inline-flex; align-items: center; gap: 6px;"><x-core::icon name="phone" :size="18" />{{ bn_digits($phone) }}</a>
                     @endforeach
                 </div>
             </div>
@@ -123,6 +131,9 @@
                 <div style="display: grid; gap: 10px; align-content: start;">
                     <img src="{{ $identity['logo'] }}" alt="" style="width: 72px; height: 72px; border-radius: 50%; background: #fff; object-fit: contain;">
                     <strong style="font-family: var(--f-head); font-size: 18px; color: #fff;">{{ $identity['name'] }}</strong>
+                    @if ($identity['program'])
+                        <span style="font-size: 13px; color: #E6F2EA; opacity: .8;">{{ $identity['program'] }}</span>
+                    @endif
                     <span style="font-size: 15px;">{{ $identity['address'] }}</span>
                     @if ($officeHours)
                         <span style="font-size: 14px; opacity: .85;">{{ $officeHours }}</span>
@@ -143,15 +154,15 @@
                 <div style="display: grid; gap: 8px; align-content: start;">
                     <strong style="color: var(--yellow-400);">{{ __('core::nav.phone') }}</strong>
                     @foreach ($identity['phones'] as $phone)
-                        <a href="tel:{{ $phone }}" style="color: #fff; font-weight: 600; text-decoration: underline; text-underline-offset: 3px;">☎ {{ bn_digits($phone) }}</a>
+                        <a href="tel:{{ $phone }}" style="color: #fff; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; display: inline-flex; align-items: center; gap: 6px;"><x-core::icon name="phone" :size="18" />{{ bn_digits($phone) }}</a>
                     @endforeach
                     @if ($footerEmail)
-                        <a href="mailto:{{ $footerEmail }}" style="color: #fff; font-size: 15px; text-underline-offset: 3px; overflow-wrap: anywhere;">✉ {{ $footerEmail }}</a>
+                        <a href="mailto:{{ $footerEmail }}" style="color: #fff; font-size: 15px; text-underline-offset: 3px; overflow-wrap: anywhere; display: inline-flex; align-items: center; gap: 6px;"><x-core::icon name="mail" :size="18" />{{ $footerEmail }}</a>
                     @endif
                     @if ($socials)
                         <div style="display: flex; gap: 8px; margin-top: 6px;">
                             @foreach ($socials as $social)
-                                <a href="{{ $social['url'] }}" aria-label="{{ $social['label'] }}" rel="noopener" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,.1); color: #fff; display: grid; place-items: center; text-decoration: none; {{ $social['style'] }}">{{ $social['glyph'] }}</a>
+                                <a href="{{ $social['url'] }}" aria-label="{{ $social['label'] }}" rel="noopener" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,.1); color: #fff; display: grid; place-items: center; text-decoration: none; {{ $social['style'] }}">@if (core_icon_key($social['glyph']))<x-core::icon :name="$social['glyph']" :size="20" />@else{{ $social['glyph'] }}@endif</a>
                             @endforeach
                         </div>
                     @endif

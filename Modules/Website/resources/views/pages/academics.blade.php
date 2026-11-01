@@ -8,7 +8,7 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px;">
             @foreach (site_content()->items('academics_programs') as $program)
                 <div class="pub-card" style="display: grid; gap: 8px; align-content: start;">
-                    <span style="width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; font-size: 22px; background: var(--green-50);">{{ $program->icon }}</span>
+                    <x-core::icon :name="$program->icon ?: ['book', 'school', 'abacus', 'phonetics', 'medal'][$loop->index] ?? 'star'" size="24" badge ring style="margin: 4px;" />
                     <h3 style="margin: 0; font-family: var(--f-head); color: var(--heading); font-size: 22px;">{{ $program->title() }}</h3>
                     <p style="margin: 0; color: var(--muted);">{{ $program->body() }}</p>
                 </div>

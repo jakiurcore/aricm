@@ -6,7 +6,7 @@
             <div style="display: grid; gap: 8px;">
                 <span style="font-size: 14px; font-weight: 700; color: var(--muted);">{{ site_content()->text('contact.phone') }}</span>
                 @foreach ($phones as $phone)
-                    <a href="tel:{{ $phone }}" style="display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 16px; border-radius: 14px; background: var(--green-50); color: var(--green-700); font-weight: 700; font-size: 18px; text-decoration: none;"><span style="width: 32px; height: 32px; border-radius: 50%; background: var(--green-700); color: #fff; display: grid; place-items: center; font-size: 15px;">☎</span>{{ bn_digits($phone) }}</a>
+                    <a href="tel:{{ $phone }}" style="display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 16px; border-radius: 14px; background: var(--green-50); color: var(--green-700); font-weight: 700; font-size: 18px; text-decoration: none;"><x-core::icon name="phone" size="18" badge style="--ico-bg: var(--green-700); color: #fff; margin: 3px;" />{{ bn_digits($phone) }}</a>
                 @endforeach
                 @if ($email)
                     <a href="mailto:{{ $email }}" class="pub-link" style="font-weight: 600;">{{ $email }}</a>

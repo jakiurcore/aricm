@@ -6,7 +6,7 @@
  *
  *   php artisan serve --port=8000 &                       # app with the demo data seeded (php artisan migrate:fresh --seed)
  *   pnpm build                                            # the bundle the pages load
- *   node tests/e2e/design-check.mjs [--base=http://127.0.0.1:8000] [--only=public,admin,admin-website,teacher,portal]
+ *   node tests/e2e/design-check.mjs [--base=http://127.0.0.1:8000] [--only=public,admin,admin-website,teacher,portal,brand,hero]
  *
  * Playwright is not a project dependency: the script resolves it from NODE_PATH, e.g.
  *   NODE_PATH=$(mise where npm:playwright)/node_modules node tests/e2e/design-check.mjs
@@ -266,6 +266,98 @@ if (only.includes('portal')) {
         }
     }
     await visit(browser, { name: 'portal-dashboard', path: '/portal', theme: 'dark', size: 'phone', login });
+}
+
+// 'brand' (only with --only=brand): header brand block per breakpoint, the program line, and reduced motion.
+if (only.includes('brand')) {
+    for (const [size, lang, theme] of [['phone', 'bn', 'light'], ['phone', 'en', 'dark'], ['tablet', 'bn', 'light'], ['desktop', 'en', 'light'], ['desktop', 'bn', 'dark']]) {
+        for (const path of ['/', '/login']) {
+            const label = `brand ${path} [${size}/${theme}/${lang}]`;
+            const context = await browser.newContext({ viewport: SIZES[size], locale: lang === 'bn' ? 'bn-BD' : 'en-US', reducedMotion: 'reduce' });
+            const page = await context.newPage();
+            await page.goto(`${base}/locale/${lang}`, { waitUntil: 'load' });
+            await page.goto(base + path, { waitUntil: 'load' });
+            await page.evaluate((t) => document.documentElement.setAttribute('data-theme', t), theme);
+            await page.waitForTimeout(500);
+            await page.screenshot({ path: join(shots, `brand${path === '/' ? '-home' : path.replace('/', '-')}-${size}-${theme}-${lang}.png`) });
+
+            const info = await page.evaluate(() => {
+                const text = document.querySelector('.pub-brand-text');
+                const program = document.body.innerText;
+                return {
+                    hasBrandText: !!text,
+                    brandVisible: text ? getComputedStyle(text).display !== 'none' : false,
+                    label: document.querySelector('header a[aria-label]')?.getAttribute('aria-label') ?? null,
+                    program: document.querySelector('.pub-program')?.textContent?.trim() ?? '',
+                    overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+                    running: document.getAnimations().filter((a) => a.playState === 'running' && /^(ico-|arm-)/.test(a.animationName ?? '')).length,
+                    text: program.length,
+                };
+            });
+
+            if (path === '/') {
+                record(info.hasBrandText, `${label} header has the brand text block`);
+                record(size === 'phone' ? !info.brandVisible : info.brandVisible, `${label} brand text is ${size === 'phone' ? 'hidden' : 'visible'}`);
+                record(!!info.label, `${label} brand link has an aria-label`, String(info.label));
+            }
+            record(await page.evaluate(() => document.documentElement.lang) === lang, `${label} renders in ${lang}`);
+            record(info.program.length > 0, `${label} shows the program line`);
+            record(info.overflow <= 1, `${label} has no horizontal overflow`, `${info.overflow}px`);
+            record(info.running === 0, `${label} runs no icon/brain animations under prefers-reduced-motion`, `${info.running} running`);
+            await context.close();
+        }
+    }
+}
+
+// 'hero' (only with --only=hero): the poster hero per breakpoint, language and theme.
+if (only.includes('hero')) {
+    for (const lang of ['bn', 'en']) {
+        for (const theme of ['light', 'dark']) {
+            for (const size of ['phone', 'tablet', 'desktop']) {
+                const label = `hero [${size}/${theme}/${lang}]`;
+                const context = await browser.newContext({ viewport: SIZES[size], locale: lang === 'bn' ? 'bn-BD' : 'en-US' });
+                const page = await context.newPage();
+                await page.goto(`${base}/locale/${lang}`, { waitUntil: 'load' });
+                await page.goto(base + '/', { waitUntil: 'networkidle' });
+                await page.evaluate((t) => document.documentElement.setAttribute('data-theme', t), theme);
+                await page.waitForTimeout(500);
+                await page.screenshot({ path: join(shots, `hero-${size}-${theme}-${lang}.png`), fullPage: false });
+                if (size !== 'tablet' && theme === 'light') {
+                    await page.screenshot({ path: join(shots, `hero-full-${size}-${lang}.png`), clip: { x: 0, y: 0, width: SIZES[size].width, height: size === 'phone' ? 2300 : 1250 }, fullPage: true });
+                }
+
+                const info = await page.evaluate(() => {
+                    const visible = (selector) => { const el = document.querySelector(selector); return !!el && getComputedStyle(el).display !== 'none' && el.getBoundingClientRect().height > 0; };
+                    const bar = document.querySelector('.pub-callbar');
+                    return {
+                        h1: document.querySelector('h1')?.textContent?.trim() ?? '',
+                        h1Count: document.querySelectorAll('h1').length,
+                        name: document.querySelector('meta[property="og:title"]')?.getAttribute('content') ?? '',
+                        ribbon: visible('.pub-hero-ribbon'), free: visible('.pub-hero-free'), founder: visible('.pub-hero-founder'), pills: document.querySelectorAll('.pub-hero-pill').length,
+                        banner: visible('.pub-hero-banner'), call: visible('.pub-hero-callpill'),
+                        bar: bar ? getComputedStyle(bar).display !== 'none' && getComputedStyle(bar).position === 'fixed' : false,
+                        overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+                        brainAnimating: document.getAnimations().some((a) => a.playState === 'running' && /^arm-/.test(a.animationName ?? '')),
+                    };
+                });
+
+                record(info.h1Count === 1 && info.h1.length > 0 && info.h1 === info.name, `${label} H1 is the institute name`, `${info.h1} / ${info.name}`);
+                record(info.ribbon && info.free && info.founder && info.banner && info.call, `${label} shows ribbon, banner, free-class badge, founder card and call pill`, JSON.stringify(info));
+                record(info.pills === 4, `${label} shows four benefit pills`, String(info.pills));
+                record(info.overflow <= 1, `${label} has no horizontal overflow`, `${info.overflow}px`);
+                record(size === 'phone' ? info.bar : !info.bar, `${label} fixed call bar is ${size === 'phone' ? 'shown' : 'hidden'}`);
+                record(info.brainAnimating, `${label} brain animates`);
+                await context.close();
+            }
+        }
+    }
+
+    const quiet = await browser.newContext({ viewport: SIZES.phone, reducedMotion: 'reduce' });
+    const quietPage = await quiet.newPage();
+    await quietPage.goto(base + '/', { waitUntil: 'networkidle' });
+    const running = await quietPage.evaluate(() => document.getAnimations().filter((a) => a.playState === 'running' && /^(ico-|arm-)/.test(a.animationName ?? '') && a.animationName !== 'arm-tick').length);
+    record(running === 0, 'hero runs no animations under prefers-reduced-motion', `${running} running`);
+    await quiet.close();
 }
 
 await browser.close();

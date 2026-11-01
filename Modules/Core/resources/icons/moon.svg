@@ -1,0 +1,3 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+<path class="ico-fill ico-moon" fill="currentColor" fill-opacity=".18" d="M20 14.500A8.500 8.500 0 0 1 9.500 4a8.500 8.500 0 1 0 10.500 10.500z"/><circle class="ico-spark ico-solid" cx="17" cy="5" r=".9" fill="currentColor"/><circle class="ico-spark ico-spark-2 ico-solid" cx="20.500" cy="8.500" r=".7" fill="currentColor"/>
+</svg>

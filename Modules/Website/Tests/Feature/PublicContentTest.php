@@ -21,9 +21,9 @@ it('shows an edited text on the home page in both locales', function () {
 
 it('shows edited list items and drops a hidden one', function () {
     $item = WebsiteItem::query()->where('collection', 'why')->orderBy('sort_order')->first();
-    $item->update(['title_bn' => 'সম্পাদিত কারণ', 'title_en' => 'Edited reason', 'icon' => '★']);
+    $item->update(['title_bn' => 'সম্পাদিত কারণ', 'title_en' => 'Edited reason', 'icon' => 'pencil']);
 
-    publicGet('/')->assertSee('সম্পাদিত কারণ')->assertSee('★');
+    publicGet('/')->assertSee('সম্পাদিত কারণ')->assertSee('data-icon="pencil"', false);
     publicGet('/', 'en')->assertSee('Edited reason');
 
     $item->update(['is_active' => false]);

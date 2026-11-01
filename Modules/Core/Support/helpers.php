@@ -1,5 +1,6 @@
 <?php
 
+use Modules\Core\Services\IconSet;
 use Modules\Core\Services\Settings;
 use Modules\Core\Support\Bangla;
 
@@ -40,5 +41,15 @@ if (! function_exists('localized')) {
         $primary = $model->{$field.'_'.app()->getLocale()} ?? null;
 
         return filled($primary) ? $primary : ($model->{$field.'_bn'} ?? null);
+    }
+}
+
+if (! function_exists('core_icon_key')) {
+    /**
+     * Map a stored icon value (an icon key or a legacy emoji) to an icon key; null when unknown.
+     */
+    function core_icon_key(?string $value): ?string
+    {
+        return app(IconSet::class)->keyFor($value);
     }
 }

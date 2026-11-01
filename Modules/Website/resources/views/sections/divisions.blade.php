@@ -14,7 +14,7 @@
                         <span style="display: grid;"><span style="font-family: var(--f-head); font-size: 28px;">{{ $division->metaText('age') }}</span><span style="font-size: 14px; font-weight: 600;">{{ site_content()->text('divisions.years') }}</span></span>
                     </div>
                     <div style="padding: 20px; display: grid; gap: 4px; align-content: center;">
-                        <h3 style="margin: 0; font-family: var(--f-head); color: var(--heading); font-size: 24px;">{{ $division->title() }}</h3>
+                        <h3 style="margin: 0; font-family: var(--f-head); color: var(--heading); font-size: 24px; display: flex; align-items: center; gap: 10px;"><x-core::icon :name="$division->icon ?: ['users', 'school'][$index] ?? 'school'" size="24" />{{ $division->title() }}</h3>
                         <p style="margin: 0; color: var(--muted);">{{ $division->body() }}</p>
                     </div>
                 </div>

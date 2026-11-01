@@ -1,0 +1,3 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+<rect class="ico-fill" fill="currentColor" fill-opacity=".18" x="3.500" y="5" width="17" height="15" rx="2.500"/><path d="M3.500 10h17M8 3v4M16 3v4"/><circle class="ico-spark ico-solid" cx="8.500" cy="14" r="1" fill="currentColor"/><circle class="ico-spark ico-spark-2 ico-solid" cx="12" cy="14" r="1" fill="currentColor"/><circle class="ico-spark ico-spark-3 ico-solid" cx="15.500" cy="14" r="1" fill="currentColor"/>
+</svg>

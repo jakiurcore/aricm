@@ -75,7 +75,7 @@ it('declares a default for every schema key and a label in both languages', func
 it('seeds the default lists and prices from the lang files', function () {
     $items = site_content()->items('why');
 
-    expect($items)->toHaveCount(6)->and($items->first()->title_bn)->toBe('হিফজুল কুরআন')->and($items->first()->title_en)->toBe('Hifz-ul-Quran')->and($items->first()->icon)->toBe('📖')
+    expect($items)->toHaveCount(6)->and($items->first()->title_bn)->toBe('হিফজুল কুরআন')->and($items->first()->title_en)->toBe('Hifz-ul-Quran')->and($items->first()->icon)->toBe('book')
         ->and(site_content()->items('programs'))->toHaveCount(4)
         ->and(site_content()->items('phonetics'))->toHaveCount(4)
         ->and(site_content()->items('about_values'))->toHaveCount(3)

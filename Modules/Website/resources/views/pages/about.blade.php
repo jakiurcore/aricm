@@ -16,6 +16,7 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 16px;">
             @foreach (site_content()->items('about_values') as $value)
                 <div class="pub-card" style="display: grid; gap: 6px;">
+                    <x-core::icon :name="$value->icon ?: ['medal', 'book', 'home'][$loop->index] ?? 'star'" size="22" badge style="margin: 3px 0 6px 3px;" />
                     <h3 style="margin: 0; font-family: var(--f-head); color: var(--heading); font-size: 22px;">{{ $value->title() }}</h3>
                     <p style="margin: 0; color: var(--muted);">{{ $value->body() }}</p>
                 </div>

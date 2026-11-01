@@ -18,6 +18,8 @@ class UpdateSettingsRequest extends FormRequest
             'institute_name_bn' => ['required', 'string', 'max:255'],
             'institute_name_en' => ['nullable', 'string', 'max:255'],
             'institute_name_ar' => ['nullable', 'string', 'max:255'],
+            'institute_program_bn' => ['nullable', 'string', 'max:200'],
+            'institute_program_en' => ['nullable', 'string', 'max:200'],
             'tagline_bn' => ['nullable', 'string', 'max:255'],
             'tagline_en' => ['nullable', 'string', 'max:255'],
             'established_year' => ['nullable', 'integer', 'between:1900,2100'],

@@ -127,6 +127,8 @@ return [
             'institute_name_en' => 'প্রতিষ্ঠানের নাম (ইংরেজি)',
             'institute_name_ar' => 'প্রতিষ্ঠানের নাম (আরবি)',
             'established_year' => 'প্রতিষ্ঠাকাল',
+            'institute_program_bn' => 'প্রোগ্রামের লাইন (বাংলা)',
+            'institute_program_en' => 'প্রোগ্রামের লাইন (ইংরেজি)',
             'tagline_bn' => 'স্লোগান (বাংলা)',
             'tagline_en' => 'স্লোগান (ইংরেজি)',
             'logo' => 'লোগো',

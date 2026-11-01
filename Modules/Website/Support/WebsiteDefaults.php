@@ -11,7 +11,7 @@ use Modules\Website\Models\WebsitePriceRow;
  */
 final class WebsiteDefaults
 {
-    private const array WHY_ICONS = ['📖', '🏫', '🎖', '🔤', '🧮', '🛡'];
+    private const array WHY_ICONS = ['book', 'school', 'medal', 'phonetics', 'abacus', 'shield'];
 
     /**
      * Fills the item and price tables, each only while it is empty. Safe to run on every deploy.

@@ -113,7 +113,7 @@ class PublicSite
      * `whatsapp` is a wa.me link built from the social_whatsapp setting (null when unset), `office_hours` and
      * `principal_title` are localized.
      *
-     * @return array{name: string, short_name: string, tagline: string, address: string, phones: list<string>, email: string|null, logo: string, facebook: string|null, youtube: string|null, instagram: string|null, whatsapp: string|null, office_hours: string, principal_title: string, established: string}
+     * @return array{name: string, short_name: string, program: string, tagline: string, address: string, phones: list<string>, email: string|null, logo: string, facebook: string|null, youtube: string|null, instagram: string|null, whatsapp: string|null, office_hours: string, principal_title: string, established: string}
      */
     public function identity(): array
     {
@@ -123,6 +123,7 @@ class PublicSite
         return [
             'name' => (string) (setting("institute_name_{$locale}") ?: setting('institute_name_bn')),
             'short_name' => (string) (setting("institute_short_name_{$locale}") ?: setting('institute_short_name_bn') ?: setting("institute_name_{$locale}") ?: setting('institute_name_bn')),
+            'program' => (string) (setting("institute_program_{$locale}") ?: setting('institute_program_bn') ?: config('modules.core.settings.institute_program_bn')),
             'tagline' => (string) (setting("tagline_{$locale}") ?: setting('tagline_bn')),
             'address' => (string) (setting("address_{$locale}") ?: setting('address_bn')),
             'phones' => array_values((array) setting('phones', [])),

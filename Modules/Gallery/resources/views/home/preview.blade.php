@@ -12,7 +12,7 @@
                 <span class="pub-kicker">{{ __('gallery::messages.kicker') }}</span>
                 <h2 class="pub-h2">{{ __('gallery::messages.home_title') }}</h2>
             </div>
-            <a href="{{ route('gallery.public.index') }}" class="pub-btn-outline">{{ __('gallery::messages.view_all') }} →</a>
+            <a href="{{ route('gallery.public.index') }}" class="pub-btn-outline">{{ __('gallery::messages.view_all') }} <x-core::icon name="arrow" size="18" /></a>
         </div>
         <div class="pub-masonry">
             @foreach ($items as $index => $item)

@@ -10,12 +10,12 @@
 
     // Fixed navigation, in the order of the design: key => [icon, label, route, active patterns].
     $nav = [
-        'home' => ['⌂', $t('home'), 'teacher.home', ['teacher.home', 'teacher.class-day*']],
-        'write' => ['✎', $t('write'), 'teacher.diary.write', ['teacher.diary.write']],
-        'remarks' => ['💬', $t('remarks'), 'teacher.remarks', ['teacher.remarks']],
-        'history' => ['🗂', $t('history'), 'teacher.diary', ['teacher.diary']],
-        'ct' => ['★', $t('class_day'), 'teacher.class-day', ['teacher.class-day*']],
-        'profile' => ['👤', $t('profile'), 'teacher.profile', ['teacher.profile', 'teacher.password*']],
+        'home' => ['home', $t('home'), 'teacher.home', ['teacher.home', 'teacher.class-day*']],
+        'write' => ['pencil', $t('write'), 'teacher.diary.write', ['teacher.diary.write']],
+        'remarks' => ['bell', $t('remarks'), 'teacher.remarks', ['teacher.remarks']],
+        'history' => ['book', $t('history'), 'teacher.diary', ['teacher.diary']],
+        'ct' => ['star', $t('class_day'), 'teacher.class-day', ['teacher.class-day*']],
+        'profile' => ['users', $t('profile'), 'teacher.profile', ['teacher.profile', 'teacher.password*']],
     ];
     $sidebar = collect($nav)->reject(fn ($item, $key) => $key === 'ct' && ! $isClassTeacher)->all();
     $extras = $menu->extras($menu->items($user));
@@ -44,14 +44,14 @@
         <aside class="sticky top-0 hidden h-screen w-[248px] flex-none flex-col gap-1 overflow-y-auto bg-green-900 px-3 py-4 text-[#E6F2EA] lg:flex" aria-label="{{ __('teacher-panel::messages.menu') }}">
             <a href="{{ route('teacher.home') }}" class="flex items-center gap-2.5 px-2 py-1 no-underline">
                 <img src="{{ $identity['logo'] }}" alt="" class="size-11 rounded-full bg-white object-cover">
-                <span class="font-head text-[15px] leading-[1.35] text-white">{{ $identity["name"] }}</span>
+                <span class="grid leading-[1.35]"><span class="font-head text-[15px] text-white">{{ $identity["name"] }}</span>@if ($identity['program'])<span class="text-[12px] text-[#E6F2EA] opacity-75">{{ $identity['program'] }}</span>@endif</span>
             </a>
             <span class="mx-2 mb-3.5 self-start justify-self-start rounded-full bg-[rgba(255,210,31,.16)] px-2.5 py-0.5 text-[13px] font-bold text-[#FFD21F]">{{ __('teacher-panel::messages.panel') }}</span>
             @foreach ($sidebar as $key => [$icon, $label, $route])
-                <a href="{{ route($route) }}" @if ($isActive($key)) aria-current="page" @endif class="flex min-h-11 items-center gap-3 rounded-xl px-3 font-semibold no-underline {{ $isActive($key) ? 'bg-[rgba(255,255,255,.14)] text-[#FFD21F]' : 'text-[#E6F2EA]' }}"><span class="w-[22px] text-center">{{ $icon }}</span>{{ $label }}</a>
+                <a href="{{ route($route) }}" @if ($isActive($key)) aria-current="page" @endif class="flex min-h-11 items-center gap-3 rounded-xl px-3 font-semibold no-underline {{ $isActive($key) ? 'bg-[rgba(255,255,255,.14)] text-[#FFD21F]' : 'text-[#E6F2EA]' }}"><x-core::icon :name="$icon" :size="22" class="w-[22px]" />{{ $label }}</a>
             @endforeach
             @foreach ($extras as $item)
-                <a href="{{ route($item->route) }}" class="flex min-h-11 items-center gap-3 rounded-xl px-3 font-semibold no-underline {{ request()->routeIs($item->route.'*') ? 'bg-[rgba(255,255,255,.14)] text-[#FFD21F]' : 'text-[#E6F2EA]' }}"><span class="w-[22px] text-center">📝</span>{{ $item->label }}</a>
+                <a href="{{ route($item->route) }}" class="flex min-h-11 items-center gap-3 rounded-xl px-3 font-semibold no-underline {{ request()->routeIs($item->route.'*') ? 'bg-[rgba(255,255,255,.14)] text-[#FFD21F]' : 'text-[#E6F2EA]' }}"><x-core::icon name="pencil" :size="22" class="w-[22px]" />{{ $item->label }}</a>
             @endforeach
             <form method="POST" action="{{ route('logout') }}" class="mt-auto">@csrf
                 <button class="flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-xl border border-[rgba(255,255,255,.2)] bg-transparent px-3 text-left font-semibold text-white"><span class="w-[22px] text-center">⎋</span>{{ __('teacher-panel::messages.logout') }}</button>
@@ -66,7 +66,7 @@
                     <img src="{{ $identity['logo'] }}" alt="" class="size-10 flex-none rounded-full bg-white object-cover lg:hidden">
                 @endif
                 <strong class="min-w-0 flex-1 font-head text-[20px] font-bold leading-[1.35] text-heading">@yield('screen_title')</strong>
-                <button type="button" @click="toggleTheme()" aria-label="{{ __('teacher-panel::messages.theme') }}" class="size-11 flex-none cursor-pointer rounded-full border border-line bg-surface" x-text="theme === 'dark' ? '☀' : '☾'">☾</button>
+                <button type="button" @click="toggleTheme()" aria-label="{{ __('teacher-panel::messages.theme') }}" class="pub-theme size-11 flex-none cursor-pointer rounded-full border border-line bg-surface text-ink" :data-dark="theme === 'dark'"><x-core::icon name="moon" :size="22" class="pub-tg-moon" /><x-core::icon name="sun" :size="22" class="pub-tg-sun" /></button>
             </header>
 
             <main class="flex-1 px-4 pb-[120px] pt-5">
@@ -84,7 +84,7 @@
             @yield('action_bar')
             <nav class="grid grid-cols-5 border-t border-line bg-surface px-1 pt-1.5 pb-[calc(6px+env(safe-area-inset-bottom))] lg:hidden" aria-label="{{ __('teacher-panel::messages.menu') }}">
                 @foreach ($bottom as $key => [$icon, $label, $route])
-                    <a href="{{ route($route) }}" @if ($isActive($key)) aria-current="page" @endif class="grid min-h-14 place-items-center text-[12px] font-bold no-underline {{ $isActive($key) ? 'text-green-700' : 'text-ink-muted' }}"><span class="grid h-7 w-11 place-items-center rounded-full text-[17px] {{ $isActive($key) ? 'bg-green-100' : '' }}">{{ $icon }}</span>{{ $label }}</a>
+                    <a href="{{ route($route) }}" @if ($isActive($key)) aria-current="page" @endif class="grid min-h-14 place-items-center text-[12px] font-bold no-underline {{ $isActive($key) ? 'text-green-700' : 'text-ink-muted' }}"><span class="grid h-7 w-11 place-items-center rounded-full text-[17px] {{ $isActive($key) ? 'bg-green-100' : '' }}"><x-core::icon :name="$icon" :size="20" /></span>{{ $label }}</a>
                 @endforeach
             </nav>
         </div>

@@ -1,7 +1,6 @@
 @php
     $benefits = site_content()->items('programs');
-    $icons = ['🧠', '🎯', '⚡', '🏆'];
-    $backgrounds = ['var(--green-50)', 'var(--navy-50)', 'var(--yellow-50)', 'var(--red-50)'];
+    $icons = ['brain', 'star', 'abacus', 'medal'];
 @endphp
 @if ($benefits->isNotEmpty())
 <div class="pub-wrap" style="margin-top: 64px;">
@@ -13,7 +12,7 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 16px;">
             @foreach ($benefits as $index => $benefit)
                 <div class="pub-card" style="display: grid; gap: 14px; align-content: start;">
-                    <span style="width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; font-size: 24px; background: {{ $backgrounds[$index] ?? $backgrounds[0] }};">{{ $icons[$index] ?? '' }}</span>
+                    <x-core::icon :name="$benefit->icon ?: ($icons[$index] ?? 'brain')" size="26" badge ring style="margin: 4px;" />
                     <span style="font-size: 18px; font-weight: 700; line-height: 1.5; color: var(--ink);">{{ $benefit->title() }}</span>
                 </div>
             @endforeach

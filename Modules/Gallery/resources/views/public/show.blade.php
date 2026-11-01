@@ -8,7 +8,7 @@
         $heights = [220, 300, 180, 260, 200, 320, 240, 190, 280, 210, 260, 230];
     @endphp
     <div style="max-width: 1240px; margin: 0 auto; padding: 32px 16px 0; display: grid; gap: 18px;" x-data="{ photos: @js($photos), current: null, label() { return this.current === null ? '' : (this.current + 1).toLocaleString(document.documentElement.lang === 'bn' ? 'bn-BD' : 'en') + ' / ' + this.photos.length.toLocaleString(document.documentElement.lang === 'bn' ? 'bn-BD' : 'en') } }" @keydown.escape.window="current = null" @keydown.arrow-right.window="current !== null && (current = (current + 1) % photos.length)" @keydown.arrow-left.window="current !== null && (current = (current - 1 + photos.length) % photos.length)">
-        <a href="{{ route('gallery.public.index') }}" class="pub-btn-back">← {{ __('gallery::messages.back') }}</a>
+        <a href="{{ route('gallery.public.index') }}" class="pub-btn-back"><x-core::icon name="arrow" size="18" style="transform: rotate(180deg);" /> {{ __('gallery::messages.back') }}</a>
         <div style="display: grid; gap: 2px;">
             <h1 class="pub-h2">{{ $album->title() }}</h1>
             <span style="color: var(--muted);">{{ bn_digits($photos->count()) }} {{ __('gallery::messages.photos') }}@if ($album->album_date) · {{ bn_date($album->album_date) }}@endif</span>
@@ -32,8 +32,8 @@
                 </div>
             </div>
             <div style="display: flex; justify-content: center; gap: 12px;">
-                <button type="button" @click="current = (current - 1 + photos.length) % photos.length" style="height: 48px; padding: 0 22px; border-radius: 999px; border: 0; background: #fff; color: #0B6B3A; font-weight: 700; cursor: pointer;">← {{ __('gallery::messages.previous') }}</button>
-                <button type="button" @click="current = (current + 1) % photos.length" style="height: 48px; padding: 0 22px; border-radius: 999px; border: 0; background: #fff; color: #0B6B3A; font-weight: 700; cursor: pointer;">{{ __('gallery::messages.next') }} →</button>
+                <button type="button" @click="current = (current - 1 + photos.length) % photos.length" style="height: 48px; padding: 0 22px; border-radius: 999px; border: 0; background: #fff; color: #0B6B3A; font-weight: 700; cursor: pointer;"><x-core::icon name="arrow" size="18" style="transform: rotate(180deg);" /> {{ __('gallery::messages.previous') }}</button>
+                <button type="button" @click="current = (current + 1) % photos.length" style="height: 48px; padding: 0 22px; border-radius: 999px; border: 0; background: #fff; color: #0B6B3A; font-weight: 700; cursor: pointer;">{{ __('gallery::messages.next') }} <x-core::icon name="arrow" size="18" /></button>
             </div>
         </div>
     </div>

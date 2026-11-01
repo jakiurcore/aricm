@@ -14,7 +14,7 @@
         <span style="{{ $list ? 'font-weight: 600; line-height: 1.5;' : 'font-size: 16px; font-weight: 600; line-height: 1.5; text-wrap: pretty;' }}">{{ $notice->title() }}</span>
         <span style="display: flex; flex-wrap: wrap; gap: 6px; font-size: 12px; font-weight: 700;">
             <span class="pub-pill" style="background: var(--navy-50); color: var(--navy-800);">{{ $notice->category->label() }}</span>
-            @if ($notice->is_pinned)<span class="pub-pill" style="background: var(--yellow-50); color: var(--warn);">📌 {{ __('notices::messages.pinned') }}</span>@endif
+            @if ($notice->is_pinned)<span class="pub-pill" style="background: var(--yellow-50); color: var(--warn);"><x-core::icon name="pin" size="14" /> {{ __('notices::messages.pinned') }}</span>@endif
             @if (! $list && $notice->attachment)<span class="pub-pill" style="background: var(--red-50); color: var(--danger);">PDF</span>@endif
         </span>
     </span>

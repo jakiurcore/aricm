@@ -21,7 +21,7 @@
                 <div class="pub-card" style="display: grid; gap: 12px;">
                     <h2 style="margin: 0; font-family: var(--f-head); color: var(--heading); font-size: 22px;">{{ site_content()->text('admission.docs_title') }}</h2>
                     @foreach (site_content()->items('admission_docs') as $doc)
-                        <div style="display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: start;"><span style="width: 28px; height: 28px; border-radius: 50%; background: var(--green-50); color: var(--green-700); display: grid; place-items: center; font-weight: 700;">✓</span><span>{{ $doc->title() }}</span></div>
+                        <div style="display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: start;"><x-core::icon name="check" size="16" badge /><span>{{ $doc->title() }}</span></div>
                     @endforeach
                     @if ($settings->text('content'))
                         <p style="margin: 6px 0 0; padding-top: 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: 15px; white-space: pre-line;">{{ $settings->text('content') }}</p>
@@ -47,7 +47,7 @@
 
                 @if (session('inquiry_sent'))
                     <div role="status" style="padding: 28px 16px; border-radius: 16px; background: var(--success-bg); color: var(--success); text-align: center; display: grid; gap: 6px;">
-                        <span style="font-size: 36px;">✓</span><strong style="font-size: 18px;">{{ site_content()->text('admission.sent_title') }}</strong><span style="color: var(--ink);">{{ site_content()->text('admission.sent_body') }}</span>
+                        <x-core::icon name="check" size="32" badge ring style="margin: 4px;" /><strong style="font-size: 18px;">{{ site_content()->text('admission.sent_title') }}</strong><span style="color: var(--ink);">{{ site_content()->text('admission.sent_body') }}</span>
                         <a href="{{ route('admission.public') }}" style="justify-self: center; margin-top: 6px; height: 44px; padding: 0 18px; border-radius: 999px; border: 2px solid var(--green-700); background: transparent; color: var(--green-700); font-weight: 700; display: inline-flex; align-items: center; text-decoration: none;">{{ __('admission::messages.send_another') }}</a>
                     </div>
                 @else

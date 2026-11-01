@@ -127,6 +127,8 @@ return [
             'institute_name_en' => 'Institute name (English)',
             'institute_name_ar' => 'Institute name (Arabic)',
             'established_year' => 'Established',
+            'institute_program_bn' => 'Program line (Bangla)',
+            'institute_program_en' => 'Program line (English)',
             'tagline_bn' => 'Tagline (Bangla)',
             'tagline_en' => 'Tagline (English)',
             'logo' => 'Logo',

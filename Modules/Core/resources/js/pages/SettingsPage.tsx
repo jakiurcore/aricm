@@ -126,6 +126,8 @@ export function SettingsPage() {
                 {input('institute_name_ar')}
                 {input('institute_short_name_bn')}
                 {input('institute_short_name_en')}
+                {input('institute_program_bn')}
+                {input('institute_program_en')}
                 {input('established_year', { type: 'number' })}
                 {input('tagline_bn')}
                 {input('tagline_en')}

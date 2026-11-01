@@ -17,6 +17,7 @@ import { locale, t } from '@core/js/i18n';
 
 import { firstErrors, moved } from '../types';
 import type { WebsiteItem } from '../types';
+import { IconPicker, IconPreview } from './IconPicker';
 import { ReorderButtons } from './ReorderButtons';
 
 const k = (key: string, replacements?: Record<string, string | number>) => t(`website::admin.ui.${key}`, replacements);
@@ -175,7 +176,7 @@ export function ItemListEditor({ collection, title, hint, fields = {}, onChanged
                         <ListRow key={item.id} data-testid={`item-${collection}`}>
                             {editable && <ReorderButtons index={index} count={items.length} onMove={(step) => void reorder(index, step)} />}
                             {fields.image && item.image_url && <img src={item.image_url} alt="" className="size-11 flex-none rounded-lg object-cover" />}
-                            {fields.icon && item.icon && <span className="grid size-10 flex-none place-items-center rounded-[10px] bg-surface-2 text-xl">{item.icon}</span>}
+                            {fields.icon && item.icon && <span className="grid size-10 flex-none place-items-center rounded-[10px] bg-surface-2 text-xl text-green-700"><IconPreview value={item.icon} /></span>}
                             <span className="grid min-w-0 flex-1 leading-snug">
                                 <strong className="truncate">{localized(item)}</strong>
                                 {secondary(item) && <span className="truncate text-[13px] text-muted-foreground">{secondary(item)}</span>}
@@ -268,8 +269,8 @@ function ItemDialog({ collection, item, fields, onClose, onSaved }: { collection
                     <div className="grid gap-2.5 sm:grid-cols-2">{pair('title', false)}</div>
                     {fields.body && <div className="grid gap-2.5 sm:grid-cols-2">{pair('body', true)}</div>}
                     {fields.icon && (
-                        <Field label={k('icon')} htmlFor="i-icon" hint={k('icon_hint')} error={errors.icon}>
-                            <Input id="i-icon" className="max-w-32" value={draft.icon} onChange={(event) => set('icon', event.target.value)} />
+                        <Field label={k('icon')} htmlFor="i-icon" error={errors.icon}>
+                            <IconPicker id="i-icon" value={draft.icon} onChange={(value) => set('icon', value)} />
                         </Field>
                     )}
                     {fields.meta && (

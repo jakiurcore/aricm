@@ -17,7 +17,7 @@
         </div>
 
         @if ($exams->isEmpty())
-            <div style="padding: 40px 20px; border-radius: 20px; border: 2px dashed var(--line-strong); text-align: center; display: grid; gap: 6px;"><span style="font-size: 32px;">🗓</span><strong style="font-size: 18px;">{{ __('website::messages.routine.none') }}</strong><span style="color: var(--muted);">{{ __('website::messages.routine.none_body') }}</span></div>
+            <div style="padding: 40px 20px; border-radius: 20px; border: 2px dashed var(--line-strong); text-align: center; display: grid; gap: 6px;"><x-core::icon name="calendar" size="32" badge /><strong style="font-size: 18px;">{{ __('website::messages.routine.none') }}</strong><span style="color: var(--muted);">{{ __('website::messages.routine.none_body') }}</span></div>
         @else
             <form method="GET" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 12px; padding: 16px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line);">
                 <label class="pub-field"><span>① {{ __('website::messages.routine.exam') }}</span>
@@ -34,7 +34,7 @@
             </form>
 
             @if ($routine->isEmpty())
-                <div style="padding: 40px 20px; border-radius: 20px; border: 2px dashed var(--line-strong); text-align: center; display: grid; gap: 6px;"><span style="font-size: 32px;">🗓</span><strong style="font-size: 18px;">{{ __('website::messages.routine.empty') }}</strong><span style="color: var(--muted);">{{ __('website::messages.routine.empty_body') }}</span></div>
+                <div style="padding: 40px 20px; border-radius: 20px; border: 2px dashed var(--line-strong); text-align: center; display: grid; gap: 6px;"><x-core::icon name="calendar" size="32" badge /><strong style="font-size: 18px;">{{ __('website::messages.routine.empty') }}</strong><span style="color: var(--muted);">{{ __('website::messages.routine.empty_body') }}</span></div>
             @else
                 <div class="hidden md:block" style="border-radius: 20px; overflow: hidden; border: 1px solid var(--line); background: var(--surface);">
                     <table style="width: 100%; border-collapse: collapse;">

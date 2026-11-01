@@ -80,3 +80,43 @@ it('keeps sanitising through the Notices alias of SafeHtml', function () {
     expect(NoticesSafeHtml::clean($dirty))->toBe(CoreSafeHtml::clean($dirty))->not->toContain('script')->not->toContain('onclick')->not->toContain('javascript:')->toContain('<b>ভালো</b>')
         ->and(NoticesSafeHtml::plain('<p>এক</p><ul><li>দুই</li></ul>'))->toBe("এক\n• দুই");
 });
+
+it('exposes the program line, localised with fallbacks and editable', function () {
+    $site = app(PublicSite::class);
+
+    expect($site->identity()['program'])->toBe('ফোনেটিক্স ও অ্যাবাকাস ব্রেইন ডেভেলপমেন্ট প্রোগ্রাম');
+
+    app()->setLocale('en');
+    expect($site->identity()['program'])->toBe('Phonetics & Abacus Brain Development Program');
+
+    app(Settings::class)->setMany(['institute_program_bn' => 'নতুন লাইন', 'institute_program_en' => '']);
+    expect($site->identity()['program'])->toBe('নতুন লাইন');
+
+    app(Settings::class)->set('institute_program_en', 'New line');
+    expect($site->identity()['program'])->toBe('New line');
+});
+
+it('saves and validates the program line setting', function () {
+    $admin = userWithRole('admin');
+
+    $this->actingAs($admin)->putJson(route('core.api.settings.update'), ['institute_name_bn' => 'মাদরাসা', 'institute_program_en' => 'Program'])
+        ->assertOk()->assertJsonPath('data.institute_program_en', 'Program');
+    $this->actingAs($admin)->putJson(route('core.api.settings.update'), ['institute_name_bn' => 'মাদরাসা', 'institute_program_bn' => str_repeat('অ', 201)])
+        ->assertJsonValidationErrors('institute_program_bn');
+});
+
+it('shows only the logo in the mobile header and the name with the program line from the md breakpoint', function () {
+    $identity = app(PublicSite::class)->identity();
+    $html = $this->get(route('home'))->assertOk()->getContent();
+
+    expect($html)->toContain('class="pub-brand-text"')->toContain('aria-label="'.e($identity['name']).'"')
+        ->and(substr_count($html, $identity['program']))->toBeGreaterThanOrEqual(3)
+        ->and($html)->toContain('pub-theme')->not->toContain("x-text=\"dark ? '☀' : '☾'\"");
+});
+
+it('shows the program line on the sign in pages', function () {
+    $program = app(PublicSite::class)->identity()['program'];
+
+    $this->get(route('login'))->assertOk()->assertSee($program);
+    $this->get(route('student.login'))->assertOk()->assertSee($program);
+});

@@ -83,8 +83,10 @@ class ContentSchema
                 'hero' => [
                     'hero.arabic' => 'text', 'hero.tag1' => 'text', 'hero.tag2' => 'text', 'hero.body' => 'textarea',
                     'hero.apply' => 'text', 'hero.call' => 'text', 'hero.abacus_tag' => 'text', 'hero.abacus_sub' => 'text',
+                    'hero.admission_title' => 'text', 'hero.founder_label' => 'text', 'hero.founder_name' => 'text', 'hero.founder_title' => 'text',
                     'hero.badge_est' => 'text', 'hero.badge_hifz' => 'text', 'hero.badge_cadet' => 'text', 'hero.photo_alt' => 'text',
                     'hero_image' => ['image', 'images/site/hero.jpg'],
+                    'founder_photo' => ['image', 'images/site/founder.svg'],
                 ],
                 'program' => ['program.kicker' => 'text', 'program.title' => 'text'],
                 'phonetics' => ['phonetics.title' => 'text', 'phonetics.sub' => 'textarea'],

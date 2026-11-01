@@ -28,7 +28,7 @@
             <div style="padding: 24px; display: grid; gap: 10px; align-content: center; background: #fff;">
                 <a href="{{ route('admission.public') }}" style="height: 52px; border: 0; border-radius: 999px; background: var(--green-700); color: #fff; font-weight: 700; font-size: 17px; display: grid; place-items: center; text-decoration: none;">{{ __('admission::messages.apply_online') }}</a>
                 @if ($phone)
-                    <a href="tel:{{ $phone }}" style="text-align: center; font-weight: 600; color: #0B6B3A; text-decoration: underline; text-underline-offset: 3px;">☎ {{ bn_digits($phone) }}</a>
+                    <a href="tel:{{ $phone }}" style="text-align: center; font-weight: 600; color: #0B6B3A; text-decoration: underline; text-underline-offset: 3px;"><x-core::icon name="phone" size="16" /> {{ bn_digits($phone) }}</a>
                 @endif
             </div>
         </section>

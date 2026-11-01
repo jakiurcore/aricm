@@ -1,5 +1,6 @@
 <?php
 
+use Modules\Core\Services\PublicSite;
 use Modules\Diary\Enums\RemarkKind;
 use Modules\Diary\Services\DiaryFeed;
 use Modules\Diary\Services\DiaryService;
@@ -398,4 +399,10 @@ it('says the madrasa is closed on a holiday', function () {
     $s = portalDiary();
 
     asStudent($this, $s['student'])->get(route('portal.diary', ['date' => '2026-10-16']))->assertOk()->assertSee(__('diary::messages.portal.holiday'));
+});
+
+it('shows the program line under the school name in the portal layout', function () {
+    $program = app(PublicSite::class)->identity()['program'];
+
+    asStudent($this, portalStudent())->get(route('portal.dashboard'))->assertOk()->assertSee($program)->assertSee('data-icon="', false);
 });
