@@ -11,7 +11,7 @@ use Modules\Accounts\Models\User;
 
 class CreateAdminCommand extends Command
 {
-    protected $signature = 'accounts:create-admin {email? : Login email} {--name= : Display name} {--password= : Password (asked for when left out)} {--role=super_admin : super_admin or admin} {--if-none : Only when there are no users yet, taking the email and password from INITIAL_ADMIN_EMAIL and INITIAL_ADMIN_PASSWORD (used by the first deploy)}';
+    protected $signature = 'accounts:create-admin {email? : Login email} {--name= : Display name} {--password= : Password (asked for when left out)} {--role=super_admin : super_admin or admin} {--from-env : Create or reset the admin from INITIAL_ADMIN_EMAIL and INITIAL_ADMIN_PASSWORD even when users exist (one-off deploy hook)} {--if-none : Only when there are no users yet, taking the email and password from INITIAL_ADMIN_EMAIL and INITIAL_ADMIN_PASSWORD (used by the first deploy)}';
 
     protected $description = 'Create an admin login (the first one after a fresh install), or reset the password of an existing one';
 
@@ -31,9 +31,11 @@ class CreateAdminCommand extends Command
             }
         }
 
-        $email = (string) ($this->argument('email') ?: ($this->option('if-none') ? config('modules.accounts.initial_admin.email') : ''));
+        $fromEnv = $this->option('if-none') || $this->option('from-env');
+
+        $email = (string) ($this->argument('email') ?: ($fromEnv ? config('modules.accounts.initial_admin.email') : ''));
         $role = (string) $this->option('role');
-        $password = $this->option('password') ?: ($this->option('if-none') ? config('modules.accounts.initial_admin.password') : $this->secret('Password (at least 8 characters)'));
+        $password = $this->option('password') ?: ($fromEnv ? config('modules.accounts.initial_admin.password') : $this->secret('Password (at least 8 characters)'));
 
         $validator = Validator::make(
             ['email' => $email, 'password' => $password, 'role' => $role],
