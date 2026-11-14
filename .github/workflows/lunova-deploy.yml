@@ -29,7 +29,7 @@ permissions:
 
 jobs:
   lunova:
-    uses: lunova-digital/lunova-deploy/.github/workflows/deploy.yml@v2
+    uses: lunova-digital/lunova-deploy/.github/workflows/deploy.yml@v6
     with:
       mode: ${{ github.event_name == 'pull_request' && 'check' || inputs.mode || 'deploy' }}
       rollback_to: ${{ inputs.rollback_to || '' }}
